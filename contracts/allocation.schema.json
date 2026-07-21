@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://letterblack.local/contracts/allocation.schema.json",
+  "title": "AllocationEstimate",
+  "type": "object",
+  "required": ["confidence", "risk", "estimatedTotalBytes", "warnings"],
+  "properties": {
+    "confidence": {"enum": ["high", "low"]},
+    "risk": {"enum": ["safe", "caution", "high", "unknown"]},
+    "estimatedTotalBytes": {"type": "integer", "minimum": 0},
+    "modelWeightsBytes": {"type": "integer", "minimum": 0},
+    "kvCacheBytes": {"type": ["integer", "null"], "minimum": 0},
+    "runtimeReserveBytes": {"type": "integer", "minimum": 0},
+    "warnings": {"type": "array"}
+  }
+}

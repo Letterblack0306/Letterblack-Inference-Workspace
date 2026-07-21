@@ -1,0 +1,503 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Letterblack Local Inference Workspace Phase 6 API",
+    "version": "6.0.0"
+  },
+  "paths": {
+    "/api/v1/capabilities": {
+      "get": {
+        "summary": "Capability matrix"
+      }
+    },
+    "/api/v1/requests": {
+      "get": {
+        "summary": "Active and recent gateway requests"
+      }
+    },
+    "/api/v1/gateway/status": {
+      "get": {
+        "summary": "Gateway and drain state"
+      }
+    },
+    "/api/v1/requests/{id}/cancel": {
+      "post": {
+        "summary": "Request cancellation contract"
+      }
+    },
+    "/v1/models": {
+      "get": {
+        "summary": "OpenAI-compatible model list subset"
+      }
+    },
+    "/v1/chat/completions": {
+      "post": {
+        "summary": "OpenAI-compatible chat passthrough"
+      }
+    },
+    "/v1/completions": {
+      "post": {
+        "summary": "OpenAI-compatible completions passthrough"
+      }
+    },
+    "/v1/embeddings": {
+      "post": {
+        "summary": "OpenAI-compatible embeddings passthrough"
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "summary": "Ollama-compatible tag list subset"
+      }
+    },
+    "/api/chat": {
+      "post": {
+        "summary": "Ollama-compatible chat passthrough"
+      }
+    },
+    "/api/generate": {
+      "post": {
+        "summary": "Ollama-compatible generate passthrough"
+      }
+    },
+    "/api/embeddings": {
+      "post": {
+        "summary": "Ollama-compatible embeddings passthrough"
+      }
+    },
+    "/api/v1/hardware": {
+      "get": {
+        "summary": "Read local hardware telemetry",
+        "responses": {
+          "200": {
+            "description": "Live hardware snapshot"
+          }
+        }
+      }
+    },
+    "/api/v1/telemetry": {
+      "get": {
+        "summary": "Read host and worker telemetry",
+        "responses": {
+          "200": {
+            "description": "Live telemetry"
+          }
+        }
+      }
+    },
+    "/api/v1/runtime/preflight": {
+      "post": {
+        "summary": "Validate model allocation before launch",
+        "responses": {
+          "200": {
+            "description": "Allocation estimate and launch decision"
+          }
+        }
+      }
+    },
+    "/api/v1/models/{modelId}/allocation": {
+      "get": {
+        "summary": "Estimate model allocation",
+        "parameters": [
+          {
+            "name": "modelId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Allocation estimate"
+          }
+        }
+      }
+    },
+    "/api/v1/actions": {
+      "get": {
+        "summary": "GET /api/v1/actions",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST /api/v1/actions",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/actions/{actionId}": {
+      "get": {
+        "summary": "GET /api/v1/actions/{actionId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "put": {
+        "summary": "PUT /api/v1/actions/{actionId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "delete": {
+        "summary": "DELETE /api/v1/actions/{actionId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/actions/{actionId}/execute": {
+      "post": {
+        "summary": "POST /api/v1/actions/{actionId}/execute",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/extensions": {
+      "get": {
+        "summary": "GET /api/v1/extensions",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST /api/v1/extensions",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/extensions/{extensionId}": {
+      "get": {
+        "summary": "GET /api/v1/extensions/{extensionId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "put": {
+        "summary": "PUT /api/v1/extensions/{extensionId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "delete": {
+        "summary": "DELETE /api/v1/extensions/{extensionId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/endpoints": {
+      "get": {
+        "summary": "GET /api/v1/endpoints",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "post": {
+        "summary": "POST /api/v1/endpoints",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/endpoints/{endpointId}": {
+      "put": {
+        "summary": "PUT /api/v1/endpoints/{endpointId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      },
+      "delete": {
+        "summary": "DELETE /api/v1/endpoints/{endpointId}",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    },
+    "/api/v1/endpoints/{endpointId}/test": {
+      "post": {
+        "summary": "POST /api/v1/endpoints/{endpointId}/test",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "202": {
+            "description": "Accepted"
+          },
+          "400": {
+            "description": "Invalid request"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "422": {
+            "description": "Validation failed"
+          }
+        }
+      }
+    }
+  }
+}

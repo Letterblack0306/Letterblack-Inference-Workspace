@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Letterblack Inference Workspace</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/ux.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <header class="app-bar">
+      <div class="brand-block">
+        <button class="icon-button mobile-nav-toggle" id="mobileNavToggle" type="button" aria-label="Toggle navigation">☰</button>
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <div class="eyebrow">LETTERBLACK</div>
+          <div class="product-name">Inference Workspace</div>
+        </div>
+      </div>
+
+      <div class="workspace-switcher">
+        <label for="workspaceSelect">Workspace</label>
+        <select id="workspaceSelect"><option>Loading…</option></select>
+      </div>
+
+      <div class="global-health" aria-label="System health">
+        <div class="health-pill neutral" id="healthHost"><span></span> Host unknown</div>
+        <div class="health-pill neutral" id="healthMachines"><span></span> Machines unknown</div>
+        <div class="health-pill neutral" id="healthOpenAI">OpenAI unknown</div>
+        <div class="health-pill neutral" id="healthOllama">Ollama unknown</div>
+      </div>
+
+      <div class="app-actions">
+        <span class="save-state" id="saveState"><span class="status-dot neutral"></span> Unknown</span>
+        <button class="button secondary" id="jobsBtn" type="button">Jobs <span id="jobCount">0</span></button>
+        <button class="button secondary" id="customizeBtn" type="button">Customize workspace</button>
+        <button class="button danger" id="stopAllBtn" type="button">Stop all</button>
+      </div>
+    </header>
+
+    <aside class="navigation" id="navigation" aria-label="Primary navigation">
+      <nav>
+        <button class="nav-item active" type="button" data-page="overview"><span class="nav-glyph">◫</span><span>Overview</span></button>
+        <button class="nav-item" type="button" data-page="models"><span class="nav-glyph">◇</span><span>Models</span><span class="nav-count" id="modelCount">0</span></button>
+        <button class="nav-item" type="button" data-page="machines"><span class="nav-glyph">⌘</span><span>Machines</span><span class="nav-count" id="machineCount">0</span></button>
+        <button class="nav-item" type="button" data-page="api"><span class="nav-glyph">↔</span><span>API Gateway</span></button>
+        <button class="nav-item" type="button" data-page="telemetry"><span class="nav-glyph">∿</span><span>Telemetry</span></button>
+        <button class="nav-item" type="button" data-page="logs"><span class="nav-glyph">≡</span><span>Logs &amp; evidence</span></button>
+        <button class="nav-item" type="button" data-page="profiles"><span class="nav-glyph">▤</span><span>Profiles</span></button>
+        <button class="nav-item" type="button" data-page="extensions"><span class="nav-glyph">＋</span><span>Extensions</span></button>
+        <button class="nav-item" type="button" data-page="settings"><span class="nav-glyph">⚙</span><span>Settings</span></button>
+      </nav>
+      <div class="nav-footer">
+        <button class="nav-item" type="button" id="addActionBtn"><span class="nav-glyph">＋</span><span>Add custom action</span></button>
+        <div class="version-card">
+          <span class="status-dot neutral" id="controlPlaneDot"></span>
+          <div><strong id="controlPlaneLabel">Control plane unknown</strong><small>API-evidenced state only</small></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page active" data-page-view="overview">
+        <div class="page-header">
+          <div><p class="eyebrow">OPERATIONS</p><h1>Inference workspace</h1><p class="page-description">Operational state is shown only when returned by the control-plane API.</p></div>
+          <div class="page-header-actions"><button class="button primary" type="button" id="addWidgetBtn">＋ Add widget</button></div>
+        </div>
+
+        <div class="customize-banner" id="customizeBanner" hidden>
+          <div><strong>Customize mode</strong><span>Show, hide, and reorder registered widgets.</span></div>
+          <div class="banner-actions"><button class="button primary" type="button" id="doneCustomizeBtn">Save layout</button></div>
+        </div>
+
+        <div class="workspace-grid" id="workspaceGrid">
+          <article class="widget span-8" data-widget-id="runtime" data-widget-type="runtime">
+            <header class="widget-header"><div><span class="widget-kicker">ACTIVE RUNTIME</span><h2 id="runtimeTitle">Unknown</h2></div><span id="runtimeBadge" class="status-badge neutral">Loading</span></header>
+            <div class="runtime-layout" id="runtimeBody"><div class="empty-state"><p>Loading runtime evidence…</p></div></div>
+          </article>
+
+          <article class="widget span-4" data-widget-id="actions" data-widget-type="actions">
+            <header class="widget-header"><div><span class="widget-kicker">USER ACTIONS</span><h2>Quick actions</h2></div></header>
+            <div class="action-grid">
+              <button class="action-tile" type="button" id="scanModelsQuick"><span>⌁</span><strong>Rescan models</strong><small>Backend scan job</small></button>
+              <button class="action-tile add" type="button" id="addQuickActionBtn"><span>＋</span><strong>Add action</strong><small>Declarative action</small></button>
+            </div>
+          </article>
+
+          <article class="widget span-7" data-widget-id="topology" data-widget-type="topology">
+            <header class="widget-header"><div><span class="widget-kicker">DISTRIBUTED RUNTIME</span><h2>Machine topology</h2></div><button class="button compact secondary add-machine-trigger" type="button">＋ Add machine</button></header>
+            <div class="topology-toolbar" id="topologySummary"><span class="status-badge neutral">Loading</span></div>
+            <div class="topology-canvas" id="topologyCanvas"><div class="empty-state"><p>Loading machines…</p></div></div>
+          </article>
+
+          <article class="widget span-5" data-widget-id="telemetry" data-widget-type="telemetry">
+            <header class="widget-header"><div><span class="widget-kicker">LIVE TELEMETRY</span><h2>Performance</h2></div></header>
+            <div id="telemetryWidget"><div class="empty-state"><p>Loading telemetry…</p></div></div>
+          </article>
+
+          <article class="widget span-7" data-widget-id="requests" data-widget-type="requests">
+            <header class="widget-header"><div><span class="widget-kicker">REQUESTS</span><h2>Active and recent</h2></div></header>
+            <div class="data-table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Route</th><th>State</th><th>Started</th><th></th></tr></thead><tbody id="overviewRequestsBody"><tr><td colspan="5">Loading…</td></tr></tbody></table></div>
+          </article>
+
+          <article class="widget span-5" data-widget-id="evidence" data-widget-type="evidence">
+            <header class="widget-header"><div><span class="widget-kicker">EVIDENCE</span><h2>Runtime activity</h2></div></header>
+            <div class="event-list" id="overviewEvidence"><div class="empty-state"><p>No evidence loaded.</p></div></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" data-page-view="models">
+        <div class="page-header"><div><p class="eyebrow">LIBRARY</p><h1>Models</h1><p class="page-description">Models discovered by the backend scanner.</p></div><div class="page-header-actions"><button class="button secondary" type="button" id="scanModelsBtn">Rescan sources</button></div></div>
+        <div class="content-card"><table class="data-table models-table"><thead><tr><th>Model</th><th>Architecture</th><th>Quantization</th><th>Size</th><th>Context</th><th>Profile</th><th>Fit</th><th>Status</th></tr></thead><tbody id="modelsTableBody"><tr><td colspan="8">Loading models…</td></tr></tbody></table></div>
+      </section>
+
+      <section class="page" data-page-view="machines">
+        <div class="page-header"><div><p class="eyebrow">CLUSTER</p><h1>Machines</h1><p class="page-description">Registered host and worker machines.</p></div><button class="button primary add-machine-trigger" type="button">＋ Add machine</button></div>
+        <div class="machine-grid" id="machineGrid"><div class="empty-state"><p>Loading machines…</p></div></div>
+      </section>
+
+      <section class="page" data-page-view="api">
+        <div class="page-header"><div><p class="eyebrow">GATEWAY</p><h1>API Gateway</h1><p class="page-description">Compatibility and health are derived from backend capability evidence.</p></div></div>
+        <div class="endpoint-grid" id="gatewayGrid"><div class="content-card"><p>Loading gateway status…</p></div></div>
+      </section>
+
+      <section class="page" data-page-view="telemetry">
+        <div class="page-header"><div><p class="eyebrow">OBSERVABILITY</p><h1>Telemetry</h1><p class="page-description">Current telemetry returned by the backend.</p></div></div>
+        <div class="content-card" id="telemetryPage"><p>Loading telemetry…</p></div>
+      </section>
+
+      <section class="page" data-page-view="logs">
+        <div class="page-header"><div><p class="eyebrow">EVIDENCE</p><h1>Logs &amp; evidence</h1><p class="page-description">Runtime evidence returned by the backend.</p></div></div>
+        <div class="content-card log-console"><pre id="logOutput">Loading logs…</pre></div>
+      </section>
+
+      <section class="page" data-page-view="profiles">
+        <div class="page-header"><div><p class="eyebrow">CONFIGURATION</p><h1>Profiles</h1><p class="page-description">Profiles stored by the backend.</p></div></div>
+        <div class="profile-grid" id="profileGrid"><div class="content-card"><p>Loading profiles…</p></div></div>
+      </section>
+
+      <section class="page" data-page-view="extensions">
+        <div class="page-header"><div><p class="eyebrow">EXTENSIBILITY</p><h1>Extensions</h1><p class="page-description">Declarative extensions, actions, and controlled endpoints.</p></div><div class="page-header-actions"><button class="button secondary" type="button" id="addEndpointBtn">＋ Add endpoint</button><button class="button primary" type="button" id="importExtensionBtn">Import manifest</button><input type="file" id="extensionFileInput" accept="application/json,.json" hidden></div></div>
+        <div class="content-grid two"><div class="content-card"><div class="section-head"><div><p class="eyebrow">INSTALLED</p><h2>Extension manifests</h2></div></div><div id="extensionList" class="stack-list"></div></div><div class="content-card"><div class="section-head"><div><p class="eyebrow">USER OWNED</p><h2>Actions &amp; endpoints</h2></div><button class="button compact secondary" type="button" id="refreshExtensionsBtn">Refresh</button></div><div id="actionEndpointList" class="stack-list"></div></div></div>
+      </section>
+
+      <section class="page" data-page-view="settings">
+        <div class="page-header"><div><p class="eyebrow">SYSTEM</p><h1>Settings</h1><p class="page-description">Runtime settings are not editable until a backend configuration contract is implemented.</p></div></div>
+        <div class="content-card"><p>No editable settings contract is currently exposed.</p></div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="machineDialog" class="modal">
+    <form id="machineForm">
+      <div class="modal-header"><div><p class="eyebrow">CLUSTER</p><h2>Add machine</h2><p>Register a machine through the backend API.</p></div><button class="icon-button dialog-close" type="button">×</button></div>
+      <div class="form-grid two-col">
+        <label>Display name<input name="name" required placeholder="Worker 02"></label>
+        <label>Role<select name="role"><option value="rpc-worker">RPC worker</option><option value="host">Host</option><option value="cpu-worker">CPU worker</option></select></label>
+        <label>IP or hostname<input name="address" required placeholder="192.168.1.156"></label>
+        <label>Controller port<input name="controllerPort" type="number" value="50053"></label>
+        <label>RPC port<input name="rpcPort" type="number" value="50052"></label>
+        <label>Controller protocol<select name="controllerProtocol"><option value="http">HTTP</option><option value="https">HTTPS</option></select></label>
+        <label class="span-2">Runtime path<input name="runtimePath" placeholder="D:\Developement\LLM_Proxy"></label>
+        <label class="span-2">Models path<input name="modelsPath" placeholder="D:\Developement\LLM_Proxy\Models"></label>
+      </div>
+      <div class="modal-actions"><button type="button" class="button secondary dialog-close">Cancel</button><button type="submit" class="button primary">Save machine</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="actionDialog" class="modal">
+    <form id="actionForm">
+      <div class="modal-header"><div><p class="eyebrow">AUTOMATION</p><h2>Create custom action</h2><p>Only declarative, permission-bound actions are accepted.</p></div><button class="icon-button dialog-close" type="button">×</button></div>
+      <div class="form-grid two-col">
+        <label>Action ID<input name="id" required pattern="[a-z0-9][a-z0-9._-]{1,63}" placeholder="action-rescan-models"></label>
+        <label>Action name<input name="name" required placeholder="Rescan model sources"></label>
+        <label>Action type<select name="type"><option value="models-scan">Rescan models</option><option value="controller-status">Read machine status</option><option value="rpc-start">Start worker RPC</option><option value="rpc-stop">Stop worker RPC</option><option value="http-request">Registered HTTP request</option><option value="profile-select">Select profile</option></select></label>
+        <label>Target/reference ID<input name="targetId" placeholder="machine-worker-01 or endpoint-id"></label>
+        <label>HTTP method<select name="method"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select></label>
+        <label>HTTP path<input name="path" placeholder="/api/v1/system/status"></label>
+        <label>Confirmation<select name="confirmation"><option value="always">Always confirm</option><option value="dangerous-only">Dangerous operations only</option><option value="never">No confirmation</option></select></label>
+        <label class="span-2">Description<textarea name="description"></textarea></label>
+      </div>
+      <div class="modal-actions"><button type="button" class="button secondary dialog-close">Cancel</button><button type="submit" class="button primary">Create action</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="endpointDialog" class="modal small-modal">
+    <form id="endpointForm">
+      <div class="modal-header"><div><p class="eyebrow">ENDPOINT</p><h2>Add controlled endpoint</h2><p>HTTP actions may target only registered endpoints.</p></div><button class="icon-button dialog-close" type="button">×</button></div>
+      <div class="form-grid"><label>Endpoint ID<input name="id" required></label><label>Name<input name="name" required></label><label>Base URL<input name="baseUrl" required placeholder="http://127.0.0.1:9000"></label><label>Health path<input name="healthPath" value="/"></label></div>
+      <div class="modal-actions"><button type="button" class="button secondary dialog-close">Cancel</button><button type="submit" class="button primary">Save endpoint</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="launchDialog" class="modal">
+    <form id="launchForm">
+      <div class="modal-header"><div><p class="eyebrow">SAFE MODEL LAUNCH</p><h2>Preflight and launch</h2><p>No process starts until backend preflight allows it.</p></div><button class="icon-button dialog-close" type="button">×</button></div>
+      <div id="launchPanel"></div>
+      <div class="modal-actions"><button type="button" class="button secondary dialog-close">Cancel</button><button type="button" class="button primary" id="launchPreflightBtn">Run preflight</button></div>
+    </form>
+  </dialog>
+
+  <div class="job-drawer" id="jobDrawer" hidden aria-live="polite"><div class="job-head"><div><p class="eyebrow">BACKGROUND JOBS</p><strong>Activity center</strong></div><button class="icon-button" type="button" id="closeJobsBtn">×</button></div><div id="jobList"><div class="empty-state"><p>No backend jobs</p></div></div></div>
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

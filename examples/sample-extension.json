@@ -1,0 +1,39 @@
+{
+  "id": "extension-lab-tools",
+  "name": "Lab Tools",
+  "version": "1.0.0",
+  "apiVersion": "1",
+  "description": "Declarative widgets, actions, and endpoint definitions for the local inference lab.",
+  "compatibility": {"minContractVersion": "6.0.0"},
+  "permissions": ["widget.register", "action.register", "endpoint.register", "network.http", "machine.status"],
+  "widgets": [
+    {
+      "type": "lab-health-summary",
+      "name": "Lab health summary",
+      "category": "custom",
+      "minSize": {"w": 3, "h": 2},
+      "defaultSize": {"w": 4, "h": 3},
+      "settingsSchema": {"type": "object", "properties": {"endpointId": {"type": "string"}}}
+    }
+  ],
+  "endpoints": [
+    {
+      "id": "endpoint-local-control",
+      "name": "Local control plane",
+      "baseUrl": "http://127.0.0.1:8088",
+      "healthCheck": {"path": "/api/v1/system/status", "method": "GET"},
+      "enabled": true
+    }
+  ],
+  "actions": [
+    {
+      "id": "action-control-health",
+      "name": "Check control-plane health",
+      "type": "http-request",
+      "permissions": ["network.http"],
+      "config": {"endpointId": "endpoint-local-control", "method": "GET", "path": "/api/v1/system/status", "timeoutSec": 5},
+      "confirmation": "never",
+      "enabled": true
+    }
+  ]
+}

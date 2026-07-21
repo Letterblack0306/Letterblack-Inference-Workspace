@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://letterblack.local/schemas/job.schema.json",
+  "title": "Background Job",
+  "type": "object",
+  "required": ["id", "type", "state", "phase", "progress", "evidence", "createdAt", "updatedAt"],
+  "properties": {
+    "id": {"type": "string"},
+    "type": {"type": "string"},
+    "state": {"enum": ["queued", "running", "succeeded", "failed", "cancelled"]},
+    "phase": {"type": "string"},
+    "progress": {"type": "integer", "minimum": 0, "maximum": 100},
+    "simulation": {"type": "boolean"},
+    "evidence": {"type": "array"},
+    "error": {"type": ["object", "null"]},
+    "createdAt": {"type": "integer"},
+    "updatedAt": {"type": "integer"}
+  }
+}

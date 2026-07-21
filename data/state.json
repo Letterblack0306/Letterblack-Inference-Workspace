@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 6,
+  "workspaces": [
+    {
+      "id": "workspace-default",
+      "name": "Inference Lab",
+      "layoutVersion": 1,
+      "mode": "operate",
+      "grid": {
+        "columns": 12,
+        "rowHeight": 72,
+        "density": "comfortable"
+      },
+      "widgets": [
+        {
+          "id": "widget-1",
+          "type": "custom",
+          "position": {
+            "x": 0,
+            "y": 0
+          },
+          "size": {
+            "w": 4,
+            "h": 3
+          },
+          "settings": {},
+          "visibility": false
+        },
+        {
+          "id": "widget-2",
+          "type": "custom",
+          "position": {
+            "x": 1,
+            "y": 0
+          },
+          "size": {
+            "w": 4,
+            "h": 3
+          },
+          "settings": {},
+          "visibility": false
+        },
+        {
+          "id": "widget-3",
+          "type": "custom",
+          "position": {
+            "x": 2,
+            "y": 0
+          },
+          "size": {
+            "w": 4,
+            "h": 3
+          },
+          "settings": {},
+          "visibility": false
+        },
+        {
+          "id": "widget-4",
+          "type": "custom",
+          "position": {
+            "x": 3,
+            "y": 3
+          },
+          "size": {
+            "w": 4,
+            "h": 3
+          },
+          "settings": {},
+          "visibility": false
+        },
+        {
+          "id": "widget-5",
+          "type": "custom",
+          "position": {
+            "x": 4,
+            "y": 3
+          },
+          "size": {
+            "w": 4,
+            "h": 3
+          },
+          "settings": {},
+          "visibility": false
+        },
+        {
+          "id": "widget-6",
+          "type": "custom",
+          "position": {
+            "x": 5,
+            "y": 3
+          },
+          "size": {
+            "w": 4,
+            "h": 3
+          },
+          "settings": {},
+          "visibility": false
+        }
+      ],
+      "navigation": {
+        "hidden": [],
+        "order": [
+          "overview",
+          "models",
+          "machines",
+          "playground",
+          "api",
+          "telemetry",
+          "logs",
+          "profiles",
+          "extensions",
+          "settings"
+        ]
+      },
+      "theme": {
+        "name": "blueprint-dark"
+      },
+      "createdAt": 0,
+      "updatedAt": 1784648948106
+    }
+  ],
+  "activeWorkspaceId": "workspace-default",
+  "machines": [
+    {
+      "id": "machine-host",
+      "name": "Host",
+      "addresses": [
+        "192.168.1.240"
+      ],
+      "controller": {
+        "scheme": "http",
+        "port": 50053
+      },
+      "rpc": {
+        "port": 50052,
+        "enabled": false
+      },
+      "paths": {
+        "runtime": "Z:\\LLM_Proxy",
+        "models": "Z:\\LLM_Proxy\\Models"
+      },
+      "enabled": true,
+      "tags": [
+        "host",
+        "lan"
+      ],
+      "status": "unknown"
+    },
+    {
+      "id": "machine-worker-01",
+      "name": "Worker 01",
+      "addresses": [
+        "192.168.1.155"
+      ],
+      "controller": {
+        "scheme": "http",
+        "port": 50053
+      },
+      "rpc": {
+        "port": 50052,
+        "enabled": true
+      },
+      "paths": {
+        "runtime": "D:\\Developement\\LLM_Proxy",
+        "models": "D:\\Developement\\LLM_Proxy\\Models"
+      },
+      "enabled": true,
+      "tags": [
+        "worker",
+        "lan"
+      ],
+      "status": "unknown"
+    }
+  ],
+  "models": [],
+  "profiles": [],
+  "jobs": [
+    {
+      "id": "job-61b99df0cc2d",
+      "type": "runtime.stop",
+      "target": {
+        "force": false
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "drain-requests",
+        "stop-host",
+        "stop-workers",
+        "verify-stopped"
+      ],
+      "evidence": [
+        {
+          "phase": "drain-requests",
+          "status": "pass",
+          "timestamp": 1784649659976,
+          "drained": true,
+          "remaining": [],
+          "activeCount": 0
+        },
+        {
+          "phase": "stop-host",
+          "status": "pass",
+          "timestamp": 1784649660341,
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        {
+          "phase": "stop-workers",
+          "status": "fail",
+          "timestamp": 1784649668543,
+          "machineId": "machine-worker-01",
+          "code": "CONTROLLER_UNREACHABLE"
+        },
+        {
+          "phase": "verify-stopped",
+          "status": "pass",
+          "timestamp": 1784649668812,
+          "process": {
+            "running": false,
+            "pid": null,
+            "returnCode": null
+          }
+        }
+      ],
+      "error": null,
+      "createdAt": 1784649659130,
+      "updatedAt": 1784649669253,
+      "simulation": false,
+      "result": {
+        "host": {
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        "workers": [
+          {
+            "machineId": "machine-worker-01",
+            "ok": false,
+            "error": {
+              "code": "CONTROLLER_UNREACHABLE",
+              "message": "Controller request failed."
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-ed08831c5609",
+      "type": "models.scan",
+      "target": {},
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784649251912,
+          "sourceCount": 1
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784649252072,
+          "modelCount": 0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784649251617,
+      "updatedAt": 1784649252248,
+      "simulation": false,
+      "result": {
+        "modelCount": 0,
+        "models": []
+      }
+    }
+  ],
+  "logs": [
+    {
+      "id": "log-1e3b973a250b",
+      "timestamp": 1784649669402,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-61b99df0cc2d completed.",
+      "details": {
+        "jobType": "runtime.stop"
+      }
+    },
+    {
+      "id": "log-61702ea4b6c3",
+      "timestamp": 1784649659195,
+      "severity": "warning",
+      "source": "runtime",
+      "message": "Stop All requested.",
+      "details": {
+        "jobId": "job-61b99df0cc2d"
+      }
+    },
+    {
+      "id": "log-fbb02bec735c",
+      "timestamp": 1784649252307,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-ed08831c5609 completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
+    {
+      "id": "log-b8e6ca8d6248",
+      "timestamp": 1784648948106,
+      "severity": "info",
+      "source": "workspace",
+      "message": "Workspace saved.",
+      "details": {
+        "workspaceId": "workspace-default",
+        "widgetCount": 6
+      }
+    },
+    {
+      "id": "log-ee06cacfa160",
+      "timestamp": 1784647383398,
+      "severity": "info",
+      "source": "workspace",
+      "message": "Workspace saved.",
+      "details": {
+        "workspaceId": "workspace-default",
+        "widgetCount": 6
+      }
+    },
+    {
+      "id": "log-05548c16c564",
+      "timestamp": 1784647371627,
+      "severity": "info",
+      "source": "workspace",
+      "message": "Workspace saved.",
+      "details": {
+        "workspaceId": "workspace-default",
+        "widgetCount": 6
+      }
+    },
+    {
+      "id": "log-b0741b0e7244",
+      "timestamp": 1784646308545,
+      "severity": "info",
+      "source": "workspace",
+      "message": "Workspace saved.",
+      "details": {
+        "workspaceId": "workspace-default",
+        "widgetCount": 6
+      }
+    }
+  ],
+  "runtime": {
+    "state": "stopped",
+    "activeModelId": null,
+    "activeProfileId": null
+  },
+  "modelSources": [
+    {
+      "id": "source-host-models",
+      "name": "Host models",
+      "path": "Z:\\LLM_Proxy\\Models",
+      "enabled": true
+    }
+  ],
+  "requests": [],
+  "gateway": {
+    "openaiEnabled": true,
+    "ollamaEnabled": true,
+    "drainTimeoutSec": 30
+  },
+  "hardwareSafety": {
+    "safetyMargin": 0.1,
+    "reserveBytes": null,
+    "blockHighRisk": true
+  },
+  "actions": [],
+  "extensions": [],
+  "customEndpoints": []
+}

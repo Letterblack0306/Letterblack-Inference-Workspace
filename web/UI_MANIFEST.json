@@ -1,0 +1,10 @@
+{
+  "name": "Letterblack Inference Workspace Truthful UI",
+  "version": "1.0.0",
+  "replaceTarget": "web/",
+  "activeScripts": [
+    "js/app.js"
+  ],
+  "inactivePrototypeScripts": [],
+  "generatedAt": "2026-07-21"
+}

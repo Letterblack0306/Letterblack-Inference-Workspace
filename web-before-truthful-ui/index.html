@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Letterblack Local Inference Workspace</title>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/ux.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <header class="app-bar">
+      <div class="brand-block">
+        <button class="icon-button mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation">☰</button>
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <div class="eyebrow">LETTERBLACK</div>
+          <div class="product-name">Local Inference Workspace</div>
+        </div>
+      </div>
+
+      <div class="workspace-switcher">
+        <label for="workspaceSelect">Workspace</label>
+        <select id="workspaceSelect">
+          <option value="operations">Operations</option>
+          <option value="performance">Performance Lab</option>
+          <option value="minimal">Minimal Monitor</option>
+        </select>
+      </div>
+
+      <div class="global-health" aria-label="System health">
+        <div class="health-pill neutral" id="hHost"><span></span> Host unknown</div>
+        <div class="health-pill neutral" id="hMachines"><span></span> Machines unknown</div>
+        <div class="health-pill neutral" id="hOpenAI">OpenAI unknown</div>
+        <div class="health-pill neutral" id="hOllama">Ollama unknown</div>
+      </div>
+
+      <div class="app-actions">
+        <span class="save-state" id="saveState"><span class="status-dot neutral"></span> Unsaved</span>
+        <button class="button secondary" id="jobsBtn">Jobs <span id="jobCount">0</span></button>
+        <button class="button secondary" id="commandPaletteBtn">⌘ Command</button>
+        <button class="button secondary" id="customizeBtn">Customize workspace</button>
+        <button class="button danger" id="stopAllBtn">Stop all</button>
+      </div>
+    </header>
+
+    <aside class="navigation" id="navigation" aria-label="Primary navigation">
+      <nav>
+        <button class="nav-item active" data-page="overview"><span class="nav-glyph">◫</span><span>Overview</span></button>
+        <button class="nav-item" data-page="models"><span class="nav-glyph">◇</span><span>Models</span><span class="nav-count" id="modelCount">0</span></button>
+        <button class="nav-item" data-page="machines"><span class="nav-glyph">⌘</span><span>Machines</span><span class="nav-count" id="machineCount">0</span></button>
+        <button class="nav-item" data-page="playground"><span class="nav-glyph">›_</span><span>Playground</span></button>
+        <button class="nav-item" data-page="api"><span class="nav-glyph">↔</span><span>API Gateway</span></button>
+        <button class="nav-item" data-page="telemetry"><span class="nav-glyph">∿</span><span>Telemetry</span></button>
+        <button class="nav-item" data-page="logs"><span class="nav-glyph">≡</span><span>Logs & evidence</span></button>
+        <button class="nav-item" data-page="profiles"><span class="nav-glyph">▤</span><span>Profiles</span></button>
+        <button class="nav-item" data-page="extensions"><span class="nav-glyph">＋</span><span>Extensions</span></button>
+        <button class="nav-item" data-page="settings"><span class="nav-glyph">⚙</span><span>Settings</span></button>
+      </nav>
+      <div class="nav-footer">
+        <button class="nav-item" id="addActionBtn"><span class="nav-glyph">＋</span><span>Add custom action</span></button>
+        <div class="version-card">
+          <span class="status-dot good"></span>
+          <div><strong>Control plane</strong><small id="controlPlaneState">Loading…</small></div>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="page active" data-page-view="overview">
+        <div class="page-header">
+          <div>
+            <p class="eyebrow">OPERATIONS</p>
+            <h1>Inference workspace</h1>
+            <p class="page-description">Operate the active model, distributed machines, requests, and runtime evidence from one configurable canvas.</p>
+          </div>
+          <div class="page-header-actions">
+            <button class="button secondary" id="layoutPresetBtn">Layout presets</button>
+            <button class="button primary" id="addWidgetBtn">＋ Add widget</button>
+          </div>
+        </div>
+
+        <div class="customize-banner" id="customizeBanner" hidden>
+          <div><strong>Customize mode</strong><span>Drag cards, resize from the lower-right corner, or configure the selected widget.</span></div>
+          <div class="banner-actions"><button class="button secondary" id="resetLayoutBtn">Reset layout</button><button class="button primary" id="doneCustomizeBtn">Done</button></div>
+        </div>
+
+        <div class="workspace-grid" id="workspaceGrid">
+          <article class="widget span-8" data-widget-id="runtime" draggable="false">
+            <div class="widget-handle">⋮⋮</div>
+            <header class="widget-header">
+              <div><span class="widget-kicker">ACTIVE RUNTIME</span><h2 id="rtTitle">Unknown</h2></div>
+              <div class="widget-actions"><span id="rtBadge" class="status-badge neutral">Loading</span><button class="icon-button widget-menu" aria-label="Widget menu">•••</button></div>
+            </header>
+            <div id="rtBody" class="runtime-layout">
+              <div class="empty-state"><p>Loading runtime evidence…</p></div>
+            </div>
+          </article>
+
+          <article class="widget span-4" data-widget-id="actions">
+            <div class="widget-handle">⋮⋮</div>
+            <header class="widget-header"><div><span class="widget-kicker">USER ACTIONS</span><h2>Quick actions</h2></div><button class="button compact secondary" id="editActionsBtn">Edit</button></header>
+            <div class="action-grid" id="quickActionGrid">
+              <button class="action-tile" id="scanQuick"><span>⌁</span><strong>Rescan models</strong><small>Backend job</small></button>
+              <button class="action-tile add" id="addQuickActionBtn"><span>＋</span><strong>Add action</strong><small>Declarative action</small></button>
+            </div>
+          </article>
+
+          <article class="widget span-7" data-widget-id="topology">
+            <div class="widget-handle">⋮⋮</div>
+            <header class="widget-header"><div><span class="widget-kicker">DISTRIBUTED RUNTIME</span><h2>Machine topology</h2></div><div class="widget-actions"><button class="button compact secondary add-machine-trigger">＋ Add machine</button><button class="icon-button widget-menu">•••</button></div></header>
+            <div id="topologySummary" class="topology-toolbar">Loading</div>
+            <div id="topologyCanvas" class="topology-canvas"><div class="empty-state"><p>Loading machines…</p></div></div>
+          </article>
+
+          <article class="widget span-5" data-widget-id="telemetry">
+            <div class="widget-handle">⋮⋮</div>
+            <header class="widget-header"><div><span class="widget-kicker">LIVE TELEMETRY</span><h2>Performance</h2></div><select class="compact-select"><option>Last 5 minutes</option><option>Last hour</option></select></header>
+            <div id="telemetryTruth"><div class="empty-state"><p>Loading telemetry…</p></div></div>
+          </article>
+
+          <article class="widget span-7" data-widget-id="requests">
+            <div class="widget-handle">⋮⋮</div>
+            <header class="widget-header"><div><span class="widget-kicker">REQUESTS</span><h2>Active requests</h2></div></header>
+            <div class="data-table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Route</th><th>State</th><th></th></tr></thead><tbody id="requestTruth"><tr><td colspan="4">Loading…</td></tr></tbody></table></div>
+          </article>
+
+          <article class="widget span-5" data-widget-id="evidence">
+            <div class="widget-handle">⋮⋮</div>
+            <header class="widget-header"><div><span class="widget-kicker">EVIDENCE</span><h2>Runtime activity</h2></div></header>
+            <div id="evidenceTruth" class="event-list"><div class="empty-state"><p>No evidence loaded.</p></div></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" data-page-view="models">
+        <div class="page-header"><div><p class="eyebrow">LIBRARY</p><h1>Models</h1><p class="page-description">Manage recursive model sources, GGUF metadata, JSON sidecars, profiles, and hardware-fit estimates.</p></div><div class="page-header-actions"><button class="button secondary" id="scanModelsBtn">Rescan sources</button><button class="button primary" id="registerModelBtn">＋ Register model</button></div></div>
+        <div class="toolbar-row"><input class="search-input" placeholder="Search models, architecture, quantization…"><select><option>All sources</option></select><select><option>All fit states</option></select></div>
+        <div class="content-card"><table class="data-table models-table"><thead><tr><th>Model</th><th>Architecture</th><th>Quantization</th><th>Size</th><th>Context</th><th>Profile</th><th>Estimated VRAM</th><th>Hardware fit</th><th>Status</th></tr></thead><tbody id="modelsTableBody"></tbody></table></div>
+      </section>
+
+      <section class="page" data-page-view="machines">
+        <div class="page-header"><div><p class="eyebrow">CLUSTER</p><h1>Machines</h1><p class="page-description">Register, test, group, and operate any number of host or worker machines.</p></div><button class="button primary add-machine-trigger">＋ Add machine</button></div>
+        <div class="machine-grid" id="machineGrid"></div>
+      </section>
+
+      <section class="page" data-page-view="playground"><div class="page-header"><div><p class="eyebrow">TEST</p><h1>Playground</h1><p class="page-description">Test implemented OpenAI and Ollama-compatible routes against the active model.</p></div></div><div class="split-workbench"><div class="content-card playground-card"><div class="form-grid"><label>Endpoint<select><option>OpenAI · /v1/chat/completions</option><option>Ollama · /api/chat</option></select></label><label>Model alias<select><option>qwen-27b</option></select></label></div><textarea class="prompt-area" placeholder="Enter a prompt…">Explain the current machine allocation and identify the main performance bottleneck.</textarea><div class="composer-actions"><label><input type="checkbox" checked> Stream</label><button class="button primary">Send request</button></div></div><div class="content-card response-card"><div class="response-empty"><span>›_</span><h3>Response will appear here</h3><p>Metrics, route evidence, and token timing remain attached to every run.</p></div></div></div></section>
+
+      <section class="page" data-page-view="api"><div class="page-header"><div><p class="eyebrow">GATEWAY</p><h1>API Gateway</h1><p class="page-description">Configure endpoints and inspect the exact compatibility capabilities exposed by this installation.</p></div><button class="button primary" id="addEndpointBtn">＋ Add endpoint</button></div><div class="endpoint-grid" id="endpointGrid"><div class="content-card"><p>Loading gateway status…</p></div></div></section>
+
+      <section class="page" data-page-view="telemetry"><div class="page-header"><div><p class="eyebrow">OBSERVABILITY</p><h1>Telemetry</h1><p class="page-description">Pin machine and inference metrics into configurable time-series workspaces.</p></div><button class="button primary">＋ Add metric</button></div><div class="telemetry-dashboard"><div class="content-card tall-card"><h3>GPU and VRAM</h3><div class="large-placeholder-chart"></div></div><div class="content-card tall-card"><h3>Inference latency</h3><div class="large-placeholder-chart alt"></div></div></div></section>
+
+      <section class="page" data-page-view="logs"><div class="page-header"><div><p class="eyebrow">EVIDENCE</p><h1>Logs & evidence</h1><p class="page-description">Searchable, filterable runtime evidence with correlation IDs and corrective actions.</p></div><button class="button secondary">Export</button></div><div class="content-card log-console"><div class="log-toolbar"><input placeholder="Search logs"><select><option>All severity</option><option>Error</option><option>Warning</option><option>Info</option></select><select id="logMachineFilter"><option>All machines</option></select><button class="button compact secondary">Pause</button></div><pre class="log-console-pre">Loading logs…</pre></div></section>
+
+      <section class="page" data-page-view="profiles"><div class="page-header"><div><p class="eyebrow">CONFIGURATION</p><h1>Profiles</h1><p class="page-description">Compare generated defaults, sidecar JSON, saved overrides, and launch-time values.</p></div><button class="button primary">＋ New profile</button></div><div class="profile-grid"><div class="content-card"><p>Loading profiles…</p></div></div></section>
+
+      <section class="page" data-page-view="extensions"><div class="page-header"><div><p class="eyebrow">EXTENSIBILITY</p><h1>Extensions</h1><p class="page-description">Install declarative widgets, safe actions, and endpoint adapters through explicit permission manifests.</p></div><div class="page-header-actions"><button class="button secondary" id="addEndpointBtn">＋ Add endpoint</button><button class="button primary" id="importExtensionBtn">Import manifest</button><input type="file" id="extensionFileInput" accept="application/json,.json" hidden></div></div><div class="content-grid two"><div class="content-card"><div class="section-head"><div><p class="eyebrow">INSTALLED</p><h2>Extension manifests</h2></div></div><div id="extensionList" class="stack-list"></div></div><div class="content-card"><div class="section-head"><div><p class="eyebrow">USER OWNED</p><h2>Actions & endpoints</h2></div><button class="button compact secondary" id="refreshExtensionsBtn">Refresh</button></div><div id="actionEndpointList" class="stack-list"></div></div></div></section>
+
+      <section class="page" data-page-view="settings"><div class="page-header"><div><p class="eyebrow">SYSTEM</p><h1>Settings</h1><p class="page-description">Paths, ports, backup, security boundaries, and defaults.</p></div><button class="button primary">Save changes</button></div><div class="settings-layout"><div class="content-card settings-section"><h3>Host paths</h3><label>Application root<input value="Z:\LLM_Proxy\ControlUI" readonly></label><label>Model source<input value="Z:\LLM_Proxy\Models" readonly></label></div><div class="content-card settings-section"><h3>Default ports</h3><label>Dashboard<input value="8088" readonly></label><label>OpenAI gateway<input value="1234" readonly></label><label>Ollama gateway<input value="11434" readonly></label></div></div></section>
+    </main>
+
+    <aside class="inspector" id="inspector" aria-label="Context inspector">
+      <div class="inspector-header"><div><span class="eyebrow">INSPECTOR</span><h2 id="inspectorTitle">Workspace</h2></div><button class="icon-button" id="closeInspectorBtn">×</button></div>
+      <div class="inspector-content" id="inspectorContent">
+        <div class="inspector-section"><h3>Canvas</h3><label>Grid size<select id="gridSizeSelect"><option value="12">12 columns</option><option value="8">8 columns</option></select></label><label>Density<select><option>Comfortable</option><option>Compact</option></select></label></div>
+        <div class="inspector-section"><h3>Current layout</h3><button class="button secondary full">Export workspace JSON</button><button class="button secondary full">Import workspace JSON</button></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+  <aside class="drawer" id="widgetDrawer" aria-label="Widget library" aria-hidden="true">
+    <div class="drawer-header"><div><p class="eyebrow">WORKSPACE</p><h2>Add widget</h2><p>Choose a widget and configure its data source after placement.</p></div><button class="icon-button drawer-close" data-close-drawer>×</button></div>
+    <input class="search-input" id="widgetSearch" placeholder="Search widgets">
+    <div class="widget-catalog" id="widgetCatalog"></div>
+  </aside>
+
+  <dialog id="machineDialog" class="modal">
+    <form method="dialog" id="machineForm">
+      <div class="modal-header"><div><p class="eyebrow">CLUSTER</p><h2>Add machine</h2><p>Register another host or RPC worker without changing application code.</p></div><button class="icon-button" value="cancel">×</button></div>
+      <div class="step-indicator"><span class="active">1 Connection</span><span>2 Paths</span><span>3 Capabilities</span><span>4 Verify</span></div>
+      <div class="form-grid two-col"><label>Display name<input name="name" required placeholder="Worker 02"></label><label>Role<select name="role"><option>RPC worker</option><option>Host</option><option>CPU worker</option></select></label><label>IP or hostname<input name="address" required placeholder="192.168.1.156"></label><label>Controller port<input name="controllerPort" type="number" value="50053"></label><label>RPC port<input name="rpcPort" type="number" value="50052"></label><label>Controller protocol<select><option>HTTP</option><option>HTTPS</option></select></label><label class="span-2">Runtime path<input name="runtimePath" placeholder="D:\Developement\LLM_Proxy"></label><label class="span-2">Models path<input name="modelsPath" placeholder="D:\Developement\LLM_Proxy\Models"></label></div>
+      <div class="connection-test"><button type="button" class="button secondary" id="testConnectionBtn">Test connection</button><div id="connectionResult"><span class="status-dot neutral"></span>Not tested</div></div>
+      <div class="modal-actions"><button value="cancel" class="button secondary">Cancel</button><button type="submit" value="default" class="button primary">Save machine</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="actionDialog" class="modal">
+    <form method="dialog" id="actionForm">
+      <div class="modal-header"><div><p class="eyebrow">AUTOMATION</p><h2>Create custom action</h2><p>Actions are declarative, permission-bound, and never execute arbitrary shell commands.</p></div><button class="icon-button" value="cancel">×</button></div>
+      <div class="form-grid two-col"><label>Action ID<input name="id" required pattern="[a-z0-9][a-z0-9._-]{1,63}" placeholder="action-rescan-models"></label><label>Action name<input name="name" required placeholder="Rescan model sources"></label><label>Action type<select name="type" id="actionType"><option value="models-scan">Rescan models</option><option value="controller-status">Read machine status</option><option value="rpc-start">Start worker RPC</option><option value="rpc-stop">Stop worker RPC</option><option value="http-request">Registered HTTP request</option><option value="profile-select">Select profile</option></select></label><label>Target/reference ID<input name="targetId" placeholder="machine-worker-01 or endpoint-id"></label><label>HTTP method<select name="method"><option>GET</option><option>POST</option><option>PUT</option><option>DELETE</option></select></label><label>HTTP path<input name="path" placeholder="/api/v1/system/status"></label><label>Confirmation<select name="confirmation"><option value="always">Always confirm</option><option value="dangerous-only">Dangerous operations only</option><option value="never">No confirmation</option></select></label><label class="span-2">Description<textarea name="description" placeholder="Explain exactly what this action does"></textarea></label></div>
+      <div class="modal-actions"><button value="cancel" class="button secondary">Cancel</button><button type="submit" value="default" class="button primary">Create action</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="endpointDialog" class="modal small-modal"><form method="dialog" id="endpointForm"><div class="modal-header"><div><p class="eyebrow">ENDPOINT</p><h2>Add a controlled endpoint</h2><p>HTTP actions can only target endpoints registered here or supplied by an enabled extension.</p></div><button class="icon-button" value="cancel">×</button></div><div class="form-grid"><label>Endpoint ID<input name="id" required placeholder="endpoint-monitoring"></label><label>Name<input name="name" required placeholder="Monitoring service"></label><label>Base URL<input name="baseUrl" required placeholder="http://127.0.0.1:9000"></label><label>Health path<input name="healthPath" value="/"></label></div><div class="modal-actions"><button value="cancel" class="button secondary">Cancel</button><button type="submit" class="button primary">Save endpoint</button></div></form></dialog>
+
+  <dialog id="commandDialog" class="command-dialog">
+    <form method="dialog"><input id="commandSearch" placeholder="Search pages, models, machines, and actions…" autofocus><div id="commandResults"></div></form>
+  </dialog>
+
+  <dialog id="stopDialog" class="modal small-modal">
+    <form method="dialog"><div class="modal-header"><div><p class="eyebrow danger-text">DESTRUCTIVE ACTION</p><h2>Stop everything?</h2><p>This will drain or cancel active requests, unload the host model, stop selected workers, and close the control backend.</p></div></div><div class="shutdown-plan"><span>1</span><p>Drain active requests</p><span>2</span><p>Stop host model runtime</p><span>3</span><p>Stop worker RPC services</p><span>4</span><p>Close dashboard backend</p></div><div class="modal-actions"><button value="cancel" class="button secondary">Cancel</button><button value="default" class="button danger">Stop all and exit</button></div></form>
+  </dialog>
+
+  <div class="job-drawer" id="jobDrawer" hidden aria-live="polite"><div class="job-head"><div><p class="eyebrow">BACKGROUND JOBS</p><strong>Activity center</strong></div><button class="icon-button" id="closeJobsBtn">×</button></div><div id="jobList"><div class="empty-state" style="min-height:150px"><p>No active jobs</p></div></div></div>
+
+  <dialog id="onboardingDialog" class="modal"><form method="dialog" id="onboardingForm"><div class="modal-header"><div><p class="eyebrow">FIRST RUN</p><h2>Set up your inference workspace</h2><p>Four short steps. Everything can be changed later.</p></div></div><div class="onboarding-steps"><span class="active"></span><span></span><span></span><span></span></div><div class="onboarding-panel" id="onboardingPanel"></div><div class="modal-actions"><button type="button" class="button secondary" id="onboardingBack" disabled>Back</button><button type="button" class="button secondary" id="onboardingSkip">Skip setup</button><button type="button" class="button primary" id="onboardingNext">Continue</button></div></form></dialog>
+
+  <dialog id="launchDialog" class="modal"><form method="dialog" id="launchForm"><div class="modal-header"><div><p class="eyebrow">SAFE MODEL LAUNCH</p><h2>Review and start model</h2><p>Configuration is validated before any runtime process changes.</p></div><button class="icon-button" value="cancel">×</button></div><div class="step-indicator" id="launchSteps"><span class="active">1 Model</span><span>2 Profile</span><span>3 Validate</span><span>4 Start</span></div><div id="launchPanel"></div><div class="modal-actions"><button type="button" class="button secondary" id="launchBack" disabled>Back</button><button value="cancel" class="button secondary">Cancel</button><button type="button" class="button primary" id="launchNext">Continue</button></div></form></dialog>
+
+  <dialog id="unloadDialog" class="modal small-modal"><form method="dialog"><div class="modal-header"><div><p class="eyebrow danger-text">RUNTIME CHANGE</p><h2>Unload active model?</h2><p>Two active requests are currently using this model.</p></div></div><div class="request-blocker"><label><input type="radio" name="unloadPolicy" value="drain" checked> Drain active requests, then unload</label><label><input type="radio" name="unloadPolicy" value="cancel"> Cancel requests immediately</label></div><div class="modal-actions"><button value="cancel" class="button secondary">Keep running</button><button type="button" class="button danger" id="confirmUnloadBtn">Unload safely</button></div></form></dialog>
+
+  <div class="toast-region" id="toastRegion" aria-live="polite"></div>
+  <script type="module" src="js/truthful-ui.js"></script>
+</body>
+</html>

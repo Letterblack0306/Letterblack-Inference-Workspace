@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Letterblack Workspace",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "grid",
+    "widgets"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{1,63}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "layoutVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "mode": {
+      "enum": [
+        "operate",
+        "customize",
+        "presentation",
+        "recovery"
+      ]
+    },
+    "grid": {
+      "type": "object",
+      "required": [
+        "columns"
+      ],
+      "properties": {
+        "columns": {
+          "type": "integer",
+          "minimum": 4,
+          "maximum": 24
+        },
+        "rowHeight": {
+          "type": "integer",
+          "minimum": 32,
+          "maximum": 200
+        },
+        "density": {
+          "enum": [
+            "compact",
+            "comfortable"
+          ]
+        }
+      }
+    },
+    "widgets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "position",
+          "size"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "position": {
+            "type": "object",
+            "required": [
+              "x",
+              "y"
+            ]
+          },
+          "size": {
+            "type": "object",
+            "required": [
+              "w",
+              "h"
+            ]
+          },
+          "settings": {
+            "type": "object"
+          },
+          "visibility": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "navigation": {
+      "type": "object"
+    },
+    "theme": {
+      "type": "object"
+    }
+  }
+}

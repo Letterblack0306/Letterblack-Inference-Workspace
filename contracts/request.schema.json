@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Gateway Request",
+  "type": "object",
+  "required": [
+    "id",
+    "route",
+    "protocol",
+    "started_at",
+    "state"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "route": {
+      "type": "string"
+    },
+    "protocol": {
+      "enum": [
+        "openai",
+        "ollama"
+      ]
+    },
+    "state": {
+      "type": "string"
+    },
+    "stream": {
+      "type": "boolean"
+    },
+    "bytes_sent": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}
