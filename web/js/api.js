@@ -23,6 +23,16 @@ async function request(path, options = {}) {
   return payload.data;
 }
 
+async function rawRequest(path, options = {}) {
+  const response = await fetch(path, options);
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null);
+    const error = payload?.error || {};
+    throw new ApiError(error.code || `HTTP_${response.status}`, error.message || response.statusText, response.status, payload);
+  }
+  return response;
+}
+
 const body = value => JSON.stringify(value ?? {});
 
 export const api = {
@@ -30,17 +40,25 @@ export const api = {
   system: () => request('/system/status'),
   settings: () => request('/settings'),
   updateSettings: value => request('/settings', {method: 'PUT', body: body(value)}),
+
   machines: () => request('/machines'),
   createMachine: value => request('/machines', {method: 'POST', body: body(value)}),
+  updateMachine: (id, value) => request(`/machines/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
+  deleteMachine: id => request(`/machines/${encodeURIComponent(id)}`, {method: 'DELETE'}),
   testMachine: id => request(`/machines/${encodeURIComponent(id)}/test`, {method: 'POST', body: '{}'}),
   startRpc: id => request(`/machines/${encodeURIComponent(id)}/rpc/start`, {method: 'POST', body: '{}'}),
   stopRpc: id => request(`/machines/${encodeURIComponent(id)}/rpc/stop`, {method: 'POST', body: '{}'}),
+
   models: () => request('/models'),
   scanModels: value => request('/models/scan', {method: 'POST', body: body(value)}),
+
   profiles: () => request('/profiles'),
+  createProfile: value => request('/profiles', {method: 'POST', body: body(value)}),
+
   preflight: value => request('/runtime/preflight', {method: 'POST', body: body(value)}),
   launch: value => request('/runtime/launch', {method: 'POST', body: body(value)}),
   stop: value => request('/runtime/stop', {method: 'POST', body: body(value)}),
+
   jobs: () => request('/jobs'),
   job: id => request(`/jobs/${encodeURIComponent(id)}`),
   telemetry: () => request('/telemetry'),
@@ -48,18 +66,9 @@ export const api = {
   requests: () => request('/requests'),
   cancelRequest: id => request(`/requests/${encodeURIComponent(id)}/cancel`, {method: 'POST', body: '{}'}),
   gateway: () => request('/gateway/status'),
-  workspaces: () => request('/workspaces'),
-  updateWorkspace: (id, value) => request(`/workspaces/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
-  extensions: () => request('/extensions'),
-  createExtension: value => request('/extensions', {method: 'POST', body: body(value)}),
-  updateExtension: (id, value) => request(`/extensions/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
-  deleteExtension: id => request(`/extensions/${encodeURIComponent(id)}`, {method: 'DELETE'}),
-  actions: () => request('/actions'),
-  createAction: value => request('/actions', {method: 'POST', body: body(value)}),
-  executeAction: id => request(`/actions/${encodeURIComponent(id)}/execute`, {method: 'POST', body: '{}'}),
-  endpoints: () => request('/endpoints'),
-  createEndpoint: value => request('/endpoints', {method: 'POST', body: body(value)}),
-  testEndpoint: id => request(`/endpoints/${encodeURIComponent(id)}/test`, {method: 'POST', body: '{}'}),
+
+  openAIChat: (payload, signal) => rawRequest('/v1/chat/completions', {method:'POST', headers:{'Content-Type':'application/json'}, body:body(payload), signal}),
+  ollamaChat: (payload, signal) => rawRequest('/api/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:body(payload), signal}),
 };
 
 function settingsNotice(title, message = '', level = 'neutral') {
