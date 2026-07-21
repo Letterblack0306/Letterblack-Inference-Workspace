@@ -1,0 +1,8 @@
+
+zip/
+*.zip
+_letterblack_patch_backups/
+web-before-*/
+__pycache__/
+*.pyc
+*.log
