@@ -1,6 +1,6 @@
 # Letterblack Inference Workspace
 
-Letterblack Inference Workspace is a local inference control surface for GGUF model discovery, llama.cpp runtime launch, distributed machine control, OpenAI- and Ollama-compatible endpoints, telemetry, profiles, logs, and settings.
+Letterblack Inference Workspace is a local inference control surface for GGUF model discovery, llama.cpp runtime launch, distributed machine control, OpenAI- and Ollama-compatible endpoints, telemetry, profiles, declarative extensions, logs, and settings.
 
 ## Current operator workflow
 
@@ -12,7 +12,8 @@ The committed UI is organized around the actual operator sequence:
 4. Run preflight and launch the runtime.
 5. Send a real test prompt from Chat.
 6. Copy or test the exposed gateway endpoints.
-7. Inspect telemetry, jobs, and logs when needed.
+7. Manage declarative extensions, safe actions, and registered endpoints.
+8. Inspect telemetry, jobs, and logs when needed.
 
 The active navigation is:
 
@@ -25,6 +26,7 @@ Machines
 Gateways
 Telemetry
 Profiles
+Extensions
 Logs
 Settings
 ```
@@ -52,6 +54,7 @@ The verification script performs:
 - Python unit-test discovery under `tests/`
 - Python compilation checks for every backend module
 - JavaScript syntax checks for every file under `web/js/`
+- Static UI-contract coverage for the Extensions surface
 
 A successful command ends with:
 
@@ -133,7 +136,25 @@ Historical request charts and TTFT/throughput time series are not yet implemente
 - Create a launch profile
 - Select a profile for Chat or launch
 
-Profile update, duplicate, delete, validation, fit estimate, and command preview remain incomplete.
+Profile update, duplicate, delete, validation, fit estimate, and command preview remain incomplete because matching profile mutation contracts are not present in the active frontend API surface.
+
+### Extensions
+
+The Extensions page is backed by the Phase 6 declarative API contracts and provides:
+
+- Import of JSON extension manifests
+- Backend validation of manifest compatibility and permissions
+- Extension enable/disable
+- Extension uninstall
+- Registered widget/action/endpoint counts
+- Creation of permission-bound operational actions
+- Action execution as backend jobs
+- Action deletion
+- Registration of explicit HTTP endpoints
+- Endpoint health testing
+- Endpoint deletion
+
+The UI does not execute extension-provided JavaScript, Python, PowerShell, shell commands, or binaries. Extension manifests remain declarative and are validated by the backend.
 
 ### Logs and jobs
 
@@ -144,21 +165,43 @@ Profile update, duplicate, delete, validation, fit estimate, and command preview
 
 - Edit paths, ports, runtime binding, polling, timeout, and safety-related values through the current settings contract
 
-## Extensibility status
+## API and UI authority
 
-The backend contains Phase 6 action, endpoint, extension, and widget-registry contracts. The current committed operator UI does **not** expose a dedicated Extensions page or the full action/extension management workflow.
+The operator UI uses:
 
-Those backend capabilities must not be described as current user-facing UI until the frontend is restored and validated against the active API contract.
+```text
+web/index.html
+web/js/app.js
+web/js/extensions.js
+web/js/settings.js
+web/css/operator.css
+web/css/extensions.css
+```
+
+The declarative Extensions surface maps to:
+
+```text
+GET/POST   /api/v1/extensions
+GET/PUT/DELETE /api/v1/extensions/{extensionId}
+GET/POST   /api/v1/actions
+GET/PUT/DELETE /api/v1/actions/{actionId}
+POST       /api/v1/actions/{actionId}/execute
+GET/POST   /api/v1/endpoints
+PUT/DELETE /api/v1/endpoints/{endpointId}
+POST       /api/v1/endpoints/{endpointId}/test
+```
 
 ## Validation status
 
 Static repository validation confirms:
 
-- The active frontend entrypoint is `web/js/app.js`.
+- The primary runtime frontend entrypoint is `web/js/app.js`.
+- The Extensions feature is isolated in `web/js/extensions.js` and loaded explicitly by the active HTML.
 - The current HTML loads the Chat-first operator interface.
 - Machine update and delete actions are wired in the frontend API client.
-- Runtime launch, stop, chat, gateway, telemetry, profile creation, logs, and settings are wired to backend routes.
-- The previous verification command referenced the removed `web/js/phase6.js`; `test.bat` now checks every active JavaScript file instead.
+- Runtime launch, stop, chat, gateway, telemetry, profile creation, logs, settings, extensions, actions, and endpoints are wired to backend routes.
+- `test.bat` checks every active JavaScript file instead of referencing removed phase-specific files.
+- `tests/test_extensions_ui_contract.py` protects the active Extensions navigation, controls, route mapping, and security wording.
 
 See `docs/UI_IMPLEMENTATION_VALIDATION.md` for the detailed implementation audit and remaining acceptance requirements.
 
@@ -173,6 +216,9 @@ This repository should not be described as fully release-ready until all of the 
 - Ollama-compatible chat request
 - Runtime cancellation
 - Machine edit/delete/test/RPC controls
+- Extension import, enable/disable, and uninstall
+- Action creation and execution
+- Endpoint registration and test
 - Settings persistence after restart
 - Responsive and accessibility acceptance
 - Real two-machine Windows validation
@@ -183,7 +229,8 @@ The runtime does not intentionally permit:
 
 - Arbitrary shell execution from the operator UI
 - Free-form local script execution
-- Hidden executable extension code
+- Extension-provided executable code
 - Undeclared remote endpoints
+- HTTP actions against raw unregistered target URLs
 
 Any future executable extension mechanism requires a separate trust, signing, permission, and acceptance contract.
