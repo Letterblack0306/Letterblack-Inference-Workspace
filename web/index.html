@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/ux.css">
   <link rel="stylesheet" href="css/operator.css">
+  <link rel="stylesheet" href="css/extensions.css">
   <link rel="icon" href="data:,">
 </head>
 <body>
@@ -28,6 +29,7 @@
         <button class="nav-item" data-page="gateways" type="button"><span class="nav-glyph">↔</span><span>Gateways</span></button>
         <button class="nav-item" data-page="telemetry" type="button"><span class="nav-glyph">∿</span><span>Telemetry</span></button>
         <button class="nav-item" data-page="profiles" type="button"><span class="nav-glyph">▤</span><span>Profiles</span></button>
+        <button class="nav-item" data-page="extensions" type="button"><span class="nav-glyph">⬡</span><span>Extensions</span><span class="nav-count" id="extensionCount">0</span></button>
         <button class="nav-item" data-page="logs" type="button"><span class="nav-glyph">≡</span><span>Logs</span></button>
         <button class="nav-item" data-page="settings" type="button"><span class="nav-glyph">⚙</span><span>Settings</span></button>
       </nav>
@@ -67,6 +69,16 @@
 
       <section class="page" data-page-view="profiles"><div class="page-header"><div><p class="eyebrow">CONFIGURATION</p><h1>Profiles</h1><p class="page-description">Reusable llama.cpp launch configurations.</p></div><button class="button primary" id="createProfileBtn" type="button">＋ Create profile</button></div><div class="profile-grid" id="profileGrid"></div></section>
 
+      <section class="page" data-page-view="extensions">
+        <div class="page-header"><div><p class="eyebrow">DECLARATIVE CONTROL</p><h1>Extensions</h1><p class="page-description">Manage permission-bound manifests, operational actions, and registered HTTP endpoints. No executable extension code is loaded.</p></div><button class="button primary" id="importExtensionBtn" type="button">Import manifest</button></div>
+        <div class="extension-summary" id="extensionSummary"></div>
+        <div class="extension-columns">
+          <section class="content-card extension-panel"><div class="section-head"><div><h2>Installed extensions</h2><p>Enable, disable, inspect, or uninstall declarative manifests.</p></div></div><div id="extensionList"></div></section>
+          <section class="content-card extension-panel"><div class="section-head"><div><h2>Operational actions</h2><p>Run or remove permission-bound actions registered by the control plane.</p></div><button class="button compact secondary" id="createActionBtn" type="button">New action</button></div><div id="actionList"></div></section>
+          <section class="content-card extension-panel"><div class="section-head"><div><h2>Custom endpoints</h2><p>Register and test explicit HTTP endpoints used by safe actions.</p></div><button class="button compact secondary" id="createEndpointBtn" type="button">New endpoint</button></div><div id="endpointList"></div></section>
+        </div>
+      </section>
+
       <section class="page" data-page-view="logs"><div class="page-header"><div><p class="eyebrow">TROUBLESHOOTING</p><h1>Logs</h1><p class="page-description">Detailed runtime and control-plane activity.</p></div></div><div class="content-card log-console"><pre id="logOutput"></pre></div></section>
 
       <section class="page" data-page-view="settings"><div class="page-header"><div><p class="eyebrow">SYSTEM</p><h1>Settings</h1><p class="page-description">Configure paths, ports, binding, polling, and safety controls.</p></div></div><div class="content-card" id="settingsRoot"><p>Loading settings…</p></div></section>
@@ -79,8 +91,15 @@
 
   <dialog id="launchDialog" class="modal"><form id="launchForm"><div class="modal-header"><div><p class="eyebrow">MODEL LAUNCH</p><h2>Preflight and launch</h2></div><button class="icon-button dialog-close" type="button">×</button></div><div id="launchPanel"></div><div class="modal-actions"><button type="button" class="button secondary dialog-close">Cancel</button><button type="button" class="button primary" id="launchPreflightBtn">Run preflight and launch</button></div></form></dialog>
 
+  <dialog id="extensionImportDialog" class="modal wide-modal"><form id="extensionImportForm"><div class="modal-header"><div><p class="eyebrow">EXTENSION MANIFEST</p><h2>Import declarative extension</h2></div><button class="icon-button extension-dialog-close" type="button">×</button></div><label class="manifest-field">JSON manifest<textarea id="extensionManifestJson" rows="18" spellcheck="false" required placeholder='{"id":"sample.extension","name":"Sample","version":"1.0.0","apiVersion":"1","permissions":[]}'></textarea></label><p class="form-help">Executable code, shell commands, scripts, and undeclared remote targets are rejected by the backend contract.</p><div class="modal-actions"><button type="button" class="button secondary extension-dialog-close">Cancel</button><button type="submit" class="button primary">Validate and import</button></div></form></dialog>
+
+  <dialog id="actionDialog" class="modal"><form id="actionForm"><div class="modal-header"><div><p class="eyebrow">OPERATIONAL ACTION</p><h2>Create action</h2></div><button class="icon-button extension-dialog-close" type="button">×</button></div><div class="form-grid two-col"><label>Name<input name="name" required></label><label>Action ID<input name="id" pattern="[a-z0-9][a-z0-9._-]{1,63}" required></label><label>Type<select name="type"><option value="models-scan">Model scan</option><option value="controller-status">Controller status</option><option value="rpc-start">RPC start</option><option value="rpc-stop">RPC stop</option><option value="http-request">HTTP request</option><option value="profile-select">Profile select</option></select></label><label>Confirmation<select name="confirmation"><option value="dangerous-only">Dangerous only</option><option value="always">Always</option><option value="never">Never</option></select></label><label class="span-2">Permissions<input name="permissions" placeholder="models.scan, rpc.control"></label><label class="span-2">Description<textarea name="description"></textarea></label><label class="span-2">Config JSON<textarea name="config" rows="7" spellcheck="false">{}</textarea></label><label><input name="enabled" type="checkbox" checked> Enabled</label></div><div class="modal-actions"><button type="button" class="button secondary extension-dialog-close">Cancel</button><button type="submit" class="button primary">Create action</button></div></form></dialog>
+
+  <dialog id="endpointDialog" class="modal"><form id="endpointForm"><div class="modal-header"><div><p class="eyebrow">REGISTERED ENDPOINT</p><h2>Create endpoint</h2></div><button class="icon-button extension-dialog-close" type="button">×</button></div><div class="form-grid"><label>Name<input name="name" required></label><label>Endpoint ID<input name="id" pattern="[a-z0-9][a-z0-9._-]{1,63}" required></label><label>Base URL<input name="baseUrl" type="url" placeholder="http://127.0.0.1:8080" required></label><label>Health path<input name="healthPath" placeholder="/health"></label><label><input name="enabled" type="checkbox" checked> Enabled</label></div><div class="modal-actions"><button type="button" class="button secondary extension-dialog-close">Cancel</button><button type="submit" class="button primary">Create endpoint</button></div></form></dialog>
+
   <div class="job-drawer" id="jobDrawer" hidden><div class="job-head"><strong>Background jobs</strong><button class="icon-button" id="closeJobsBtn" type="button">×</button></div><div id="jobList"></div></div>
   <div class="toast-region" id="toastRegion" aria-live="polite"></div>
   <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/extensions.js"></script>
 </body>
 </html>
