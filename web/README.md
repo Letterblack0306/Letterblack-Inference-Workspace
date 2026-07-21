@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Letterblack Inference Workspace — Truthful UI v1
 
 This folder is a complete replacement for `web/`.
@@ -36,10 +35,3 @@ Hard refresh with `Ctrl+F5`.
 ## Validation boundary
 
 This UI is structurally API-driven. It does not prove that the Windows worker controller, GPUs, llama-server launch, or inference gateway have passed real hardware acceptance.
-=======
-# Web
-
-Browser-based control interface.
-
-Operational values must come from `/api/v1` evidence. Loading, unknown, unavailable, and offline states must never be replaced by fabricated success data.
->>>>>>> f59e44d6618350b661a43d817fc082e29a63ef02

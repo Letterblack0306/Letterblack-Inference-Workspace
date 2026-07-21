@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Letterblack Local Inference Workspace — Phase 6
 
 Phase 6 adds **declarative extensibility and user-defined operational actions** to the Phase 5 hardware-safe runtime. It keeps the approved HTML/UX, real runtime integration, gateway, request lifecycle, GGUF inspection, and telemetry layers.
@@ -131,28 +130,3 @@ Phase 6 is not the final public release. The major remaining items are:
 - GBNF studio
 - Backup/recovery and schema migration UI
 - Full accessibility and multi-breakpoint acceptance
-=======
-# Letterblack Inference Workspace
-
-Local and distributed AI runtime control for GGUF inference.
-
-## Repository status
-
-This repository currently contains the clean project scaffold. Runtime code should be imported from the validated local source only after fake/demo handlers are removed and the truthful UI audit passes.
-
-## Structure
-
-```text
-backend/     Python control-plane and runtime services
-web/         Browser UI and API-driven frontend
-contracts/   JSON schemas and API contracts
-tests/       Automated tests
-examples/    Declarative extension and profile examples
-docs/        Architecture, operations, and acceptance records
-scripts/     Validation, packaging, and maintenance tools
-```
-
-## Validation policy
-
-A feature is not considered operationally validated until the relevant unit, API, browser, host, worker, llama-server, and gateway checks have actually been executed. Missing validation must be reported explicitly.
->>>>>>> f59e44d6618350b661a43d817fc082e29a63ef02
