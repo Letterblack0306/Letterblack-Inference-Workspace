@@ -2,27 +2,27 @@
 
 zip/
 *.zip
-_letterblack_patch_backups/
-web-before-*/
-__pycache__/
-*.pyc
-*.log
-=======
+
 __pycache__/
 *.py[cod]
 *.log
+
 .env
 .venv/
 venv/
 node_modules/
+
 dist/
 build/
 coverage/
 .pytest_cache/
+
 _letterblack_patch_backups/
+web-before-*/
 data/*.tmp
 data/*.lock
-*.zip
+data/*.bak
+
 Letterblack Local Inference Workspace_files/
 *.download
 >>>>>>> f59e44d6618350b661a43d817fc082e29a63ef02
