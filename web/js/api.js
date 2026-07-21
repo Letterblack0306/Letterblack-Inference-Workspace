@@ -28,6 +28,8 @@ const body = value => JSON.stringify(value ?? {});
 export const api = {
   capabilities: () => request('/capabilities'),
   system: () => request('/system/status'),
+  settings: () => request('/settings'),
+  updateSettings: value => request('/settings', {method: 'PUT', body: body(value)}),
   machines: () => request('/machines'),
   createMachine: value => request('/machines', {method: 'POST', body: body(value)}),
   testMachine: id => request(`/machines/${encodeURIComponent(id)}/test`, {method: 'POST', body: '{}'}),
@@ -59,3 +61,19 @@ export const api = {
   createEndpoint: value => request('/endpoints', {method: 'POST', body: body(value)}),
   testEndpoint: id => request(`/endpoints/${encodeURIComponent(id)}/test`, {method: 'POST', body: '{}'}),
 };
+
+function settingsNotice(title, message = '', level = 'neutral') {
+  const region = document.querySelector('#toastRegion');
+  if (!region) return;
+  const item = document.createElement('div');
+  item.className = `toast ${level}`;
+  item.innerHTML = `<strong>${title}</strong><span>${message}</span>`;
+  region.append(item);
+  setTimeout(() => item.remove(), 4500);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  import('./settings.js')
+    .then(({installSettingsUi}) => installSettingsUi(api, settingsNotice))
+    .catch(error => console.error('Settings UI failed to initialize.', error));
+});
