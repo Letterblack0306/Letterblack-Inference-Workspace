@@ -1,26 +1,28 @@
-# UI Implementation Validation
+# Complete UI Implementation Audit
 
 ## Scope
 
-This validation compares the committed operator UI, frontend API client, repository documentation, and verification script on branch `fix/validated-ui-contract`.
+This audit compares the active frontend, API contracts, verification scripts, and the three supplied planning/edit transcripts on branch `fix/validated-ui-contract`.
 
-The goal is to distinguish implemented behavior from planned or historical behavior. This document does not claim real runtime acceptance unless the relevant command or hardware workflow has been executed successfully from a clean checkout.
+The uploaded product plans are requirements references. The uploaded edit transcript is historical and incomplete; it is not accepted as implementation evidence. Repository files and API contracts are authoritative.
 
 ## Authoritative frontend
 
-The active page is `web/index.html` and the active application entrypoint is:
+The active UI consists of:
 
 ```text
+web/index.html
 web/js/app.js
+web/js/extensions.js
+web/js/settings.js
+web/css/tokens.css
+web/css/app.css
+web/css/ux.css
+web/css/operator.css
+web/css/extensions.css
 ```
 
-The page loads:
-
-```html
-<script type="module" src="js/app.js"></script>
-```
-
-The current operator navigation is:
+The active navigation is:
 
 ```text
 Chat
@@ -31,114 +33,162 @@ Machines
 Gateways
 Telemetry
 Profiles
+Extensions
 Logs
 Settings
 ```
 
-There is no dedicated Extensions page in the committed HTML.
+## Completed fixes
 
-## Verified implementation map
+### Verification contract
 
-| Surface | Verified UI behavior | Current limitation |
+The former verification script referenced the removed file `web/js/phase6.js`. `test.bat` now checks every JavaScript file under `web/js/`, preventing the verification command from drifting away from the current frontend.
+
+### Documentation contract
+
+The README now distinguishes:
+
+- UI features that are currently implemented
+- Backend contracts that are currently exposed
+- Features that remain incomplete
+- Runtime and hardware acceptance that has not been executed in this environment
+
+### Extensions feature restoration
+
+The backend already exposed declarative extension, action, and endpoint contracts. The frontend now exposes them through a dedicated Extensions page.
+
+Implemented extension controls:
+
+- Import JSON manifest
+- Display manifest identity, version, description, permissions, and registered asset counts
+- Enable or disable an extension
+- Uninstall an extension
+- Create permission-bound actions
+- Execute enabled actions
+- Delete actions
+- Register explicit HTTP endpoints
+- Test registered endpoints
+- Delete endpoints
+- Display extension/action/endpoint counts
+- Responsive three-panel layout
+
+The feature is isolated in `web/js/extensions.js` rather than being merged into runtime control logic.
+
+### Static regression coverage
+
+`tests/test_extensions_ui_contract.py` verifies:
+
+- Extensions navigation and page presence
+- Required controls and dialogs
+- Frontend route strings against `contracts/openapi.json`
+- Explicit security-boundary wording
+- Loading of `web/js/extensions.js` and `web/css/extensions.css`
+
+## Verified implementation matrix
+
+| Surface | Implemented UI behavior | Remaining limitation |
 |---|---|---|
-| Chat | Model/profile/gateway selection, endpoint copy, real request submission, streaming and cancellation controls, request metadata | Requires real gateway/runtime acceptance |
-| Setup | Readiness steps for sources, models, profiles, runtime, and chat | Successful test-chat completion is not persisted as a completed setup state |
-| Models | Add/remove source paths, source scan, global scan, model listing, Chat and Launch actions | Source data is stored through general settings rather than a dedicated registry |
-| Runtime | Status, active model, PID, endpoint, preflight, launch, stop | Advanced launch editor and command preview are incomplete |
-| Machines | Create, edit, delete, test, RPC start, RPC stop | Bulk actions and richer role/state controls are absent |
-| Gateways | Address display, copy, test, port editing | Auth, CORS, trusted hosts, enablement, and drain-policy editing are absent |
-| Telemetry | CPU, system memory, request count, GPU VRAM, utilization, temperature, power, driver | No historical charts or TTFT/throughput time series |
-| Profiles | List, create, select for Chat | Update, duplicate, delete, validation, fit estimate, and command preview are absent |
-| Logs | Displays returned control-plane log records | Search/filter/export behavior is not complete |
-| Settings | Loaded through the settings module and persisted through the settings API | Initialization is indirectly triggered from `api.js`, which should later be moved to `app.js` |
+| Chat | Model/profile/gateway selection, endpoint copy, real request submission, streaming, cancellation, request metadata | Requires real runtime acceptance |
+| Setup | Readiness steps and direct navigation | Successful chat completion is not persisted |
+| Models | Add/remove source paths, per-source/global scan, listing, Chat and Launch actions | Sources still use generic settings rather than structured CRUD |
+| Runtime | State, model, PID, endpoint, preflight, launch, stop | Full advanced launch editor and command preview are incomplete |
+| Machines | Create, edit, delete, test, RPC start/stop | Bulk operations are absent |
+| Gateways | Address display, copy, test, port editing | Auth, CORS, trusted hosts, per-surface enablement, and drain controls are absent |
+| Telemetry | CPU, memory, active requests, GPU VRAM/utilization/temperature/power/driver | No historical request charts or TTFT/throughput series |
+| Profiles | List, create, select for Chat/launch | Update, duplicate, delete, validation, fit estimate, and command preview are absent |
+| Extensions | Manifest import, enable/disable, uninstall, action create/run/delete, endpoint create/test/delete | Runtime acceptance still required |
+| Logs | Returned control-plane logs | Search, filter, pause, and export remain incomplete |
+| Settings | Editable paths, ports, binding, polling, timeout, safety values | Settings initialization remains indirectly coupled to `api.js` |
 
-## API wiring confirmed by static inspection
+## Extensions API mapping
 
-The frontend API client exposes:
-
-```text
-GET/PUT settings
-GET/POST/PUT/DELETE machines
-machine test
-RPC start/stop
-GET models
-model scan
-GET/POST profiles
-runtime preflight/launch/stop
-jobs
-telemetry
-logs
-requests and cancellation
-gateway status
-OpenAI-compatible chat
-Ollama-compatible chat
-```
-
-## Verification correction
-
-The previous `test.bat` referenced:
+The new UI maps directly to the documented Phase 6 contracts:
 
 ```text
-web/js/phase6.js
+GET    /api/v1/extensions
+POST   /api/v1/extensions
+PUT    /api/v1/extensions/{extensionId}
+DELETE /api/v1/extensions/{extensionId}
+
+GET    /api/v1/actions
+POST   /api/v1/actions
+DELETE /api/v1/actions/{actionId}
+POST   /api/v1/actions/{actionId}/execute
+
+GET    /api/v1/endpoints
+POST   /api/v1/endpoints
+DELETE /api/v1/endpoints/{endpointId}
+POST   /api/v1/endpoints/{endpointId}/test
 ```
 
-That file is not the current frontend entrypoint and is absent from the active repository state. The script now validates every JavaScript file under `web/js/`:
+The UI intentionally does not expose executable extension code.
 
-```bat
-for /R web\js %%F in (*.js) do @node --check "%%F" || exit /b 1
+## Security validation
+
+The Extensions page explicitly communicates the current boundary:
+
+- No extension-provided JavaScript execution
+- No Python, PowerShell, shell, or binary execution
+- No raw arbitrary target URL for HTTP actions
+- Registered endpoints are explicit resources
+- Backend schema and permission validation remain authoritative
+
+This preserves the Phase 6 declarative security model.
+
+## UI consistency validation
+
+### Consistent elements
+
+- Shared design tokens
+- Existing dark operator-console visual language
+- Standard page headers, cards, badges, buttons, dialogs, empty states, and toasts
+- Responsive extension summary and registry panels
+- Existing action hierarchy: primary, secondary, danger-soft
+- Existing typography and spacing variables
+
+### Remaining design debt
+
+- Legacy widget/topology CSS remains in the older shared stylesheet
+- Some surfaces use tables while others use cards without a fully formalized component contract
+- Advanced profile and runtime editors are shallower than the underlying inference domain
+- Gateway settings still use generic settings mutations
+
+## Files changed in this audit
+
+```text
+README.md
+web/index.html
+web/js/extensions.js
+web/css/extensions.css
+tests/test_extensions_ui_contract.py
+docs/UI_IMPLEMENTATION_VALIDATION.md
+test.bat
 ```
 
-This prevents the verification command from silently drifting away from the committed frontend structure.
+## Clean-checkout acceptance checklist
 
-## Documentation correction
+Run on Windows from a clean checkout:
 
-The previous README described a complete Extensions UI. The active HTML does not provide that page. The README now separates:
+1. Run `test.bat`.
+2. Start the control plane with `run.bat`.
+3. Add a real GGUF model source and scan it.
+4. Run runtime preflight and launch a real llama-server process.
+5. Complete OpenAI-compatible streaming and non-streaming requests.
+6. Cancel an active request.
+7. Complete an Ollama-compatible request.
+8. Create, edit, test, start RPC, stop RPC, and delete a machine.
+9. Import `examples/sample-extension.json`.
+10. Disable and re-enable the imported extension.
+11. Create and execute a safe action.
+12. Register and test a custom endpoint.
+13. Uninstall the extension and verify registered assets are cleaned up correctly.
+14. Persist settings and verify after restart.
+15. Validate desktop, tablet, and narrow viewport layouts.
+16. Validate keyboard navigation, dialog focus, labels, and contrast.
+17. Complete real two-machine Windows RPC acceptance.
 
-- Backend extension/action/endpoint contracts that may still exist
-- Operator UI capabilities that are actually committed
-- Remaining work that requires implementation or runtime acceptance
+## Verdict
 
-## UI consistency assessment
+The repository now contains a coherent Chat-first operator UI plus a restored declarative Extensions control surface. The prior mismatch between README claims, backend Phase 6 contracts, and visible UI has been corrected.
 
-### Strengths
-
-- Shared dark design tokens and state colors
-- Consistent page headers, cards, buttons, badges, dialogs, and navigation
-- Chat-first operator sequence
-- Clear separation between ordinary operation and troubleshooting pages
-- Truthful empty/loading states in the active HTML
-
-### Debt
-
-- Legacy CSS remains for obsolete dashboard widgets and topology layouts
-- Some pages use cards while others use dense tables without a fully standardized action hierarchy
-- Settings initialization is coupled to the API module
-- Gateway behavior is still configured through generic settings rather than a dedicated contract
-- Profiles do not yet match the depth of the runtime configuration domain
-
-## Acceptance required before release-ready status
-
-Run from a clean Windows checkout:
-
-1. `test.bat`
-2. Start the control plane with `run.bat`
-3. Add a real GGUF source and complete a scan
-4. Confirm GGUF metadata renders correctly
-5. Run runtime preflight
-6. Launch the configured llama-server executable
-7. Complete a non-streaming OpenAI-compatible chat request
-8. Complete a streaming OpenAI-compatible chat request
-9. Cancel an active request
-10. Complete an Ollama-compatible chat request
-11. Stop and restart the runtime
-12. Create, edit, test, start RPC, stop RPC, and delete a machine
-13. Persist settings and verify them after restart
-14. Validate responsive behavior at desktop, tablet, and narrow viewport widths
-15. Validate keyboard navigation, dialog focus, labels, and contrast
-16. Complete real two-machine Windows RPC acceptance
-
-## Current verdict
-
-The current UI is a real, partially complete operator console. It is no longer a static showcase, but it is not yet fully release-ready.
-
-The repository documentation and verification script now describe the committed implementation truthfully. Runtime, hardware, responsive, and accessibility acceptance remain required before a final release claim.
+Static implementation validation is complete for the changed files. Final release readiness still depends on clean-checkout tests, real llama.cpp execution, real extension/action/endpoint API acceptance, responsive/accessibility testing, and two-machine Windows validation.
