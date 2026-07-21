@@ -35,6 +35,32 @@ class ExtensionsUiContractTests(unittest.TestCase):
             self.assertIn(route, script)
             self.assertIn(f'"/api/v1{route}', openapi)
 
+    def test_action_lifecycle_is_wired(self):
+        script = (ROOT / "web" / "js" / "extensions.js").read_text(encoding="utf-8")
+        for token in (
+            "action-edit",
+            "action-toggle",
+            "openActionDialog",
+            "saveAction",
+            "method:editing ? 'PUT' : 'POST'",
+            "/execute",
+            "method:'DELETE'",
+        ):
+            self.assertIn(token, script)
+
+    def test_endpoint_lifecycle_is_wired(self):
+        script = (ROOT / "web" / "js" / "extensions.js").read_text(encoding="utf-8")
+        for token in (
+            "endpoint-edit",
+            "endpoint-toggle",
+            "openEndpointDialog",
+            "saveEndpoint",
+            "method:editing ? 'PUT' : 'POST'",
+            "/test",
+            "method:'DELETE'",
+        ):
+            self.assertIn(token, script)
+
     def test_security_boundary_is_visible(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
         self.assertIn("No executable extension code is loaded", html)
