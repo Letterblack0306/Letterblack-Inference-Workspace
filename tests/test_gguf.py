@@ -26,3 +26,19 @@ class GgufTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             path=Path(td)/'m.gguf'; path.write_bytes(b'NOPE')
             with self.assertRaises(GgufError): parse_gguf_header(path)
+
+    def test_excludes_large_tokenizer_metadata_from_summary(self):
+        tokens = [f"token-{index}" for index in range(256)]
+        array = struct.pack('<IQ', 8, len(tokens)) + b''.join(s(token) for token in tokens)
+        entries = [
+            entry('general.architecture', 8, 'llama'),
+            s('tokenizer.ggml.tokens') + struct.pack('<I', 9) + array,
+            entry('llama.context_length', 4, 8192),
+        ]
+        raw = b'GGUF' + struct.pack('<IQQ', 3, 100, len(entries)) + b''.join(entries)
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / 'm.gguf'; path.write_bytes(raw)
+            data = parse_gguf_header(path)
+        self.assertEqual(data['contextLength'], 8192)
+        self.assertNotIn('raw', data)
+        self.assertNotIn('tokenizer.ggml.tokens', data)

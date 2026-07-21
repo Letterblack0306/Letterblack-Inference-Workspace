@@ -57,8 +57,8 @@ def controller_url(machine: dict[str, Any], route_key: str) -> str:
     return f'{scheme}://{address}:{port}{route}'
 
 
-def controller_status(machine: dict[str, Any]) -> dict[str, Any]:
-    return http_json('GET', controller_url(machine,'status'))['body']
+def controller_status(machine: dict[str, Any], *, timeout: float = 8.0) -> dict[str, Any]:
+    return http_json('GET', controller_url(machine,'status'), timeout=timeout)['body']
 
 
 def controller_rpc(machine: dict[str, Any], action: str) -> dict[str, Any]:
