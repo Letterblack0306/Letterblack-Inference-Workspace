@@ -11,7 +11,7 @@ if errorlevel 1 exit /b %errorlevel%
 for /R backend %%F in (*.py) do @python -m py_compile "%%F" || exit /b 1
 if errorlevel 1 exit /b %errorlevel%
 
-for /R web\js %%F in (*.js) do @node --check "%%F" || exit /b 1
+for /R web\js %%F in (*.js) do @node --input-type=module --check < "%%F" || exit /b 1
 if errorlevel 1 exit /b %errorlevel%
 
 echo Letterblack Inference Workspace validation passed.
