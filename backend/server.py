@@ -12,22 +12,25 @@ import urllib.parse
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from collections.abc import Callable
 from typing import Any
 
 if __package__ in {None, ""}:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-    from backend.contracts import create_job, envelope, error, new_id, now_ms, validate_machine, validate_workspace
+    from backend.contracts import create_job, envelope, error, new_id, now_ms, validate_machine, validate_profile, validate_workspace
     from backend.store import JsonStore
     from backend.runtime import ProcessManager, RuntimeFailure, build_llama_command, controller_rpc, controller_status, scan_gguf, tcp_probe
     from backend.gateway import ActiveRequest, GatewayError, GatewayRequestManager, OPENAI_ROUTES, OLLAMA_ROUTES, model_list, ollama_tags, proxy_request, upstream_base
     from backend.hardware import estimate_allocation, local_telemetry
+    from backend.machine_actions import default_machine_action_ids, machine_action_catalog
     from backend.extensions import combined_actions, combined_endpoints, combined_widgets, execute_http_action, normalized_extension, test_endpoint, validate_action, validate_endpoint, validate_extension
 else:
-    from .contracts import create_job, envelope, error, new_id, now_ms, validate_machine, validate_workspace
+    from .contracts import create_job, envelope, error, new_id, now_ms, validate_machine, validate_profile, validate_workspace
     from .store import JsonStore
     from .runtime import ProcessManager, RuntimeFailure, build_llama_command, controller_rpc, controller_status, scan_gguf, tcp_probe
     from .gateway import ActiveRequest, GatewayError, GatewayRequestManager, OPENAI_ROUTES, OLLAMA_ROUTES, model_list, ollama_tags, proxy_request, upstream_base
     from .hardware import estimate_allocation, local_telemetry
+    from .machine_actions import default_machine_action_ids, machine_action_catalog
     from .extensions import combined_actions, combined_endpoints, combined_widgets, execute_http_action, normalized_extension, test_endpoint, validate_action, validate_endpoint, validate_extension
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -36,6 +39,47 @@ CONTRACT_ROOT = ROOT / "contracts"
 STORE = JsonStore(ROOT / "data" / "state.json")
 PROCESS = ProcessManager(ROOT / "data" / "logs")
 GATEWAY = GatewayRequestManager()
+
+CONTROL_PLANE_HOST = "127.0.0.1"
+CONTROL_PLANE_PORT = 8088
+
+
+def control_plane_listener() -> dict[str, Any]:
+    """Return the only supported control-plane listener."""
+    return {
+        "host": CONTROL_PLANE_HOST,
+        "port": CONTROL_PLANE_PORT,
+        "url": f"http://{CONTROL_PLANE_HOST}:{CONTROL_PLANE_PORT}",
+        "remoteControlSupported": False,
+    }
+
+
+CONTROL_SERVER_SHUTDOWN_DELAY_SECONDS = 2.0
+_control_server_shutdown: Callable[[], None] | None = None
+_control_server_shutdown_lock = threading.Lock()
+
+
+def configure_control_server_shutdown(callback: Callable[[], None] | None) -> None:
+    """Register the active HTTP server's shutdown callback at process startup."""
+    global _control_server_shutdown
+    with _control_server_shutdown_lock:
+        _control_server_shutdown = callback
+
+
+def schedule_control_server_shutdown(delay_seconds: float = CONTROL_SERVER_SHUTDOWN_DELAY_SECONDS) -> dict[str, Any]:
+    """Stop the control server from a separate thread after a completed stop job."""
+    with _control_server_shutdown_lock:
+        callback = _control_server_shutdown
+    if callback is None:
+        raise RuntimeFailure(
+            "CONTROL_SERVER_SHUTDOWN_UNAVAILABLE",
+            "The active control server cannot be shut down from this process.",
+        )
+    delay = max(0.0, float(delay_seconds))
+    timer = threading.Timer(delay, callback)
+    timer.daemon = True
+    timer.start()
+    return {"scheduled": True, "delaySeconds": delay}
 
 CAPABILITIES = {
     "contractVersion": "6.0.0", "phase": 6, "runtimeMode": "declarative-extensibility",
@@ -214,7 +258,12 @@ def launch_task(body: dict[str,Any]):
         if not model: raise RuntimeFailure("MODEL_NOT_FOUND","Selected model is not registered.",{"modelId":body.get("modelId")})
         profile=next((p for p in state["profiles"] if p["id"]==body.get("profileId")),None) if body.get("profileId") else None
         update_job(job["id"],phase="validate",progress=10)
-        exe,args,cwd,port,host=build_llama_command(model,profile,state["machines"],body); job_evidence(job["id"],"validate","pass",command=[exe,*args])
+        launch_body = dict(body)
+        profile_values = (profile or {}).get("values", {})
+        configured_executable = state.get("settings", {}).get("paths", {}).get("llamaServerPath")
+        if configured_executable and not any((launch_body.get("executable"), launch_body.get("runtimePath"), profile_values.get("executable"), profile_values.get("runtimePath"))):
+            launch_body["executable"] = configured_executable
+        exe,args,cwd,port,host=build_llama_command(model,profile,state["machines"],launch_body); job_evidence(job["id"],"validate","pass",command=[exe,*args])
         rpc_ids=(profile or {}).get("values",{}).get("rpcMachineIds") or body.get("rpcMachineIds") or []
         update_job(job["id"],phase="test-machines",progress=25)
         for mid in rpc_ids:
@@ -241,23 +290,35 @@ def launch_task(body: dict[str,Any]):
 
 def stop_task(body: dict[str,Any]):
     def task(job):
-        update_job(job["id"],phase="drain-requests",progress=10); drain=GATEWAY.drain(float(body.get("drainTimeoutSec",30))); job_evidence(job["id"],"drain-requests","pass" if drain["drained"] else "fail",**drain)
-        if not drain["drained"] and not body.get("force",False): raise RuntimeFailure("REQUESTS_NOT_DRAINED","Active gateway requests did not drain before timeout.",drain)
-        update_job(job["id"],phase="stop-host",progress=30); stopped=PROCESS.stop(float(body.get("timeoutSec",10))); job_evidence(job["id"],"stop-host","pass",**stopped)
-        state=STORE.snapshot(); selected=body.get("machineIds")
-        workers=[m for m in state["machines"] if m.get("rpc",{}).get("enabled") and (selected is None or m["id"] in selected)]
-        update_job(job["id"],phase="stop-workers",progress=55)
-        worker_results=[]
-        for m in workers:
-            try:
-                response=controller_rpc(m,"stop"); worker_results.append({"machineId":m["id"],"ok":True,"response":response}); job_evidence(job["id"],"stop-workers","pass",machineId=m["id"])
-            except RuntimeFailure as exc:
-                worker_results.append({"machineId":m["id"],"ok":False,"error":{"code":exc.code,"message":str(exc)}}); job_evidence(job["id"],"stop-workers","fail",machineId=m["id"],code=exc.code)
-        update_job(job["id"],phase="verify-stopped",progress=85)
-        proc=PROCESS.status(); job_evidence(job["id"],"verify-stopped","pass" if not proc["running"] else "fail",process=proc)
-        if proc["running"]: raise RuntimeFailure("HOST_STILL_RUNNING","Managed host process is still running.",proc)
-        STORE.mutate(lambda st: st.update({"runtime":{"state":"stopped","activeModelId":None,"activeProfileId":None}})); GATEWAY.set_draining(False)
-        return {"host":stopped,"workers":worker_results}
+        try:
+            update_job(job["id"],phase="drain-requests",progress=10); drain=GATEWAY.drain(float(body.get("drainTimeoutSec",30))); job_evidence(job["id"],"drain-requests","pass" if drain["drained"] else "fail",**drain)
+            if not drain["drained"] and not body.get("force",False): raise RuntimeFailure("REQUESTS_NOT_DRAINED","Active gateway requests did not drain before timeout.",drain)
+            update_job(job["id"],phase="stop-host",progress=30); stopped=PROCESS.stop(float(body.get("timeoutSec",10))); job_evidence(job["id"],"stop-host","pass",**stopped)
+            state=STORE.snapshot(); selected=body.get("machineIds")
+            workers=[m for m in state["machines"] if m.get("rpc",{}).get("enabled") and (selected is None or m["id"] in selected)]
+            update_job(job["id"],phase="stop-workers",progress=55)
+            worker_results=[]
+            for m in workers:
+                try:
+                    response=controller_rpc(m,"stop"); worker_results.append({"machineId":m["id"],"ok":True,"response":response}); job_evidence(job["id"],"stop-workers","pass",machineId=m["id"])
+                except RuntimeFailure as exc:
+                    worker_results.append({"machineId":m["id"],"ok":False,"error":{"code":exc.code,"message":str(exc)}}); job_evidence(job["id"],"stop-workers","fail",machineId=m["id"],code=exc.code)
+            update_job(job["id"],phase="verify-stopped",progress=85)
+            proc=PROCESS.status(); job_evidence(job["id"],"verify-stopped","pass" if not proc["running"] else "fail",process=proc)
+            if proc["running"]: raise RuntimeFailure("HOST_STILL_RUNNING","Managed host process is still running.",proc)
+            STORE.mutate(lambda st: st.update({"runtime":{"state":"stopped","activeModelId":None,"activeProfileId":None}}))
+            failed_workers = [item for item in worker_results if not item["ok"]]
+            if failed_workers:
+                raise RuntimeFailure("WORKERS_NOT_STOPPED", "One or more selected worker runtimes could not be stopped.", {"workers": failed_workers})
+            result = {"host":stopped,"workers":worker_results}
+            if body.get("shutdownControlServer") is True:
+                update_job(job["id"], phase="shutdown-control-server", progress=95)
+                shutdown = schedule_control_server_shutdown()
+                job_evidence(job["id"], "shutdown-control-server", "scheduled", **shutdown)
+                result["controlServerShutdown"] = shutdown
+            return result
+        finally:
+            GATEWAY.set_draining(False)
     return task
 
 
@@ -413,6 +474,22 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self) -> None:
         parts = self._parts()
+        if parts[:3] == ["api", "v1", "profiles"] and len(parts) == 4:
+            try: body = self._json_body()
+            except (ValueError, json.JSONDecodeError) as exc: self._fail("INVALID_JSON", str(exc), 400); return
+            profile_id = parts[3]; body["id"] = profile_id
+            issues = validate_profile(body)
+            if issues: self._fail("VALIDATION_FAILED", "Profile validation failed.", 422, issues); return
+            def update_profile(state):
+                for index, item in enumerate(state["profiles"]):
+                    if item["id"] == profile_id:
+                        updated = dict(body); updated.setdefault("schemaVersion", item.get("schemaVersion", 1)); updated.setdefault("validationState", item.get("validationState", "unknown")); state["profiles"][index] = updated
+                        add_log(state, "info", "profiles", "Profile updated.", profileId=profile_id); return updated
+                return None
+            result = STORE.mutate(update_profile)
+            if result is None: self._fail("PROFILE_NOT_FOUND", "Profile was not found.", 404)
+            else: self._ok(result)
+            return
         if parts[:3] == ["api", "v1", "actions"] and len(parts) == 4:
             try: body = self._json_body()
             except (ValueError, json.JSONDecodeError) as exc: self._fail("INVALID_JSON", str(exc), 400); return
@@ -517,6 +594,15 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_DELETE(self) -> None:
         parts = self._parts()
+        if parts[:3] == ["api", "v1", "profiles"] and len(parts) == 4:
+            profile_id = parts[3]
+            def remove_profile(state):
+                before = len(state["profiles"]); state["profiles"] = [item for item in state["profiles"] if item["id"] != profile_id]
+                if len(state["profiles"]) != before: add_log(state, "warning", "profiles", "Profile deleted.", profileId=profile_id); return True
+                return False
+            if STORE.mutate(remove_profile): self._ok({"deleted": profile_id})
+            else: self._fail("PROFILE_NOT_FOUND", "Profile was not found.", 404)
+            return
         if parts[:3] == ["api", "v1", "actions"] and len(parts) == 4:
             action_id = parts[3]
             def remove_action(state):
@@ -620,6 +706,11 @@ class Handler(BaseHTTPRequestHandler):
             self._ok(combined_endpoints(state.get("customEndpoints", []), state.get("extensions", [])))
         elif parts == ["machines"]:
             self._ok(state["machines"])
+        elif parts == ["machine-actions"]:
+            try:
+                self._ok(machine_action_catalog()["actions"])
+            except ValueError as exc:
+                self._fail("MACHINE_ACTION_CATALOG_INVALID", str(exc), 500)
         elif parts == ["models"]:
             self._ok(state["models"])
         elif parts == ["profiles"]:
@@ -635,7 +726,17 @@ class Handler(BaseHTTPRequestHandler):
         elif parts == ["requests"]:
             self._ok(GATEWAY.snapshot())
         elif parts == ["gateway", "status"]:
-            self._ok({"state": "draining" if GATEWAY.snapshot()["draining"] else "accepting", "requests": GATEWAY.snapshot(), "runtime": state["runtime"]})
+            listener = control_plane_listener()
+            self._ok({
+                "state": "draining" if GATEWAY.snapshot()["draining"] else "accepting",
+                "requests": GATEWAY.snapshot(),
+                "runtime": state["runtime"],
+                "controlPlane": listener,
+                "routes": {
+                    "openai": f"{listener['url']}/v1",
+                    "ollama": listener["url"],
+                },
+            })
         elif parts == ["logs"]:
             self._ok(state["logs"][:200])
         elif parts == ["telemetry"]:
@@ -802,6 +903,7 @@ class Handler(BaseHTTPRequestHandler):
                 machine.setdefault("enabled", True)
                 machine.setdefault("tags", [])
                 machine.setdefault("paths", {})
+                machine.setdefault("actions", default_machine_action_ids())
                 machine["status"] = "unknown"
                 state["machines"].append(machine)
                 add_log(state, "info", "machines", "Machine registered.", machineId=machine["id"])
@@ -826,14 +928,15 @@ class Handler(BaseHTTPRequestHandler):
             diagnostic = None
             try:
                 with socket.create_connection((address, port), timeout=1.0):
-                    reachable = True
+                    pass
             except OSError as exc:
                 diagnostic = str(exc)
             latency = round((time.monotonic() - started) * 1000, 2)
             controllerInfo = None
-            if reachable:
+            if diagnostic is None:
                 try: controllerInfo = controller_status(machine)
                 except RuntimeFailure as exc: diagnostic = f"TCP reachable; status contract failed: {exc}"
+                else: reachable = True
             result = {"machineId": machine_id, "reachable": reachable, "latencyMs": latency, "diagnostic": diagnostic, "controller": controllerInfo, "testedAt": now_ms()}
             def record(state):
                 for item in state["machines"]:
@@ -862,9 +965,8 @@ class Handler(BaseHTTPRequestHandler):
             self._ok(job, 202)
             return
         if parts == ["profiles"]:
-            if not isinstance(body, dict) or not body.get("id") or not body.get("name"):
-                self._fail("VALIDATION_FAILED", "Profile id and name are required.", 422)
-                return
+            issues = validate_profile(body)
+            if issues: self._fail("VALIDATION_FAILED", "Profile validation failed.", 422, issues); return
             def add(state):
                 if any(p["id"] == body["id"] for p in state["profiles"]):
                     return None
@@ -945,10 +1047,13 @@ class Handler(BaseHTTPRequestHandler):
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Letterblack Local Inference Workspace Phase 6 extensibility server")
-    parser.add_argument("--host", default=os.environ.get("LB_HOST", "127.0.0.1"))
-    parser.add_argument("--port", type=int, default=int(os.environ.get("LB_PORT", "8088")))
+    parser.add_argument("--host", default=CONTROL_PLANE_HOST)
+    parser.add_argument("--port", type=int, default=CONTROL_PLANE_PORT)
     args = parser.parse_args()
+    if args.host != CONTROL_PLANE_HOST or args.port != CONTROL_PLANE_PORT:
+        parser.error("Remote control is unsupported; the control plane is fixed to http://127.0.0.1:8088.")
     server = ThreadingHTTPServer((args.host, args.port), Handler)
+    configure_control_server_shutdown(server.shutdown)
     print(f"Letterblack Phase 6 serving http://{args.host}:{args.port}")
     print("Phase 6 declarative extensions, custom actions, widgets, and endpoints enabled.")
     try:

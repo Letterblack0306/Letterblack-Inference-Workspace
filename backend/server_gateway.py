@@ -29,10 +29,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Letterblack Inference Workspace server with settings and gateway capability contracts"
     )
-    parser.add_argument("--host", default=os.environ.get("LB_HOST", "127.0.0.1"))
-    parser.add_argument("--port", type=int, default=int(os.environ.get("LB_PORT", "8088")))
+    parser.add_argument("--host", default=base.CONTROL_PLANE_HOST)
+    parser.add_argument("--port", type=int, default=base.CONTROL_PLANE_PORT)
     args = parser.parse_args()
+    if args.host != base.CONTROL_PLANE_HOST or args.port != base.CONTROL_PLANE_PORT:
+        parser.error("Remote control is unsupported; the control plane is fixed to http://127.0.0.1:8088.")
     server = ThreadingHTTPServer((args.host, args.port), GatewayCapabilityHandler)
+    base.configure_control_server_shutdown(server.shutdown)
     print(f"Letterblack Phase 6.1.1 serving http://{args.host}:{args.port}")
     print("Settings and gateway capability contracts enabled.")
     try:

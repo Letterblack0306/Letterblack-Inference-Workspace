@@ -6,6 +6,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+from .machine_actions import default_machine_action_ids
+
 
 DEFAULT_STATE: dict[str, Any] = {
     "schemaVersion": 7,
@@ -29,31 +31,11 @@ DEFAULT_STATE: dict[str, Any] = {
         }
     ],
     "activeWorkspaceId": "workspace-default",
-    "machines": [
-        {
-            "id": "machine-host",
-            "name": "Host",
-            "addresses": ["192.168.1.240"],
-            "controller": {"scheme": "http", "port": 50053},
-            "rpc": {"port": 50052, "enabled": False},
-            "paths": {"runtime": "Z:\\LLM_Proxy", "models": "Z:\\LLM_Proxy\\Models"},
-            "enabled": True,
-            "tags": ["host", "lan"],
-            "status": "unknown",
-        },
-        {
-            "id": "machine-worker-01",
-            "name": "Worker 01",
-            "addresses": ["192.168.1.155"],
-            "controller": {"scheme": "http", "port": 50053},
-            "rpc": {"port": 50052, "enabled": True},
-            "paths": {"runtime": "D:\\Developement\\LLM_Proxy", "models": "D:\\Developement\\LLM_Proxy\\Models"},
-            "enabled": True,
-            "tags": ["worker", "lan"],
-            "status": "unknown",
-        },
-    ],
-    "modelSources": [{"id":"source-host-models","name":"Host models","path":"Z:\\LLM_Proxy\\Models","enabled":True}],
+    "machines": [],
+    # A fresh workspace must not inherit a path from the developer's machine.
+    # Model sources are registered by the operator through the Models or
+    # Settings surface after installation.
+    "modelSources": [],
     "models": [],
     "profiles": [],
     "jobs": [],
@@ -99,6 +81,10 @@ class JsonStore:
             for key, value in DEFAULT_STATE.items():
                 if key not in state:
                     state[key] = deepcopy(value)
+                    changed = True
+            for machine in state.get("machines", []):
+                if isinstance(machine, dict) and "actions" not in machine:
+                    machine["actions"] = default_machine_action_ids()
                     changed = True
             # GGUF scanner versions before schema 7 persisted complete tokenizer
             # metadata. A single model can contain hundreds of thousands of tokens,

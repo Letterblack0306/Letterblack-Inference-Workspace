@@ -13,6 +13,8 @@ node_modules/
 
 dist/
 build/
+**/bin/
+**/obj/
 coverage/
 .pytest_cache/
 
@@ -21,6 +23,12 @@ web-before-*/
 data/*.tmp
 data/*.lock
 data/*.bak
+data/*.backup*
+data/state.pre-*.json
+data/state.corrupted.*
+data/state.corrupt.json
+data/state.recovery-*.json
+web/*.encoding-backup-*.html
 
 Letterblack Local Inference Workspace_files/
 *.download

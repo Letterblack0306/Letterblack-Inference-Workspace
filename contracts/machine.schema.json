@@ -12,6 +12,7 @@
     "rpc": {"type": "object", "required": ["port", "enabled"], "properties": {"port": {"type": "integer", "minimum": 1, "maximum": 65535}, "enabled": {"type": "boolean"}}},
     "paths": {"type": "object", "additionalProperties": {"type": "string"}},
     "tags": {"type": "array", "items": {"type": "string"}},
+    "actions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
     "enabled": {"type": "boolean"}
   },
   "additionalProperties": true

@@ -1,4 +1,13 @@
+/* ============================================================
+   DESIGN TOKENS - Letterblack Inference Workspace
+   Single source of truth for color, spacing, type, radius,
+   shadow and motion. Additive only: existing token names keep
+   their original values so nothing already styled changes.
+   Add new tokens here as the UI grows (do not hardcode in files).
+   ============================================================ */
+
 :root {
+  /* ----- Core palette (existing - do not change values) ----- */
   --canvas: #09090b;
   --canvas-2: #0d0e12;
   --surface-1: #121215;
@@ -16,12 +25,77 @@
   --danger: #ef4444;
   --info: #60a5fa;
   --purple: #a78bfa;
+
+  /* ----- Radius scale (existing values preserved) ----- */
   --radius-xs: 6px;
   --radius-sm: 10px;
   --radius-md: 14px;
   --radius-lg: 20px;
-  --shadow: 0 18px 60px rgba(0,0,0,.35);
+  --radius-xl: 28px;   /* new */
+  --radius-xxl: 36px;  /* new */
+
+  /* ----- Shadow & type (existing) ----- */
+  --shadow: 0 18px 60px rgba(0, 0, 0, .35);
   --font-ui: "Manrope", "Segoe UI", Arial, sans-serif;
   --font-display: "Space Grotesk", "Segoe UI", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", Consolas, monospace;
+
+  /* ----- NEW: semantic color aliases (point to core tokens) ----- */
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface-1);
+  --color-surface-raised: var(--surface-2);
+  --color-surface-elevated: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-2);
+  --color-text-muted: var(--text-3);
+  --color-accent: var(--accent);
+  --color-accent-hover: #7df0df;
+  --color-accent-bg: rgba(94, 234, 212, .08);
+  --color-success: var(--accent-2);
+  --color-success-bg: rgba(34, 197, 94, .08);
+  --color-warning: var(--warning);
+  --color-warning-bg: rgba(245, 158, 11, .08);
+  --color-danger: var(--danger);
+  --color-danger-bg: rgba(239, 68, 68, .08);
+  --color-info: var(--info);
+  --color-info-bg: rgba(96, 165, 250, .08);
+
+  /* ----- NEW: spacing scale ----- */
+  --space-xxs: 2px;
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-xxl: 32px;
+  --space-xxxl: 48px;
+
+  /* ----- NEW: font-size scale ----- */
+  --font-size-xs: 10px;
+  --font-size-sm: 11px;
+  --font-size-md: 13px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-xxl: 26px;
+  --font-size-xxxl: 32px;
+
+  /* ----- NEW: shadow scale ----- */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .3);
+  --shadow-md: var(--shadow);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, .5);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, .6);
+
+  /* ----- NEW: motion ----- */
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+  --transition-slow: 350ms ease;
 }
+
+/* Dark theme hook (dark is already the default palette above). */
+[data-theme="dark"] {
+  --color-canvas: #09090b;
+  --color-surface: #121215;
+}
+

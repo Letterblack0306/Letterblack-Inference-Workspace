@@ -76,6 +76,8 @@ def scan_gguf(sources: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not root.exists() or not root.is_dir():
             continue
         for path in root.rglob('*.gguf'):
+            if path.name.lower().startswith('mmproj-'):
+                continue
             try: stat=path.stat()
             except OSError: continue
             key=str(path.resolve()).lower()
@@ -113,8 +115,15 @@ class ProcessManager:
 
     def start(self, executable: str, args: list[str], cwd: str|None=None) -> dict[str, Any]:
         with self._lock:
-            if self._process and self._process.poll() is None:
-                raise RuntimeFailure('RUNTIME_ALREADY_RUNNING','A managed llama-server process is already running.',self.status())
+            if self._process:
+                rc = self._process.poll()
+                if rc is not None:
+                    self._process = None
+                    if self._log_handle:
+                        self._log_handle.close()
+                        self._log_handle = None
+                else:
+                    raise RuntimeFailure('RUNTIME_ALREADY_RUNNING','A managed llama-server process is already running.',self.status())
             exe=Path(os.path.expandvars(executable)).expanduser()
             if not exe.exists() or not exe.is_file():
                 raise RuntimeFailure('EXECUTABLE_NOT_FOUND','llama-server executable was not found.',{'path':str(exe)})
@@ -158,10 +167,10 @@ def build_llama_command(model: dict[str,Any], profile: dict[str,Any]|None, machi
         raise RuntimeFailure('MODEL_NOT_FOUND','The selected GGUF model file was not found.',{'path':model_path})
     port=int(values.get('port',1234)); host=str(values.get('host','127.0.0.1'))
     args=['-m',model_path,'--host',host,'--port',str(port)]
-    mapping=[('gpuLayers','-ngl'),('contextSize','-c'),('batchSize','-b'),('ubatchSize','-ub'),('threads','-t')]
+    mapping=[('gpuLayers','-ngl'),('contextSize','-c'),('batchSize','-b'),('ubatchSize','-ub'),('threads','-t'),('parallel','--parallel')]
     for key,flag in mapping:
         if values.get(key) is not None: args += [flag,str(values[key])]
-    if values.get('flashAttention'): args += ['-fa']
+    if values.get('flashAttention'): args += ['-fa', 'on']
     if values.get('cacheTypeK'): args += ['-ctk',str(values['cacheTypeK'])]
     if values.get('cacheTypeV'): args += ['-ctv',str(values['cacheTypeV'])]
     rpc_ids=values.get('rpcMachineIds') or body.get('rpcMachineIds') or []
