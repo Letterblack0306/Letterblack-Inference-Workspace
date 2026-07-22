@@ -3,12 +3,13 @@ from __future__ import annotations
 import unittest
 
 from backend.server_settings import changed_restart_fields, validate_settings
+from backend import server as base
 
 
 def valid_settings():
     return {
         "paths": {
-            "applicationRoot": "Z:\\LLM_Proxy\\ControlUI",
+            "applicationRoot": str(base.ROOT),
             "modelSources": ["Z:\\LLM_Proxy\\Models"],
             "llamaServerPath": "",
         },
@@ -34,6 +35,17 @@ def valid_settings():
 class SettingsContractTests(unittest.TestCase):
     def test_valid_settings(self):
         self.assertEqual(validate_settings(valid_settings()), [])
+
+    def test_empty_model_sources_are_valid_for_a_new_workspace(self):
+        value = valid_settings()
+        value["paths"]["modelSources"] = []
+        self.assertEqual(validate_settings(value), [])
+
+    def test_application_root_must_match_the_running_control_plane(self):
+        value = valid_settings()
+        value["paths"]["applicationRoot"] = "C:\\Not-The-Running-Workspace"
+        issues = validate_settings(value)
+        self.assertTrue(any(item["path"] == "paths.applicationRoot" for item in issues))
 
     def test_duplicate_ports_rejected(self):
         value = valid_settings()

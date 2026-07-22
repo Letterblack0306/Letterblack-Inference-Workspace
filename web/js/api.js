@@ -42,6 +42,7 @@ export const api = {
   updateSettings: value => request('/settings', {method: 'PUT', body: body(value)}),
 
   machines: () => request('/machines'),
+  machineActions: () => request('/machine-actions'),
   createMachine: value => request('/machines', {method: 'POST', body: body(value)}),
   updateMachine: (id, value) => request(`/machines/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
   deleteMachine: id => request(`/machines/${encodeURIComponent(id)}`, {method: 'DELETE'}),

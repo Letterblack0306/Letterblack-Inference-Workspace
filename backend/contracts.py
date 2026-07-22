@@ -55,6 +55,9 @@ def validate_machine(value: Any) -> list[dict[str, str]]:
         port = section.get("port")
         if not isinstance(port, int) or not 1 <= port <= 65535:
             issues.append({"field": f"{field}.port", "message": "Port must be an integer from 1 to 65535."})
+    actions = value.get("actions", [])
+    if not isinstance(actions, list) or not all(isinstance(item, str) and ID_PATTERN.match(item) for item in actions):
+        issues.append({"field": "actions", "message": "Actions must be an array of action IDs."})
     return issues
 
 

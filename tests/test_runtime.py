@@ -21,9 +21,9 @@ class RuntimeTests(unittest.TestCase):
     def test_command_is_structured(self):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td); exe=root/('llama-server.exe'); exe.write_text('x'); model=root/'m.gguf'; model.write_bytes(b'x')
-            profile={'values':{'executable':str(exe),'port':1234,'host':'127.0.0.1','gpuLayers':99,'contextSize':8192,'flashAttention':True}}
+            profile={'values':{'executable':str(exe),'port':1234,'host':'127.0.0.1','gpuLayers':99,'contextSize':8192,'parallel':2,'flashAttention':True}}
             result=build_llama_command({'path':str(model)},profile,[],{})
-            self.assertIn('-ngl',result[1]); self.assertIn('-fa',result[1])
+            self.assertIn('-ngl',result[1]); self.assertIn('-fa',result[1]); self.assertIn('--parallel',result[1]); self.assertIn('2',result[1])
 
     def test_reserved_extra_args_rejected(self):
         with tempfile.TemporaryDirectory() as td:

@@ -22,6 +22,7 @@ if __package__ in {None, ""}:
     from backend.runtime import ProcessManager, RuntimeFailure, build_llama_command, controller_rpc, controller_status, scan_gguf, tcp_probe
     from backend.gateway import ActiveRequest, GatewayError, GatewayRequestManager, OPENAI_ROUTES, OLLAMA_ROUTES, model_list, ollama_tags, proxy_request, upstream_base
     from backend.hardware import estimate_allocation, local_telemetry
+    from backend.machine_actions import default_machine_action_ids, machine_action_catalog
     from backend.extensions import combined_actions, combined_endpoints, combined_widgets, execute_http_action, normalized_extension, test_endpoint, validate_action, validate_endpoint, validate_extension
 else:
     from .contracts import create_job, envelope, error, new_id, now_ms, validate_machine, validate_profile, validate_workspace
@@ -29,6 +30,7 @@ else:
     from .runtime import ProcessManager, RuntimeFailure, build_llama_command, controller_rpc, controller_status, scan_gguf, tcp_probe
     from .gateway import ActiveRequest, GatewayError, GatewayRequestManager, OPENAI_ROUTES, OLLAMA_ROUTES, model_list, ollama_tags, proxy_request, upstream_base
     from .hardware import estimate_allocation, local_telemetry
+    from .machine_actions import default_machine_action_ids, machine_action_catalog
     from .extensions import combined_actions, combined_endpoints, combined_widgets, execute_http_action, normalized_extension, test_endpoint, validate_action, validate_endpoint, validate_extension
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -704,6 +706,11 @@ class Handler(BaseHTTPRequestHandler):
             self._ok(combined_endpoints(state.get("customEndpoints", []), state.get("extensions", [])))
         elif parts == ["machines"]:
             self._ok(state["machines"])
+        elif parts == ["machine-actions"]:
+            try:
+                self._ok(machine_action_catalog()["actions"])
+            except ValueError as exc:
+                self._fail("MACHINE_ACTION_CATALOG_INVALID", str(exc), 500)
         elif parts == ["models"]:
             self._ok(state["models"])
         elif parts == ["profiles"]:
@@ -896,6 +903,7 @@ class Handler(BaseHTTPRequestHandler):
                 machine.setdefault("enabled", True)
                 machine.setdefault("tags", [])
                 machine.setdefault("paths", {})
+                machine.setdefault("actions", default_machine_action_ids())
                 machine["status"] = "unknown"
                 state["machines"].append(machine)
                 add_log(state, "info", "machines", "Machine registered.", machineId=machine["id"])
@@ -920,14 +928,15 @@ class Handler(BaseHTTPRequestHandler):
             diagnostic = None
             try:
                 with socket.create_connection((address, port), timeout=1.0):
-                    reachable = True
+                    pass
             except OSError as exc:
                 diagnostic = str(exc)
             latency = round((time.monotonic() - started) * 1000, 2)
             controllerInfo = None
-            if reachable:
+            if diagnostic is None:
                 try: controllerInfo = controller_status(machine)
                 except RuntimeFailure as exc: diagnostic = f"TCP reachable; status contract failed: {exc}"
+                else: reachable = True
             result = {"machineId": machine_id, "reachable": reachable, "latencyMs": latency, "diagnostic": diagnostic, "controller": controllerInfo, "testedAt": now_ms()}
             def record(state):
                 for item in state["machines"]:

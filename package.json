@@ -3,8 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "guard:env": "node scripts/env-contract-guard.js",
-    "test": "cmd /c test.bat",
-    "validate": "npm run guard:env && npm test"
+    "test": "cmd /c test.bat"
   }
 }

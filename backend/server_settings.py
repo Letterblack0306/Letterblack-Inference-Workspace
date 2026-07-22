@@ -13,7 +13,6 @@ from . import server as base
 _ALLOWED_TOP_LEVEL = {"paths", "ports", "runtime", "safety"}
 _PORT_KEYS = ("dashboard", "openaiGateway", "ollamaGateway", "workerController", "rpc")
 _RESTART_FIELDS = {
-    "paths.applicationRoot",
     "paths.llamaServerPath",
 }
 
@@ -59,6 +58,7 @@ def _current_settings(state: dict[str, Any]) -> dict[str, Any]:
     for section in _ALLOWED_TOP_LEVEL:
         if isinstance(current.get(section), dict):
             merged[section].update(deepcopy(current[section]))
+    merged["paths"]["applicationRoot"] = str(base.ROOT)
     merged["ports"]["dashboard"] = base.CONTROL_PLANE_PORT
     merged["runtime"]["bindAddress"] = base.CONTROL_PLANE_HOST
     merged["safety"]["allowRemoteDashboard"] = False
@@ -93,11 +93,11 @@ def validate_settings(body: Any) -> list[dict[str, Any]]:
     if extra:
         issues.append({"path": "paths", "message": "Unsupported path settings.", "keys": extra})
     app_root = paths.get("applicationRoot")
-    if not isinstance(app_root, str) or not _is_absolute_path(app_root):
-        issues.append({"path": "paths.applicationRoot", "message": "Application root must be an absolute path."})
+    if app_root != str(base.ROOT):
+        issues.append({"path": "paths.applicationRoot", "message": "Application root is reported by the running control plane and cannot be changed from settings."})
     model_sources = paths.get("modelSources")
-    if not isinstance(model_sources, list) or not model_sources:
-        issues.append({"path": "paths.modelSources", "message": "At least one model source is required."})
+    if not isinstance(model_sources, list):
+        issues.append({"path": "paths.modelSources", "message": "Model sources must be an array."})
     elif any(not isinstance(item, str) or not _is_absolute_path(item) for item in model_sources):
         issues.append({"path": "paths.modelSources", "message": "Every model source must be an absolute path."})
     llama_path = paths.get("llamaServerPath")

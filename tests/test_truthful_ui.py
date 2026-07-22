@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import unittest
 
@@ -27,6 +28,7 @@ class TruthfulUiTests(unittest.TestCase):
             "/capabilities",
             "/system/status",
             "/machines",
+            "/machine-actions",
             "/models",
             "/models/scan",
             "/profiles",
@@ -118,6 +120,15 @@ class TruthfulUiTests(unittest.TestCase):
         self.assertIn('id="exportLogsBtn"', html)
         self.assertIn('function filteredLogs(', app)
         self.assertIn('function exportLogs()', app)
+
+    def test_machine_actions_are_config_driven(self):
+        app = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
+        catalog = json.loads((ROOT / "contracts" / "machine-actions.json").read_text(encoding="utf-8"))
+
+        self.assertIn("state.machineActions", app)
+        self.assertIn("machine-action", app)
+        self.assertNotIn("test-machine", app)
+        self.assertTrue(any(action["id"] == "disconnect" for action in catalog["actions"]))
 
 
 if __name__ == "__main__":

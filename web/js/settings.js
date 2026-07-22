@@ -10,7 +10,8 @@ export function installSettingsUi(api, notify) {
     <div class="settings-layout">
       <div class="content-card settings-section">
         <h3>Paths</h3>
-        <label>Application root<input id="settingApplicationRoot" autocomplete="off"></label>
+        <label>Application root<input id="settingApplicationRoot" autocomplete="off" readonly></label>
+        <p>Applied location of the running control plane. Move or start the workspace from the required location instead of editing this value.</p>
         <label>Model sources<textarea id="settingModelSources" rows="4" placeholder="One absolute path per line"></textarea></label>
         <label>llama-server executable<input id="settingLlamaServerPath" autocomplete="off" placeholder="Optional absolute path"></label>
       </div>
