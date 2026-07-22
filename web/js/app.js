@@ -21,7 +21,8 @@ const PAGES = [
   {id:'profiles', label:'Profiles', icon:'icon-profiles', showCount:false},
   {id:'extensions', label:'Extensions', icon:'icon-extensions', showCount:true, countId:'extensionCount'},
   {id:'logs', label:'Logs', icon:'icon-logs', showCount:false},
-  {id:'settings', label:'Settings', icon:'icon-settings', showCount:false},
+    {id:'settings', label:'Settings', icon:'icon-settings', showCount:false},
+];
 
 const PAGE_CONTENT = {
   chat: { title: 'Playground', subtitle: 'Test your model', description: 'Select a model, start the runtime, and send a real inference request.', render: renderChatAvailability },
