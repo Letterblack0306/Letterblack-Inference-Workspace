@@ -1,0 +1,28 @@
+.data-table-wrap {
+  overflow:auto;
+}
+
+.data-table {
+  width:100%;
+  border-collapse:collapse;
+}
+
+.data-table th,.data-table td {
+  padding:11px 14px;
+  border-bottom:1px solid var(--border);
+  text-align:left;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+.data-table th {
+  color:var(--text-3);
+  font-size:9px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  background:rgba(255,255,255,.012);
+}
+
+.data-table code {
+  font-family:var(--font-mono);
+}

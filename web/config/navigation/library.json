@@ -1,0 +1,25 @@
+{
+  "id": "library",
+  "label": "Library",
+  "items": [
+    {
+      "id": "models",
+      "label": "Models",
+      "icon": "models",
+      "page": "models",
+      "badgeId": "modelCount"
+    },
+    {
+      "id": "runtime",
+      "label": "Runtime",
+      "icon": "runtime",
+      "page": "runtime"
+    },
+    {
+      "id": "profiles",
+      "label": "Profiles",
+      "icon": "profiles",
+      "page": "profiles"
+    }
+  ]
+}

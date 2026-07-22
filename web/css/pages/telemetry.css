@@ -1,0 +1,84 @@
+.telemetry-metrics {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  padding:14px 14px 0;
+}
+
+.telemetry-metrics div {
+  padding:10px;
+  background:var(--canvas-2);
+  border:1px solid var(--border);
+  border-radius:9px;
+}
+
+.telemetry-metrics span,.telemetry-metrics strong,.telemetry-metrics small {
+  display:block;
+}
+
+.telemetry-metrics span {
+  color:var(--text-3);
+  font-size:10px;
+}
+
+.telemetry-metrics strong {
+  font:700 14px var(--font-mono);
+  margin:4px 0;
+}
+
+.telemetry-metrics small {
+  color:#8ce7ae;
+  font-size:9px;
+}
+
+.chart {
+  position:relative;
+  height:150px;
+  margin:12px 14px 14px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  overflow:hidden;
+  background:var(--canvas-2);
+}
+
+.chart svg {
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.chart-area {
+  fill:url(#area);
+}
+
+.chart-line {
+  fill:none;
+  stroke:var(--accent);
+  stroke-width:2;
+}
+
+.chart-grid {
+  position:absolute;
+  inset:0;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:25% 33.333%;
+}
+
+.telemetry-dashboard {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.large-placeholder-chart {
+  height:330px;
+  margin-top:18px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(94,234,212,.12),transparent),repeating-linear-gradient(0deg,transparent 0 39px,rgba(255,255,255,.04) 40px),repeating-linear-gradient(90deg,transparent 0 79px,rgba(255,255,255,.04) 80px);
+}
+
+.large-placeholder-chart.alt {
+  background:linear-gradient(180deg,rgba(167,139,250,.12),transparent),repeating-linear-gradient(0deg,transparent 0 39px,rgba(255,255,255,.04) 40px),repeating-linear-gradient(90deg,transparent 0 79px,rgba(255,255,255,.04) 80px);
+}

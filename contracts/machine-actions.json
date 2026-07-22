@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "actions": [
+    {"id": "test", "label": "Test", "operation": "test", "when": "always", "style": "secondary"},
+    {"id": "edit", "label": "Edit", "operation": "edit", "when": "always", "style": "secondary"},
+    {"id": "start-rpc", "label": "Start RPC", "operation": "rpc-start", "when": "rpc-enabled", "style": "secondary"},
+    {"id": "stop-rpc", "label": "Stop RPC", "operation": "rpc-stop", "when": "rpc-enabled", "style": "secondary"},
+    {"id": "disconnect", "label": "Disconnect", "operation": "set-enabled", "enabled": false, "when": "enabled", "style": "danger-soft"},
+    {"id": "connect", "label": "Connect", "operation": "set-enabled", "enabled": true, "when": "disabled", "style": "primary"},
+    {"id": "delete", "label": "Delete", "operation": "delete", "when": "always", "style": "danger-soft"}
+  ]
+}

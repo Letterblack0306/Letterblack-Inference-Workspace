@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "app": {
+    "name": "Letterblack Inference Workspace",
+    "version": "1.0.0",
+    "description": "Local inference workspace for GGUF models and llama.cpp"
+  },
+  "stateRequirements": {
+    "runtime.running": { "description": "The llama.cpp runtime is active", "guidance": "Start the runtime from the Runtime page or Chat strip." },
+    "models.exists": { "description": "At least one model is registered", "guidance": "Add a model source folder and scan for GGUF files." },
+    "models.selected": { "description": "A model is selected for inference", "guidance": "Select a model from the Models page or the Chat dropdown." },
+    "modelSources.exists": { "description": "At least one model source folder is configured", "guidance": "Add a model source folder on the Models or Settings page." },
+    "profile.selected": { "description": "A launch profile is selected", "guidance": "Create or select a launch profile." },
+    "machines.exists": { "description": "At least one machine is registered", "guidance": "Add a host or worker machine on the Machines page." }
+  },
+  "menus": [
+    "menu-ledger/main.json",
+    "menu-ledger/library.json",
+    "menu-ledger/cluster.json",
+    "menu-ledger/observe.json",
+    "menu-ledger/system.json"
+  ],
+  "workflows": [
+    "workflows/first-time-setup.json",
+    "workflows/multi-machine.json"
+  ]
+}

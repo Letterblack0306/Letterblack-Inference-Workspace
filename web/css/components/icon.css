@@ -1,0 +1,28 @@
+/* SVG icon system. Icons inherit color via currentColor. */
+.icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  display: inline-block;
+  vertical-align: middle;
+  fill: none;
+  stroke: currentColor;
+}
+
+/* Nav glyph slot keeps the grid column but now holds a vector icon. */
+.nav-glyph.icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Icon-only buttons center the glyph. */
+.icon-button .icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Slightly larger variant for step indicators / empty states. */
+.icon.lg {
+  width: 20px;
+  height: 20px;
+}

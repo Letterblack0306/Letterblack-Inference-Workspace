@@ -1,0 +1,12 @@
+{
+  "id": "multi-machine",
+  "label": "Multi-Machine Setup",
+  "description": "Set up a cluster of machines.",
+  "steps": [
+    { "page": "machines", "action": "add-machine", "label": "Add host machine", "guidance": "Register the host machine." },
+    { "page": "machines", "action": "add-machine", "label": "Add worker machines", "guidance": "Register worker machines." },
+    { "page": "machines", "action": "test-machines", "label": "Test connectivity", "guidance": "Verify each machine is reachable." },
+    { "page": "machines", "action": "start-rpc", "label": "Start RPC", "guidance": "Start RPC on each worker." },
+    { "page": "runtime", "action": "start-runtime", "label": "Start distributed runtime", "guidance": "Launch with distributed execution." }
+  ]
+}

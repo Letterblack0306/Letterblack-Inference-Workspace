@@ -1,0 +1,154 @@
+.topology-toolbar {
+  display:flex;
+  gap:7px;
+  padding:13px 16px 0;
+}
+
+.topology-canvas {
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) 110px minmax(180px,1fr);
+  gap:14px;
+  align-items:center;
+  padding:16px;
+}
+
+.machine-node {
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--canvas-2);
+  padding:14px;
+}
+
+.machine-node.host-node {
+  border-color:rgba(94,234,212,.3);
+}
+
+.node-head {
+  display:grid;
+  grid-template-columns:10px 1fr;
+  gap:2px 7px;
+}
+
+.node-head small {
+  grid-column:2;
+  color:var(--text-3);
+  font:10px var(--font-mono);
+}
+
+.node-grid {
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:6px;
+  margin-top:12px;
+  font-size:10px;
+}
+
+.node-grid span {
+  color:var(--text-3);
+}
+
+.node-grid b {
+  font-family:var(--font-mono);
+}
+
+.mini-meter {
+  height:5px;
+  background:var(--control);
+  border-radius:999px;
+  overflow:hidden;
+  margin-top:12px;
+}
+
+.mini-meter span {
+  display:block;
+  height:100%;
+  background:var(--accent);
+}
+
+.mini-meter.worker span {
+  background:var(--purple);
+}
+
+.topology-link {
+  text-align:center;
+  color:var(--text-3);
+  font:10px var(--font-mono);
+}
+
+.topology-link span,.topology-link strong,.topology-link small {
+  display:block;
+}
+
+.topology-link strong {
+  color:var(--text);
+  font-size:13px;
+  margin:4px;
+}
+
+.add-machine-card {
+  display:none;
+  grid-column:1/-1;
+  width:100%;
+  text-align:center;
+  border-style:dashed;
+  color:var(--text-3);
+}
+
+.machine-grid,.endpoint-grid,.profile-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+  gap:14px;
+}
+
+.machine-card {
+  padding:17px;
+}
+
+.machine-card-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+}
+
+.machine-card h3 {
+  margin:0 0 4px;
+}
+
+.machine-card code {
+  color:var(--text-3);
+  font-size:10px;
+}
+
+.machine-card .node-grid {
+  margin:18px 0;
+}
+
+.machine-card-actions {
+  display:flex;
+  gap:8px;
+}
+
+.endpoint-card {
+  display:flex;
+  align-items:flex-start;
+  gap:13px;
+  padding:18px;
+}
+
+.endpoint-card div {
+  flex:1;
+}
+
+.endpoint-card h3 {
+  margin:0 0 5px;
+}
+
+.endpoint-card code {
+  font-size:11px;
+  color:var(--accent);
+}
+
+.endpoint-card p {
+  color:var(--text-3);
+  font-size:11px;
+}

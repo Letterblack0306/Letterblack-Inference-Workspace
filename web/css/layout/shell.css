@@ -1,0 +1,25 @@
+.app-shell {
+  height:100%;
+  display:grid;
+  grid-template-columns:236px minmax(0,1fr) 0;
+  grid-template-rows:72px minmax(0,1fr);
+  grid-template-areas:"header header header" "nav main inspector";
+  background:radial-gradient(circle at 58% 0,rgba(94,234,212,.07),transparent 34%),var(--canvas);
+}
+
+.app-shell.inspector-open {
+  grid-template-columns:236px minmax(0,1fr) 340px;
+}
+
+.main-content {
+  grid-area:main;
+  min-width:0;
+  overflow:auto;
+  padding:28px;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:16px 16px;
+}
+
+.app-shell:not(.inspector-open) .inspector {
+  display:none;
+}

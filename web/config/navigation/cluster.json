@@ -1,0 +1,19 @@
+{
+  "id": "cluster",
+  "label": "Cluster",
+  "items": [
+    {
+      "id": "machines",
+      "label": "Machines",
+      "icon": "machines",
+      "page": "machines",
+      "badgeId": "machineCount"
+    },
+    {
+      "id": "gateways",
+      "label": "Gateways",
+      "icon": "gateways",
+      "page": "gateways"
+    }
+  ]
+}

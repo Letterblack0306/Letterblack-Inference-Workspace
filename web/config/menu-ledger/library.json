@@ -1,0 +1,51 @@
+{
+  "section": "library",
+  "menus": [
+    {
+      "id": "models",
+      "label": "Models",
+      "icon": "models",
+      "page": "models",
+      "section": "library",
+      "description": "Manage model folders and discovered GGUF files.",
+      "guidance": "Add model source folders and scan for GGUF files.",
+      "state": {
+        "requires": [],
+        "recommends": [
+          "modelSources.exists"
+        ]
+      }
+    },
+    {
+      "id": "runtime",
+      "label": "Runtime",
+      "icon": "runtime",
+      "page": "runtime",
+      "section": "library",
+      "description": "Launch, stop, and inspect the active llama.cpp server.",
+      "guidance": "Select a model and profile, then launch.",
+      "state": {
+        "requires": [],
+        "recommends": [
+          "models.selected",
+          "profile.selected"
+        ]
+      }
+    },
+    {
+      "id": "profiles",
+      "label": "Profiles",
+      "icon": "profiles",
+      "page": "profiles",
+      "section": "library",
+      "description": "Reusable llama.cpp launch configurations.",
+      "guidance": "Create, edit, duplicate, or delete launch profiles.",
+      "state": {
+        "requires": [],
+        "recommends": [
+          "models.exists"
+        ]
+      }
+    }
+  ]
+}

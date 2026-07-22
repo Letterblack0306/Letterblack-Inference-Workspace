@@ -1,0 +1,13 @@
+{
+  "id": "first-time-setup",
+  "label": "First Time Setup",
+  "description": "Get from zero to a running inference request.",
+  "steps": [
+    { "page": "models", "action": "add-source", "label": "Add model source", "guidance": "Add a folder containing GGUF models." },
+    { "page": "models", "action": "scan-models", "label": "Scan for models", "guidance": "Scan the configured folder for GGUF files." },
+    { "page": "models", "action": "select-model", "label": "Select a model", "guidance": "Pick a model from the library." },
+    { "page": "profiles", "action": "create-profile", "label": "Create a profile", "guidance": "Create a launch profile (or use defaults)." },
+    { "page": "runtime", "action": "start-runtime", "label": "Start the runtime", "guidance": "Launch with your model and profile." },
+    { "page": "chat", "action": "send-prompt", "label": "Send a prompt", "guidance": "Send a real inference request." }
+  ]
+}

@@ -1,0 +1,64 @@
+.button {
+  border:1px solid transparent;
+  border-radius:8px;
+  padding:9px 13px;
+  font-weight:700;
+  font-size:12px;
+  background:var(--control);
+}
+
+.button.primary {
+  background:var(--accent);
+  color:#06251f;
+}
+
+.button.secondary {
+  border-color:var(--border);
+  background:var(--surface-2);
+  color:var(--text-2);
+}
+
+.button.danger {
+  background:var(--danger);
+  color:white;
+}
+
+.button.danger-soft {
+  border-color:rgba(239,68,68,.28);
+  background:rgba(239,68,68,.08);
+  color:#ff9b9b;
+}
+
+.button.compact {
+  padding:6px 9px;
+  font-size:11px;
+}
+
+.button.full {
+  width:100%;
+  margin-top:8px;
+}
+
+.icon-button {
+  width:34px;
+  height:34px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:var(--surface-2);
+  color:var(--text-2);
+}
+
+.mobile-nav-toggle {
+  display:none;
+}
+
+.text-button {
+  border:0;
+  background:transparent;
+  color:var(--accent);
+  font-size:11px;
+}
+
+.danger-text {
+  color:#ff8a8a!important;
+}

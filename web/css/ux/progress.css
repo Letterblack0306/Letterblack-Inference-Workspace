@@ -1,0 +1,14 @@
+.ux-progress {
+  height:6px;
+  border-radius:999px;
+  background:var(--control);
+  overflow:hidden;
+}
+
+.ux-progress>span {
+  display:block;
+  height:100%;
+  width:0;
+  background:linear-gradient(90deg,var(--accent),var(--purple));
+  transition:width .35s ease;
+}

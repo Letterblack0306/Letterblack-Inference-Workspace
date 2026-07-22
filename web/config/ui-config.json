@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0.0",
+  "app": {
+    "name": "Letterblack Inference Workspace",
+    "version": "1.0.0",
+    "theme": "dark"
+  },
+  "defaults": {
+    "pollInterval": 5000,
+    "modelSources": []
+  },
+  "navigation": {
+    "sections": [
+      "navigation/main.json",
+      "navigation/library.json",
+      "navigation/cluster.json",
+      "navigation/observe.json",
+      "navigation/system.json"
+    ]
+  }
+}

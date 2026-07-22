@@ -1,0 +1,33 @@
+{
+  "section": "cluster",
+  "menus": [
+    {
+      "id": "machines",
+      "label": "Machines",
+      "icon": "machines",
+      "page": "machines",
+      "section": "cluster",
+      "description": "Edit host and worker connectivity.",
+      "guidance": "Add, edit, test, or remove machines; start/stop RPC.",
+      "state": {
+        "requires": [],
+        "recommends": []
+      }
+    },
+    {
+      "id": "gateways",
+      "label": "Gateways",
+      "icon": "gateways",
+      "page": "gateways",
+      "section": "cluster",
+      "description": "Copy, test, and configure client endpoints.",
+      "guidance": "View OpenAI/Ollama endpoints; copy URLs or test health.",
+      "state": {
+        "requires": [],
+        "recommends": [
+          "runtime.running"
+        ]
+      }
+    }
+  ]
+}
