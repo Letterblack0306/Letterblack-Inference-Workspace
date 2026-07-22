@@ -76,6 +76,8 @@ def scan_gguf(sources: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if not root.exists() or not root.is_dir():
             continue
         for path in root.rglob('*.gguf'):
+            if path.name.lower().startswith('mmproj-'):
+                continue
             try: stat=path.stat()
             except OSError: continue
             key=str(path.resolve()).lower()

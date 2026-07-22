@@ -12,6 +12,12 @@ class RuntimeTests(unittest.TestCase):
             models=scan_gguf([{'id':'s','path':td,'enabled':True}])
             self.assertEqual(len(models),1); self.assertEqual(models[0]['name'],'a')
 
+    def test_scan_gguf_excludes_multimodal_projectors(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td); (root/'model.gguf').write_bytes(b'GGUF'); (root/'mmproj-model.gguf').write_bytes(b'GGUF')
+            models=scan_gguf([{'id':'s','path':td,'enabled':True}])
+            self.assertEqual([model['name'] for model in models], ['model'])
+
     def test_command_is_structured(self):
         with tempfile.TemporaryDirectory() as td:
             root=Path(td); exe=root/('llama-server.exe'); exe.write_text('x'); model=root/'m.gguf'; model.write_bytes(b'x')
