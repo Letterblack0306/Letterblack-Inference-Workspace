@@ -90,13 +90,18 @@ def estimate_allocation(model: dict[str, Any], values: dict[str, Any], telemetry
     weights = int(file_size * offload_fraction)
     context = int(values.get("contextSize") or metadata.get("contextLength") or 4096)
     batch = int(values.get("batchSize") or 1)
+    parallel = int(values.get("parallel") or 1)
     layers = int(total_layers or 0)
     embedding = int(metadata.get("embeddingLength") or 0)
     heads = int(metadata.get("headCount") or 0)
-    kv_heads = int(metadata.get("headCountKv") or heads or 0)
+    raw_kv_heads = metadata.get("headCountKv")
+    if isinstance(raw_kv_heads, list):
+        kv_heads = max((int(value) for value in raw_kv_heads if isinstance(value, (int, float, str)) and str(value).isdigit()), default=heads)
+    else:
+        kv_heads = int(raw_kv_heads or heads or 0)
     head_dim = int(embedding / heads) if embedding and heads else 0
     cache_precision = max(_cache_bytes_per_element(values.get("cacheTypeK")), _cache_bytes_per_element(values.get("cacheTypeV")))
-    kv = int(2 * layers * kv_heads * head_dim * context * max(1, batch) * cache_precision) if all([layers, kv_heads, head_dim]) else None
+    kv = int(2 * layers * kv_heads * head_dim * context * max(1, parallel) * cache_precision) if all([layers, kv_heads, head_dim]) else None
     total_gpu = sum(int(g.get("memoryTotalBytes") or 0) for g in telemetry.get("gpus", []))
     free_gpu = sum(int(g.get("memoryFreeBytes") or 0) for g in telemetry.get("gpus", []))
     reserve = int(reserve_bytes if reserve_bytes is not None else max(768 * 1024**2, total_gpu * 0.05 if total_gpu else 0))
@@ -114,6 +119,6 @@ def estimate_allocation(model: dict[str, Any], values: dict[str, Any], telemetry
         "confidence": confidence, "risk": risk, "modelWeightsBytes": weights, "kvCacheBytes": kv,
         "runtimeReserveBytes": reserve, "estimatedTotalBytes": estimated, "gpuTotalBytes": total_gpu,
         "gpuFreeBytes": free_gpu, "safeLimitBytes": safe_limit, "headroomBytes": headroom,
-        "inputs": {"gpuLayers": gpu_layers_i, "totalLayers": total_layers, "contextSize": context, "batchSize": batch, "cacheBytesPerElement": cache_precision, "safetyMargin": safety_margin},
+    "inputs": {"gpuLayers": gpu_layers_i, "totalLayers": total_layers, "contextSize": context, "batchSize": batch, "parallel": parallel, "cacheBytesPerElement": cache_precision, "safetyMargin": safety_margin},
         "warnings": warnings,
     }
