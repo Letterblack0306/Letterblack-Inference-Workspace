@@ -256,7 +256,12 @@ def launch_task(body: dict[str,Any]):
         if not model: raise RuntimeFailure("MODEL_NOT_FOUND","Selected model is not registered.",{"modelId":body.get("modelId")})
         profile=next((p for p in state["profiles"] if p["id"]==body.get("profileId")),None) if body.get("profileId") else None
         update_job(job["id"],phase="validate",progress=10)
-        exe,args,cwd,port,host=build_llama_command(model,profile,state["machines"],body); job_evidence(job["id"],"validate","pass",command=[exe,*args])
+        launch_body = dict(body)
+        profile_values = (profile or {}).get("values", {})
+        configured_executable = state.get("settings", {}).get("paths", {}).get("llamaServerPath")
+        if configured_executable and not any((launch_body.get("executable"), launch_body.get("runtimePath"), profile_values.get("executable"), profile_values.get("runtimePath"))):
+            launch_body["executable"] = configured_executable
+        exe,args,cwd,port,host=build_llama_command(model,profile,state["machines"],launch_body); job_evidence(job["id"],"validate","pass",command=[exe,*args])
         rpc_ids=(profile or {}).get("values",{}).get("rpcMachineIds") or body.get("rpcMachineIds") or []
         update_job(job["id"],phase="test-machines",progress=25)
         for mid in rpc_ids:
