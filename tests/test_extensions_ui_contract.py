@@ -8,10 +8,16 @@ ROOT = Path(__file__).resolve().parents[1]
 class ExtensionsUiContractTests(unittest.TestCase):
     def test_extensions_surface_is_loaded(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        app = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
+
         self.assertIn('data-page="extensions"', html)
         self.assertIn('data-page-view="extensions"', html)
-        self.assertIn('src="js/extensions.js"', html)
         self.assertIn('href="css/extensions.css"', html)
+
+        # The application has one module entrypoint. Extensions are loaded by
+        # app.js so state, navigation, and initialization remain coordinated.
+        self.assertNotIn('src="js/extensions.js"', html)
+        self.assertIn("import('./extensions.js')", app)
 
     def test_extensions_controls_are_present(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")

@@ -8,7 +8,7 @@ from typing import Any
 
 
 DEFAULT_STATE: dict[str, Any] = {
-    "schemaVersion": 6,
+    "schemaVersion": 7,
     "workspaces": [
         {
             "id": "workspace-default",
@@ -68,6 +68,22 @@ DEFAULT_STATE: dict[str, Any] = {
 }
 
 
+def _strip_legacy_gguf_raw(value: Any) -> bool:
+    """Remove persisted GGUF raw metadata from models and historical job results."""
+    changed = False
+    if isinstance(value, dict):
+        metadata = value.get("metadata")
+        if isinstance(metadata, dict) and "raw" in metadata:
+            del metadata["raw"]
+            changed = True
+        for item in value.values():
+            changed = _strip_legacy_gguf_raw(item) or changed
+    elif isinstance(value, list):
+        for item in value:
+            changed = _strip_legacy_gguf_raw(item) or changed
+    return changed
+
+
 class JsonStore:
     def __init__(self, path: Path):
         self.path = path
@@ -84,6 +100,11 @@ class JsonStore:
                 if key not in state:
                     state[key] = deepcopy(value)
                     changed = True
+            # GGUF scanner versions before schema 7 persisted complete tokenizer
+            # metadata. A single model can contain hundreds of thousands of tokens,
+            # making every API snapshot slow or unavailable.
+            if _strip_legacy_gguf_raw(state):
+                changed = True
             if state.get("schemaVersion", 0) < DEFAULT_STATE["schemaVersion"]:
                 state["schemaVersion"] = DEFAULT_STATE["schemaVersion"]
                 changed = True

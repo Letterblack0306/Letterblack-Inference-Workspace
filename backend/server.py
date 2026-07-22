@@ -66,6 +66,8 @@ WIDGET_REGISTRY = [
     {"type": "api-health", "name": "API health", "category": "api", "minSize": {"w": 3, "h": 2}, "defaultSize": {"w": 4, "h": 2}},
 ]
 
+TELEMETRY_CONTROLLER_TIMEOUT_SECONDS = 0.75
+
 def add_log(state: dict[str, Any], severity: str, source: str, message: str, **details: Any) -> dict[str, Any]:
     event = {
         "id": new_id("log"),
@@ -643,7 +645,7 @@ class Handler(BaseHTTPRequestHandler):
                 item = {"machineId": machine["id"], "name": machine["name"], "state": "unknown", "telemetry": None}
                 if machine.get("enabled") and "host" not in machine.get("tags", []):
                     try:
-                        remote = controller_status(machine)
+                        remote = controller_status(machine, timeout=TELEMETRY_CONTROLLER_TIMEOUT_SECONDS)
                         item.update({"state": "online", "telemetry": remote.get("telemetry", remote)})
                     except RuntimeFailure as exc:
                         item.update({"state": "offline", "error": {"code": exc.code, "message": str(exc)}})
