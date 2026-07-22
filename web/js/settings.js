@@ -15,29 +15,29 @@ export function installSettingsUi(api, notify) {
         <label>llama-server executable<input id="settingLlamaServerPath" autocomplete="off" placeholder="Optional absolute path"></label>
       </div>
       <div class="content-card settings-section">
-        <h3>Ports</h3>
-        <label>Dashboard<input id="settingDashboardPort" type="number" min="1" max="65535"></label>
-        <label>OpenAI gateway<input id="settingOpenAiPort" type="number" min="1" max="65535"></label>
-        <label>Ollama gateway<input id="settingOllamaPort" type="number" min="1" max="65535"></label>
+        <h3>Control-plane listener</h3>
+        <p><code>http://127.0.0.1:8088</code></p>
+        <p>Applied listener. Remote control is unsupported until authentication exists.</p>
+        <p>Saved OpenAI and Ollama port values are not applied; both compatibility routes share this listener.</p>
         <label>Worker controller<input id="settingControllerPort" type="number" min="1" max="65535"></label>
         <label>RPC<input id="settingRpcPort" type="number" min="1" max="65535"></label>
       </div>
       <div class="content-card settings-section">
         <h3>Runtime</h3>
-        <label>Bind address<input id="settingBindAddress" autocomplete="off"></label>
+        <p>Control-plane bind address: <code>127.0.0.1</code></p>
         <label>UI polling interval (ms)<input id="settingPollInterval" type="number" min="1000" max="60000"></label>
         <label>Request drain timeout (sec)<input id="settingDrainTimeout" type="number" min="1" max="600"></label>
       </div>
       <div class="content-card settings-section">
         <h3>Safety</h3>
         <label><input id="settingBlockUnsafe" type="checkbox"> Block high-risk launches</label>
-        <label><input id="settingAllowRemote" type="checkbox"> Allow remote dashboard binding</label>
         <div id="settingsStatus" class="inline-notice">Loading settings…</div>
       </div>
     </div>`;
 
   const byId = id => document.getElementById(id);
   const status = byId('settingsStatus');
+  let loadedSettings = null;
 
   function setStatus(message, kind = 'neutral') {
     status.textContent = message;
@@ -48,16 +48,12 @@ export function installSettingsUi(api, notify) {
     byId('settingApplicationRoot').value = settings.paths.applicationRoot || '';
     byId('settingModelSources').value = (settings.paths.modelSources || []).join('\n');
     byId('settingLlamaServerPath').value = settings.paths.llamaServerPath || '';
-    byId('settingDashboardPort').value = settings.ports.dashboard;
-    byId('settingOpenAiPort').value = settings.ports.openaiGateway;
-    byId('settingOllamaPort').value = settings.ports.ollamaGateway;
     byId('settingControllerPort').value = settings.ports.workerController;
     byId('settingRpcPort').value = settings.ports.rpc;
-    byId('settingBindAddress').value = settings.runtime.bindAddress || '127.0.0.1';
     byId('settingPollInterval').value = settings.runtime.pollIntervalMs;
     byId('settingDrainTimeout').value = settings.runtime.requestDrainTimeoutSec;
     byId('settingBlockUnsafe').checked = settings.safety.blockUnsafeLaunch === true;
-    byId('settingAllowRemote').checked = settings.safety.allowRemoteDashboard === true;
+    loadedSettings = settings;
   }
 
   function collect() {
@@ -68,20 +64,20 @@ export function installSettingsUi(api, notify) {
         llamaServerPath: byId('settingLlamaServerPath').value.trim(),
       },
       ports: {
-        dashboard: Number(byId('settingDashboardPort').value),
-        openaiGateway: Number(byId('settingOpenAiPort').value),
-        ollamaGateway: Number(byId('settingOllamaPort').value),
+        dashboard: 8088,
+        openaiGateway: Number(loadedSettings.ports.openaiGateway),
+        ollamaGateway: Number(loadedSettings.ports.ollamaGateway),
         workerController: Number(byId('settingControllerPort').value),
         rpc: Number(byId('settingRpcPort').value),
       },
       runtime: {
-        bindAddress: byId('settingBindAddress').value.trim(),
+        bindAddress: '127.0.0.1',
         pollIntervalMs: Number(byId('settingPollInterval').value),
         requestDrainTimeoutSec: Number(byId('settingDrainTimeout').value),
       },
       safety: {
         blockUnsafeLaunch: byId('settingBlockUnsafe').checked,
-        allowRemoteDashboard: byId('settingAllowRemote').checked,
+        allowRemoteDashboard: false,
       },
     };
   }

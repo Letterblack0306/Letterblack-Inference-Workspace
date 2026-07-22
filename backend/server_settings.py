@@ -15,10 +15,6 @@ _PORT_KEYS = ("dashboard", "openaiGateway", "ollamaGateway", "workerController",
 _RESTART_FIELDS = {
     "paths.applicationRoot",
     "paths.llamaServerPath",
-    "ports.dashboard",
-    "ports.openaiGateway",
-    "ports.ollamaGateway",
-    "runtime.bindAddress",
 }
 
 
@@ -37,14 +33,14 @@ def _default_settings(state: dict[str, Any]) -> dict[str, Any]:
             "llamaServerPath": os.environ.get("LB_LLAMA_SERVER", ""),
         },
         "ports": {
-            "dashboard": int(os.environ.get("LB_PORT", "8088")),
+            "dashboard": base.CONTROL_PLANE_PORT,
             "openaiGateway": int(base.CAPABILITIES["defaultPorts"]["openai"]),
             "ollamaGateway": int(base.CAPABILITIES["defaultPorts"]["ollama"]),
             "workerController": int(base.CAPABILITIES["defaultPorts"]["controller"]),
             "rpc": int(base.CAPABILITIES["defaultPorts"]["rpc"]),
         },
         "runtime": {
-            "bindAddress": os.environ.get("LB_HOST", "127.0.0.1"),
+            "bindAddress": base.CONTROL_PLANE_HOST,
             "pollIntervalMs": 5000,
             "requestDrainTimeoutSec": int(gateway.get("drainTimeoutSec", 30)),
         },
@@ -63,6 +59,9 @@ def _current_settings(state: dict[str, Any]) -> dict[str, Any]:
     for section in _ALLOWED_TOP_LEVEL:
         if isinstance(current.get(section), dict):
             merged[section].update(deepcopy(current[section]))
+    merged["ports"]["dashboard"] = base.CONTROL_PLANE_PORT
+    merged["runtime"]["bindAddress"] = base.CONTROL_PLANE_HOST
+    merged["safety"]["allowRemoteDashboard"] = False
     return merged
 
 
@@ -120,6 +119,8 @@ def validate_settings(body: Any) -> list[dict[str, Any]]:
             values.append(value)
     if len(values) == len(_PORT_KEYS) and len(set(values)) != len(values):
         issues.append({"path": "ports", "message": "Port assignments must be unique."})
+    if ports.get("dashboard") != base.CONTROL_PLANE_PORT:
+        issues.append({"path": "ports.dashboard", "message": "The control-plane listener is fixed to 127.0.0.1:8088."})
 
     runtime = body["runtime"]
     expected_runtime = {"bindAddress", "pollIntervalMs", "requestDrainTimeoutSec"}
@@ -127,8 +128,8 @@ def validate_settings(body: Any) -> list[dict[str, Any]]:
     if extra:
         issues.append({"path": "runtime", "message": "Unsupported runtime settings.", "keys": extra})
     bind = runtime.get("bindAddress")
-    if not isinstance(bind, str) or not bind.strip():
-        issues.append({"path": "runtime.bindAddress", "message": "Bind address is required."})
+    if bind != base.CONTROL_PLANE_HOST:
+        issues.append({"path": "runtime.bindAddress", "message": "Remote control is unsupported; the control plane is fixed to 127.0.0.1."})
     poll = runtime.get("pollIntervalMs")
     if isinstance(poll, bool) or not isinstance(poll, int) or not 1000 <= poll <= 60000:
         issues.append({"path": "runtime.pollIntervalMs", "message": "Polling interval must be 1000 to 60000 ms."})
@@ -144,8 +145,8 @@ def validate_settings(body: Any) -> list[dict[str, Any]]:
     for key in expected_safety:
         if not isinstance(safety.get(key), bool):
             issues.append({"path": f"safety.{key}", "message": "Value must be boolean."})
-    if isinstance(bind, str) and bind not in {"127.0.0.1", "localhost", "::1"} and safety.get("allowRemoteDashboard") is not True:
-        issues.append({"path": "safety.allowRemoteDashboard", "message": "Remote bind addresses require explicit remote-dashboard approval."})
+    if safety.get("allowRemoteDashboard") is not False:
+        issues.append({"path": "safety.allowRemoteDashboard", "message": "Remote control is unsupported until authentication is implemented."})
 
     return issues
 
@@ -210,10 +211,13 @@ def main() -> None:
     base.CAPABILITIES["contractVersion"] = "6.1.0"
     base.CAPABILITIES["features"]["settingsContract"] = True
     parser = argparse.ArgumentParser(description="Letterblack Inference Workspace server with settings contract")
-    parser.add_argument("--host", default=os.environ.get("LB_HOST", "127.0.0.1"))
-    parser.add_argument("--port", type=int, default=int(os.environ.get("LB_PORT", "8088")))
+    parser.add_argument("--host", default=base.CONTROL_PLANE_HOST)
+    parser.add_argument("--port", type=int, default=base.CONTROL_PLANE_PORT)
     args = parser.parse_args()
+    if args.host != base.CONTROL_PLANE_HOST or args.port != base.CONTROL_PLANE_PORT:
+        parser.error("Remote control is unsupported; the control plane is fixed to http://127.0.0.1:8088.")
     server = ThreadingHTTPServer((args.host, args.port), SettingsHandler)
+    base.configure_control_server_shutdown(server.shutdown)
     print(f"Letterblack Phase 6.1 serving http://{args.host}:{args.port}")
     print("Truthful settings contract enabled at GET/PUT /api/v1/settings.")
     try:

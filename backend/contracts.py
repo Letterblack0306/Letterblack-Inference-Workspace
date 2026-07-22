@@ -58,6 +58,30 @@ def validate_machine(value: Any) -> list[dict[str, str]]:
     return issues
 
 
+def validate_profile(value: Any) -> list[dict[str, str]]:
+    issues: list[dict[str, str]] = []
+    if not isinstance(value, dict):
+        return [{"field": "$", "message": "Profile must be an object."}]
+    profile_id = value.get("id")
+    if not isinstance(profile_id, str) or not ID_PATTERN.match(profile_id):
+        issues.append({"field": "id", "message": "Use 2-64 lowercase letters, numbers, dot, underscore or hyphen."})
+    if not isinstance(value.get("name"), str) or not value["name"].strip():
+        issues.append({"field": "name", "message": "Name is required."})
+    if not isinstance(value.get("description", ""), str):
+        issues.append({"field": "description", "message": "Description must be text."})
+    values = value.get("values")
+    if not isinstance(values, dict):
+        issues.append({"field": "values", "message": "Launch values are required."})
+        return issues
+    for field in ("contextSize", "gpuLayers", "batchSize", "threads", "parallel"):
+        item = values.get(field)
+        if isinstance(item, bool) or not isinstance(item, int) or item < 0:
+            issues.append({"field": f"values.{field}", "message": "Value must be a non-negative integer."})
+    if not isinstance(values.get("flashAttention"), bool):
+        issues.append({"field": "values.flashAttention", "message": "Value must be boolean."})
+    return issues
+
+
 def create_job(job_type: str, target: Any, phases: list[str]) -> dict[str, Any]:
     return {
         "id": new_id("job"),

@@ -544,6 +544,36 @@
   overflow-wrap: anywhere;
 }
 
+.log-toolbar {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.log-toolbar label {
+  display: grid;
+  gap: 5px;
+  color: var(--text-3);
+  font-size: 11px;
+}
+
+.log-toolbar input,
+.log-toolbar select {
+  min-height: 34px;
+  background: var(--control);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 7px 9px;
+}
+
+.log-result-count {
+  color: var(--text-3);
+  font-size: 11px;
+  margin-right: auto;
+}
+
 .modal form {
   max-height: min(86vh, 760px);
   overflow: auto;

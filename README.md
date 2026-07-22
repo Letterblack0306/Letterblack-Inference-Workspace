@@ -49,9 +49,16 @@ http://127.0.0.1:8088
 .\test.bat
 ```
 
+Or use the npm validation entry point:
+
+```powershell
+npm run validate
+```
+
 The verification script performs:
 
 - Python unit-test discovery under `tests/`
+- Environment-variable contract validation against `env.example`
 - Python compilation checks for every backend module
 - JavaScript syntax checks for every file under `web/js/`
 - Static UI-contract coverage for the Extensions surface
@@ -110,11 +117,11 @@ Model sources are currently stored through the settings contract. A dedicated mo
 ### Gateways
 
 - Display dashboard, OpenAI-compatible, and Ollama-compatible addresses
-- Copy endpoint URLs
-- Test endpoints
-- Change gateway ports through settings
+- Display the applied loopback listener at `127.0.0.1:8088`
+- Label saved compatibility-port values as not applied
+- Enable endpoint copying only after an exact health request passes
 
-Authentication, CORS, trusted hosts, per-surface enablement, and drain-policy editing are not yet exposed in the current UI.
+Authentication is not implemented. Remote control is unsupported and the control plane is fixed to `127.0.0.1:8088`.
 
 ### Telemetry
 
@@ -159,6 +166,8 @@ The UI does not execute extension-provided JavaScript, Python, PowerShell, shell
 ### Logs and jobs
 
 - Display runtime and control-plane log records
+- Filter records by level or search across returned record data
+- Export the visible filtered records as JSON
 - Display background jobs and progress
 
 ### Settings

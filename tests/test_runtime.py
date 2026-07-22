@@ -1,6 +1,8 @@
 import tempfile
+import threading
 import unittest
 from pathlib import Path
+from backend import server
 from backend.runtime import ProcessManager, RuntimeFailure, build_llama_command, scan_gguf
 
 class RuntimeTests(unittest.TestCase):
@@ -22,5 +24,23 @@ class RuntimeTests(unittest.TestCase):
             root=Path(td); exe=root/'llama-server.exe'; exe.write_text('x'); model=root/'m.gguf'; model.write_bytes(b'x')
             with self.assertRaises(RuntimeFailure):
                 build_llama_command({'path':str(model)},{'values':{'executable':str(exe),'extraArgs':['--port','9999']}},[],{})
+
+    def test_control_server_shutdown_is_scheduled_outside_request_thread(self):
+        called = threading.Event()
+        try:
+            server.configure_control_server_shutdown(called.set)
+            result = server.schedule_control_server_shutdown(0.01)
+            self.assertEqual(result, {'scheduled': True, 'delaySeconds': 0.01})
+            self.assertTrue(called.wait(1), 'shutdown callback was not called')
+        finally:
+            server.configure_control_server_shutdown(None)
+
+    def test_control_server_shutdown_fails_fast_when_unavailable(self):
+        server.configure_control_server_shutdown(None)
+
+        with self.assertRaisesRegex(RuntimeFailure, 'active control server') as raised:
+            server.schedule_control_server_shutdown()
+
+        self.assertEqual(raised.exception.code, 'CONTROL_SERVER_SHUTDOWN_UNAVAILABLE')
 
 if __name__=='__main__': unittest.main()

@@ -47,6 +47,14 @@ class TruthfulUiTests(unittest.TestCase):
         for route in required_routes:
             self.assertIn(route, api)
 
+    def test_workspace_shutdown_is_explicit_and_requests_control_server_shutdown(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        app = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn('>Shutdown workspace</button>', html)
+        self.assertIn("function shutdownWorkspace()", app)
+        self.assertIn("shutdownControlServer:true", app)
+
     def test_known_prototype_evidence_is_not_in_active_ui(self):
         active_files = (
             ROOT / "web" / "index.html",
@@ -100,6 +108,16 @@ class TruthfulUiTests(unittest.TestCase):
             application_scripts,
             ['<script type="module" src="js/app.js"></script>'],
         )
+
+    def test_logs_support_client_side_filtering_and_export(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        app = (ROOT / "web" / "js" / "app.js").read_text(encoding="utf-8")
+
+        self.assertIn('id="logLevelFilter"', html)
+        self.assertIn('id="logSearch"', html)
+        self.assertIn('id="exportLogsBtn"', html)
+        self.assertIn('function filteredLogs(', app)
+        self.assertIn('function exportLogs()', app)
 
 
 if __name__ == "__main__":

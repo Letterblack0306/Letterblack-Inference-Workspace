@@ -41,17 +41,25 @@ class SettingsContractTests(unittest.TestCase):
         issues = validate_settings(value)
         self.assertTrue(any(item["path"] == "ports" for item in issues))
 
-    def test_remote_bind_requires_explicit_approval(self):
+    def test_remote_bind_is_rejected_even_when_legacy_flag_is_enabled(self):
         value = valid_settings()
         value["runtime"]["bindAddress"] = "0.0.0.0"
+        value["safety"]["allowRemoteDashboard"] = True
         issues = validate_settings(value)
+        self.assertTrue(any(item["path"] == "runtime.bindAddress" for item in issues))
         self.assertTrue(any(item["path"] == "safety.allowRemoteDashboard" for item in issues))
+
+    def test_control_plane_port_is_fixed(self):
+        value = valid_settings()
+        value["ports"]["dashboard"] = 8090
+        issues = validate_settings(value)
+        self.assertTrue(any(item["path"] == "ports.dashboard" for item in issues))
 
     def test_restart_fields_are_reported(self):
         before = valid_settings()
         after = valid_settings()
-        after["ports"]["dashboard"] = 8090
-        self.assertEqual(changed_restart_fields(before, after), ["ports.dashboard"])
+        after["paths"]["llamaServerPath"] = "Z:\\Tools\\llama-server.exe"
+        self.assertEqual(changed_restart_fields(before, after), ["paths.llamaServerPath"])
 
 
 if __name__ == "__main__":

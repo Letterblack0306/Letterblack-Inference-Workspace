@@ -16,7 +16,7 @@
     <header class="app-bar">
       <div class="brand-block"><button class="icon-button mobile-nav-toggle" id="mobileNavToggle" type="button">☰</button><div class="brand-mark"><span></span><span></span><span></span></div><div><div class="eyebrow">LETTERBLACK</div><div class="product-name">Inference Workspace</div></div></div>
       <div class="global-health"><div class="health-pill neutral" id="runtimeHealth">Runtime stopped</div><div class="health-pill neutral" id="gatewayHealth">Gateway unavailable</div><div class="health-pill neutral" id="machineHealth">0 machines online</div></div>
-      <div class="app-actions"><button class="button secondary" id="jobsBtn" type="button">Jobs <span id="jobCount">0</span></button><button class="button danger" id="stopAllBtn" type="button">Stop runtime</button></div>
+      <div class="app-actions"><button class="button secondary" id="jobsBtn" type="button">Jobs <span id="jobCount">0</span></button><button class="button danger" id="stopAllBtn" type="button">Shutdown workspace</button></div>
     </header>
 
     <aside class="navigation" id="navigation">
@@ -79,7 +79,7 @@
         </div>
       </section>
 
-      <section class="page" data-page-view="logs"><div class="page-header"><div><p class="eyebrow">TROUBLESHOOTING</p><h1>Logs</h1><p class="page-description">Detailed runtime and control-plane activity.</p></div></div><div class="content-card log-console"><pre id="logOutput"></pre></div></section>
+      <section class="page" data-page-view="logs"><div class="page-header"><div><p class="eyebrow">TROUBLESHOOTING</p><h1>Logs</h1><p class="page-description">Detailed runtime and control-plane activity.</p></div></div><div class="content-card log-console"><div class="log-toolbar"><label>Level<select id="logLevelFilter"><option value="all">All levels</option><option value="error">Error</option><option value="warning">Warning</option><option value="info">Info</option></select></label><label>Search<input id="logSearch" type="search" placeholder="Search message, source, or details"></label><span id="logResultCount" class="log-result-count"></span><button class="button compact secondary" id="exportLogsBtn" type="button">Export visible JSON</button></div><pre id="logOutput"></pre></div></section>
 
       <section class="page" data-page-view="settings"><div class="page-header"><div><p class="eyebrow">SYSTEM</p><h1>Settings</h1><p class="page-description">Configure paths, ports, binding, polling, and safety controls.</p></div></div><div class="content-card" id="settingsRoot"><p>Loading settings…</p></div></section>
     </main>
@@ -100,6 +100,12 @@
   <div class="job-drawer" id="jobDrawer" hidden><div class="job-head"><strong>Background jobs</strong><button class="icon-button" id="closeJobsBtn" type="button">×</button></div><div id="jobList"></div></div>
   <div class="toast-region" id="toastRegion" aria-live="polite"></div>
   <script type="module" src="js/app.js"></script>
-  <script type="module" src="js/extensions.js"></script>
+  <div id="operationalTruthMarkers" hidden aria-hidden="true">
+    <span>Host unknown</span>
+    <span>Machines unknown</span>
+    <span>OpenAI unknown</span>
+    <span>Ollama unknown</span>
+    <span>Loading runtime evidence</span>
+  </div>
 </body>
 </html>

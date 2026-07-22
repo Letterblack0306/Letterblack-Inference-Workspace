@@ -3,7 +3,7 @@ import {api, ApiError} from './api.js';
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]));
-const state = {system:null, settings:null, capabilities:null, machines:[], models:[], profiles:[], jobs:[], telemetry:null, logs:[], gateway:null, timer:null, chatAbort:null};
+const state = {system:null, settings:null, capabilities:null, machines:[], models:[], profiles:[], jobs:[], telemetry:null, logs:[], logLevel:'all', logSearch:'', gateway:null, gatewayHealth:{openai:null,ollama:null}, timer:null, chatAbort:null};
 
 function errorText(error) {
   return error instanceof ApiError ? `${error.code}: ${error.message}` : (error?.message || String(error));
@@ -33,14 +33,14 @@ function formatTime(value) {
   return Number.isNaN(date.getTime()) ? 'Unknown' : date.toLocaleString();
 }
 function gatewayUrls() {
-  const settings = settingsValue();
-  const bind = settings.runtime?.bindAddress || settings.bindAddress || '127.0.0.1';
-  const host = ['0.0.0.0','::'].includes(bind) ? '127.0.0.1' : bind;
-  const ports = settings.ports || {};
+  const controlPlane = state.gateway?.controlPlane || {host:'127.0.0.1',port:8088};
+  const host = controlPlane.host || '127.0.0.1';
+  const port = controlPlane.port || 8088;
+  const base = `http://${host}:${port}`;
   return {
-    dashboard: `http://${host}:${ports.dashboard || 8088}`,
-    openai: `http://${host}:${ports.openaiGateway || 1234}/v1`,
-    ollama: `http://${host}:${ports.ollamaGateway || 11434}`,
+    dashboard: base,
+    openai: `${base}/v1`,
+    ollama: base,
   };
 }
 function navigate(page) {
@@ -54,8 +54,9 @@ function renderHeader() {
   const online = state.machines.filter(machine => ['online','reachable'].includes(machine.status)).length;
   $('#runtimeHealth').className = `health-pill ${isRunning() ? 'good' : 'neutral'}`;
   $('#runtimeHealth').textContent = isRunning() ? `Runtime: ${activeModel()?.name || activeModel()?.filename || runtime().activeModelId || 'running'}` : 'Runtime stopped';
-  $('#gatewayHealth').className = `health-pill ${state.gateway ? 'good' : 'neutral'}`;
-  $('#gatewayHealth').textContent = state.gateway ? `API: ${urls.openai}` : 'Gateway unavailable';
+  const openaiHealthy = state.gatewayHealth.openai === true;
+  $('#gatewayHealth').className = `health-pill ${openaiHealthy ? 'good' : 'neutral'}`;
+  $('#gatewayHealth').textContent = openaiHealthy ? `API healthy: ${urls.openai}` : 'API health unverified';
   $('#machineHealth').className = `health-pill ${online ? 'good' : 'neutral'}`;
   $('#machineHealth').textContent = `${online}/${state.machines.length} machines online`;
   $('#modelCount').textContent = state.models.length;
@@ -142,14 +143,13 @@ function renderGateways() {
   const urls = gatewayUrls();
   const settings = settingsValue();
   const cards = [
-    {name:'Dashboard', url:urls.dashboard, port:settings.ports?.dashboard || 8088, type:'dashboard'},
-    {name:'OpenAI compatible', url:urls.openai, port:settings.ports?.openaiGateway || 1234, type:'openai'},
-    {name:'Ollama compatible', url:urls.ollama, port:settings.ports?.ollamaGateway || 11434, type:'ollama'},
+    {name:'Control plane', url:urls.dashboard, type:'dashboard', healthy:state.gateway !== null, detail:'Applied listener: 127.0.0.1:8088. Remote control is unsupported.'},
+    {name:'OpenAI compatible', url:urls.openai, type:'openai', healthy:state.gatewayHealth.openai, detail:`Saved port ${settings.ports?.openaiGateway || 1234} is not applied. This route shares the control-plane listener.`},
+    {name:'Ollama compatible', url:urls.ollama, type:'ollama', healthy:state.gatewayHealth.ollama, detail:`Saved port ${settings.ports?.ollamaGateway || 11434} is not applied. This route shares the control-plane listener.`},
   ];
-  $('#gatewayGrid').innerHTML = cards.map(card => `<article class="content-card endpoint-card"><div class="section-head"><div><h2>${esc(card.name)}</h2><code>${esc(card.url)}</code></div>${badge(card.type === 'dashboard' || state.gateway ? 'Available' : 'Unknown', card.type === 'dashboard' || state.gateway ? 'good' : 'neutral')}</div><label>Port<input class="gateway-port" data-type="${card.type}" type="number" value="${esc(card.port)}"></label><div class="runtime-actions"><button class="button compact secondary copy-endpoint" data-url="${esc(card.url)}">Copy URL</button><button class="button compact secondary test-gateway" data-url="${esc(card.url)}">Test</button><button class="button compact primary save-gateway" data-type="${card.type}">Save port</button></div>${card.type === 'dashboard' ? '' : `<p>${state.gateway?.state === 'draining' ? 'Draining: new requests are being refused.' : 'Ready to accept requests when a model is running.'}</p>`}</article>`).join('');
+  $('#gatewayGrid').innerHTML = cards.map(card => { const status = card.healthy === true ? 'Available' : card.healthy === false ? 'Unavailable' : 'Health unverified'; return `<article class="content-card endpoint-card"><div class="section-head"><div><h2>${esc(card.name)}</h2><code>${esc(card.url)}</code></div>${badge(status, card.healthy === true ? 'good' : 'neutral')}</div><p>${esc(card.detail)}</p><div class="runtime-actions"><button class="button compact secondary copy-endpoint" data-url="${esc(card.url)}" type="button" ${card.healthy === true ? '' : 'disabled'}>Copy URL</button><button class="button compact secondary test-gateway" data-type="${card.type}" type="button">Test health</button></div></article>`; }).join('');
   $$('.copy-endpoint').forEach(button => button.addEventListener('click', () => copyText(button.dataset.url)));
-  $$('.test-gateway').forEach(button => button.addEventListener('click', () => testGateway(button.dataset.url)));
-  $$('.save-gateway').forEach(button => button.addEventListener('click', () => saveGatewayPort(button.dataset.type)));
+  $$('.test-gateway').forEach(button => button.addEventListener('click', () => testGateway(button.dataset.type)));
 }
 
 function renderTelemetry() {
@@ -163,12 +163,32 @@ function renderTelemetry() {
 }
 
 function renderProfiles() {
-  $('#profileGrid').innerHTML = state.profiles.length ? state.profiles.map(profile => { const values = profile.values || profile.config || {}; return `<article class="content-card profile-card"><div class="section-head"><div><h2>${esc(profile.name || profile.id)}</h2><code>${esc(profile.id)}</code></div>${badge(profile.validationState || 'saved')}</div><p>${esc(profile.description || 'No description')}</p><div class="profile-values"><span>Context <b>${esc(values.contextSize || 'default')}</b></span><span>GPU layers <b>${esc(values.gpuLayers ?? 'default')}</b></span><span>Batch <b>${esc(values.batchSize || 'default')}</b></span><span>Threads <b>${esc(values.threads || 'default')}</b></span></div><button class="button compact primary profile-chat" data-id="${esc(profile.id)}" type="button">Use in chat</button></article>`; }).join('') : '<div class="empty-state"><h3>No profiles registered</h3><p>Create a reusable launch configuration.</p></div>';
+  $('#profileGrid').innerHTML = state.profiles.length ? state.profiles.map(profile => { const values = profile.values || profile.config || {}; return `<article class="content-card profile-card"><div class="section-head"><div><h2>${esc(profile.name || profile.id)}</h2><code>${esc(profile.id)}</code></div>${badge(profile.validationState || 'saved')}</div><p>${esc(profile.description || 'No description')}</p><div class="profile-values"><span>Context <b>${esc(values.contextSize || 'default')}</b></span><span>GPU layers <b>${esc(values.gpuLayers ?? 'default')}</b></span><span>Batch <b>${esc(values.batchSize || 'default')}</b></span><span>Threads <b>${esc(values.threads || 'default')}</b></span></div><div class="runtime-actions"><button class="button compact primary profile-chat" data-id="${esc(profile.id)}" type="button">Use in chat</button><button class="button compact secondary profile-edit" data-id="${esc(profile.id)}" type="button">Edit</button><button class="button compact secondary profile-duplicate" data-id="${esc(profile.id)}" type="button">Duplicate</button><button class="button compact danger-soft profile-delete" data-id="${esc(profile.id)}" type="button">Delete</button></div></article>`; }).join('') : '<div class="empty-state"><h3>No profiles registered</h3><p>Create a reusable launch configuration.</p></div>';
   $$('.profile-chat').forEach(button => button.addEventListener('click', () => { $('#chatProfile').value = button.dataset.id; navigate('chat'); }));
+  $$('.profile-edit').forEach(button => button.addEventListener('click', () => openProfile(state.profiles.find(profile => profile.id === button.dataset.id))));
+  $$('.profile-duplicate').forEach(button => button.addEventListener('click', () => openProfile(state.profiles.find(profile => profile.id === button.dataset.id), true));
+  $$('.profile-delete').forEach(button => button.addEventListener('click', () => deleteProfile(button.dataset.id)));
 }
 function renderLogs() {
   const logs = Array.isArray(state.logs) ? state.logs : (state.logs?.items || state.logs?.logs || []);
-  $('#logOutput').textContent = logs.length ? logs.map(log => `[${formatTime(log.timestamp || log.at)}] ${String(log.level || 'info').toUpperCase()} ${log.source || log.category || 'system'} ${log.message || ''}`).join('\n') : 'No logs recorded.';
+  const visible = filteredLogs(logs);
+  $('#logResultCount').textContent = `${visible.length} of ${logs.length} records`;
+  $('#logLevelFilter').value = state.logLevel;
+  $('#logSearch').value = state.logSearch;
+  $('#logOutput').textContent = visible.length ? visible.map(log => `[${formatTime(log.timestamp || log.at)}] ${String(log.severity || log.level || 'info').toUpperCase()} ${log.source || log.category || 'system'} ${log.message || ''}`).join('\n') : 'No matching logs.';
+}
+function filteredLogs(logs) {
+  const search = state.logSearch.trim().toLowerCase();
+  return logs.filter(log => {
+    const level = String(log.severity || log.level || 'info').toLowerCase();
+    return (state.logLevel === 'all' || level === state.logLevel) && (!search || JSON.stringify(log).toLowerCase().includes(search));
+  });
+}
+function exportLogs() {
+  const logs = Array.isArray(state.logs) ? state.logs : (state.logs?.items || state.logs?.logs || []);
+  const blob = new Blob([JSON.stringify(filteredLogs(logs), null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob); const link = document.createElement('a');
+  link.href = url; link.download = 'letterblack-visible-logs.json'; link.click(); URL.revokeObjectURL(url);
 }
 function renderJobs() {
   const active = state.jobs.filter(job => !['completed','succeeded','failed','cancelled','done'].includes(String(job.state || '').toLowerCase()));
@@ -182,7 +202,14 @@ async function refreshAll() {
   const keys = ['capabilities','system','settings','machines','models','profiles','jobs','telemetry','logs','gateway'];
   const results = await Promise.allSettled(calls);
   results.forEach((result, index) => { if (result.status === 'fulfilled') state[keys[index]] = result.value; else console.warn(`${keys[index]} unavailable`, result.reason); });
+  await refreshGatewayHealth();
   renderAll();
+}
+async function refreshGatewayHealth() {
+  const urls = gatewayUrls();
+  const checks = {openai:`${urls.openai}/models`,ollama:`${urls.ollama}/api/tags`};
+  const results = await Promise.allSettled(Object.values(checks).map(url => fetch(url, {method:'GET',cache:'no-store'})));
+  Object.keys(checks).forEach((type, index) => { state.gatewayHealth[type] = results[index].status === 'fulfilled' && results[index].value.ok; });
 }
 async function pollJob(id, timeout = 120000) {
   const started = Date.now();
@@ -230,6 +257,15 @@ async function preflightAndLaunch() {
     const job = await api.launch({modelId, profileId}); $('#launchDialog').close(); notify('Runtime launch started', job.id); await pollJob(job.id); await refreshAll(); navigate('chat');
   } catch (error) { notify('Runtime launch failed', errorText(error), 'warning'); }
 }
+async function shutdownWorkspace() {
+  if (!confirm('Stop the host runtime and every enabled worker? The dashboard will close after all stops are verified.')) return;
+  try {
+    const job = await api.stop({force:false, shutdownControlServer:true});
+    await pollJob(job.id);
+    if (state.timer) clearInterval(state.timer);
+    notify('Workspace shutdown scheduled', 'All requested runtime targets stopped. The dashboard is closing.', 'warning');
+  } catch (error) { notify('Workspace shutdown failed', errorText(error), 'warning'); }
+}
 async function stopRuntime() {
   if (!isRunning()) return notify('Runtime already stopped');
   if (!confirm('Stop the active runtime?')) return;
@@ -256,19 +292,25 @@ async function deleteMachine(id) { if (!confirm(`Delete machine ${id}?`)) return
 async function testMachine(id) { try { const result = await api.testMachine(id); notify(result.reachable ? 'Machine reachable' : 'Machine unavailable', result.reachable ? `${result.latencyMs ?? 'Unknown'} ms` : result.error?.message || id, result.reachable ? 'good' : 'warning'); await refreshAll(); } catch (error) { notify('Machine test failed', errorText(error), 'warning'); } }
 async function rpc(id, action) { try { const job = action === 'start' ? await api.startRpc(id) : await api.stopRpc(id); await pollJob(job.id); await refreshAll(); } catch (error) { notify(`RPC ${action} failed`, errorText(error), 'warning'); } }
 
+function openProfile(profile = null, duplicate = false) {
+  const form = $('#profileForm'); form.reset(); form.dataset.mode = profile && !duplicate ? 'edit' : 'create'; form.dataset.originalId = profile?.id || ''; form.dataset.additionalValues = '{}';
+  if (profile) {
+    const values = profile.values || {}; const known = new Set(['contextSize','gpuLayers','batchSize','threads','parallel','flashAttention']);
+    form.elements.id.value = duplicate ? `${profile.id}-copy`.slice(0, 64) : profile.id; form.elements.name.value = duplicate ? `Copy of ${profile.name || profile.id}` : profile.name || ''; form.elements.description.value = profile.description || '';
+    for (const field of ['contextSize','gpuLayers','batchSize','threads','parallel']) form.elements[field].value = values[field] ?? form.elements[field].value;
+    form.elements.flashAttention.checked = values.flashAttention === true; form.dataset.additionalValues = JSON.stringify(Object.fromEntries(Object.entries(values).filter(([key]) => !known.has(key))));
+  }
+  form.elements.id.disabled = Boolean(profile && !duplicate); $('#profileDialog h2').textContent = profile && !duplicate ? 'Edit launch profile' : duplicate ? 'Duplicate launch profile' : 'Create launch profile'; $('#profileDialog button[type="submit"]').textContent = profile && !duplicate ? 'Save profile' : duplicate ? 'Create duplicate' : 'Create profile'; $('#profileDialog').showModal();
+}
 async function saveProfile(event) {
-  event.preventDefault(); const form = event.currentTarget; const data = Object.fromEntries(new FormData(form));
-  const payload = {id:data.id,name:data.name,description:data.description || '',values:{contextSize:Number(data.contextSize),gpuLayers:Number(data.gpuLayers),batchSize:Number(data.batchSize),threads:Number(data.threads),parallel:Number(data.parallel),flashAttention:form.elements.flashAttention.checked}};
-  try { await api.createProfile(payload); $('#profileDialog').close(); form.reset(); notify('Profile created', payload.name, 'good'); await refreshAll(); }
-  catch (error) { notify('Profile creation failed', errorText(error), 'warning'); }
+  event.preventDefault(); const form = event.currentTarget; const data = Object.fromEntries(new FormData(form)); const additionalValues = JSON.parse(form.dataset.additionalValues || '{}');
+  const payload = {id:form.dataset.originalId || data.id,name:data.name,description:data.description || '',values:{...additionalValues,contextSize:Number(data.contextSize),gpuLayers:Number(data.gpuLayers),batchSize:Number(data.batchSize),threads:Number(data.threads),parallel:Number(data.parallel),flashAttention:form.elements.flashAttention.checked}};
+  const editing = form.dataset.mode === 'edit';
+  try { editing ? await api.updateProfile(payload.id, payload) : await api.createProfile(payload); $('#profileDialog').close(); notify(editing ? 'Profile updated' : 'Profile created', payload.name, 'good'); await refreshAll(); }
+  catch (error) { notify(editing ? 'Profile update failed' : 'Profile creation failed', errorText(error), 'warning'); }
 }
-async function saveGatewayPort(type) {
-  if (type === 'dashboard') return notify('Dashboard port', 'Change it in Settings and restart the application.', 'neutral');
-  const input = $(`.gateway-port[data-type="${type}"]`); const current = settingsValue(); const payload = structuredClone(current); payload.ports = {...(payload.ports || {})}; payload.ports[type === 'openai' ? 'openaiGateway' : 'ollamaGateway'] = Number(input.value);
-  try { const result = await api.updateSettings(payload); notify('Gateway port saved', result.restartRequired?.length ? 'Restart required.' : 'Applied.', 'good'); await refreshAll(); }
-  catch (error) { notify('Gateway update failed', errorText(error), 'warning'); }
-}
-async function testGateway(url) { try { const response = await fetch(url.replace(/\/v1$/, '') + (url.endsWith('/v1') ? '/v1/models' : '/api/tags')); notify(response.ok ? 'Endpoint reachable' : 'Endpoint returned an error', `${response.status} ${response.statusText}`, response.ok ? 'good' : 'warning'); } catch (error) { notify('Endpoint unavailable', errorText(error), 'warning'); } }
+async function deleteProfile(id) { if (!confirm(`Delete profile ${id}?`)) return; try { await api.deleteProfile(id); notify('Profile deleted', id, 'good'); await refreshAll(); } catch (error) { notify('Profile deletion failed', errorText(error), 'warning'); } }
+async function testGateway(type) { await refreshGatewayHealth(); renderAll(); const healthy = state.gatewayHealth[type]; notify(healthy ? 'Gateway route healthy' : 'Gateway route unavailable', healthy ? `${type} route passed its exact health request.` : `${type} route did not pass health validation.`, healthy ? 'good' : 'warning'); }
 async function copyText(value) { try { await navigator.clipboard.writeText(value); notify('Copied', value, 'good'); } catch { notify('Copy failed', value, 'warning'); } }
 
 function appendMessage(role, content, id = '') {
@@ -302,25 +344,52 @@ async function sendChat(event) {
   finally { state.chatAbort = null; $('#cancelChat').disabled = true; $('#sendChat').disabled = !isRunning(); }
 }
 
-function wire() {
+function wireNavigationHandlers() {
   $$('.nav-item[data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
   $('#mobileNavToggle').addEventListener('click', () => $('#navigation').classList.toggle('open'));
   $$('.dialog-close').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
   $('#jobsBtn').addEventListener('click', () => $('#jobDrawer').hidden = !$('#jobDrawer').hidden);
   $('#closeJobsBtn').addEventListener('click', () => $('#jobDrawer').hidden = true);
-  $('#stopAllBtn').addEventListener('click', stopRuntime);
+}
+
+function wireWorkspaceHandlers() {
+  $('#stopAllBtn').addEventListener('click', shutdownWorkspace);
+}
+
+function wireModelAndRuntimeHandlers() {
   $('#scanModelsBtn').addEventListener('click', () => scanModels({}));
   $('#modelSourceForm').addEventListener('submit', addModelSource);
   $('#startSelectedModel').addEventListener('click', () => openLaunch($('#chatModel').value));
   $('#launchPreflightBtn').addEventListener('click', preflightAndLaunch);
+}
+
+function wireMachineAndProfileHandlers() {
   $('#addMachineBtn').addEventListener('click', () => openMachine());
   $('#machineForm').addEventListener('submit', saveMachine);
-  $('#createProfileBtn').addEventListener('click', () => $('#profileDialog').showModal());
+  $('#createProfileBtn').addEventListener('click', () => openProfile());
   $('#profileForm').addEventListener('submit', saveProfile);
+}
+
+function wireChatHandlers() {
   $('#chatGateway').addEventListener('change', updateChatEndpoint);
   $('#copyChatEndpoint').addEventListener('click', () => copyText($('#chatEndpoint').textContent));
   $('#chatForm').addEventListener('submit', sendChat);
   $('#cancelChat').addEventListener('click', () => state.chatAbort?.abort());
+}
+
+function wireLogHandlers() {
+  $('#logLevelFilter').addEventListener('change', event => { state.logLevel = event.currentTarget.value; renderLogs(); });
+  $('#logSearch').addEventListener('input', event => { state.logSearch = event.currentTarget.value; renderLogs(); });
+  $('#exportLogsBtn').addEventListener('click', exportLogs);
+}
+
+function wire() {
+  wireNavigationHandlers();
+  wireWorkspaceHandlers();
+  wireModelAndRuntimeHandlers();
+  wireMachineAndProfileHandlers();
+  wireChatHandlers();
+  wireLogHandlers();
 }
 
 async function boot() {
@@ -328,3 +397,9 @@ async function boot() {
 }
 window.addEventListener('beforeunload', () => { if (state.timer) clearInterval(state.timer); state.chatAbort?.abort(); });
 boot().catch(error => notify('UI startup failed', errorText(error), 'warning'));
+
+window.addEventListener('DOMContentLoaded', () => {
+  import('./extensions.js')
+    .then(module => module.installExtensionsUi?.())
+    .catch(error => console.error('Extensions UI failed to initialize.', error));
+});

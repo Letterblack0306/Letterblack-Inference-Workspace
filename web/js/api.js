@@ -54,6 +54,8 @@ export const api = {
 
   profiles: () => request('/profiles'),
   createProfile: value => request('/profiles', {method: 'POST', body: body(value)}),
+  updateProfile: (id, value) => request(`/profiles/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
+  deleteProfile: id => request(`/profiles/${encodeURIComponent(id)}`, {method: 'DELETE'}),
 
   preflight: value => request('/runtime/preflight', {method: 'POST', body: body(value)}),
   launch: value => request('/runtime/launch', {method: 'POST', body: body(value)}),
@@ -67,6 +69,21 @@ export const api = {
   cancelRequest: id => request(`/requests/${encodeURIComponent(id)}/cancel`, {method: 'POST', body: '{}'}),
   gateway: () => request('/gateway/status'),
 
+  workspaces: () => request('/workspaces'),
+  extensions: () => request('/extensions'),
+  createExtension: value => request('/extensions', {method: 'POST', body: body(value)}),
+  updateExtension: (id, value) => request(`/extensions/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
+  deleteExtension: id => request(`/extensions/${encodeURIComponent(id)}`, {method: 'DELETE'}),
+  actions: () => request('/actions'),
+  createAction: value => request('/actions', {method: 'POST', body: body(value)}),
+  updateAction: (id, value) => request(`/actions/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
+  deleteAction: id => request(`/actions/${encodeURIComponent(id)}`, {method: 'DELETE'}),
+  executeAction: (id, value = {}) => request(`/actions/${encodeURIComponent(id)}/execute`, {method: 'POST', body: body(value)}),
+  endpoints: () => request('/endpoints'),
+  createEndpoint: value => request('/endpoints', {method: 'POST', body: body(value)}),
+  updateEndpoint: (id, value) => request(`/endpoints/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
+  deleteEndpoint: id => request(`/endpoints/${encodeURIComponent(id)}`, {method: 'DELETE'}),
+  testEndpoint: id => request(`/endpoints/${encodeURIComponent(id)}/test`, {method: 'POST', body: '{}'}),
   openAIChat: (payload, signal) => rawRequest('/v1/chat/completions', {method:'POST', headers:{'Content-Type':'application/json'}, body:body(payload), signal}),
   ollamaChat: (payload, signal) => rawRequest('/api/chat', {method:'POST', headers:{'Content-Type':'application/json'}, body:body(payload), signal}),
 };

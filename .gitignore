@@ -21,6 +21,10 @@ web-before-*/
 data/*.tmp
 data/*.lock
 data/*.bak
+data/*.backup*
+data/state.pre-*.json
+data/state.corrupted.*
+web/*.encoding-backup-*.html
 
 Letterblack Local Inference Workspace_files/
 *.download
