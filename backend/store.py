@@ -83,7 +83,7 @@ class JsonStore:
                     state[key] = deepcopy(value)
                     changed = True
             for machine in state.get("machines", []):
-                if isinstance(machine, dict) and "actions" not in machine:
+                if isinstance(machine, dict) and (not machine.get("actions")):
                     machine["actions"] = default_machine_action_ids()
                     changed = True
             # GGUF scanner versions before schema 7 persisted complete tokenizer

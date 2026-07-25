@@ -736,6 +736,7 @@ class Handler(BaseHTTPRequestHandler):
                     "openai": f"{listener['url']}/v1",
                     "ollama": listener["url"],
                 },
+                "gateway": state.get("gateway", {}),
             })
         elif parts == ["logs"]:
             self._ok(state["logs"][:200])
@@ -903,7 +904,8 @@ class Handler(BaseHTTPRequestHandler):
                 machine.setdefault("enabled", True)
                 machine.setdefault("tags", [])
                 machine.setdefault("paths", {})
-                machine.setdefault("actions", default_machine_action_ids())
+                if not machine.get("actions"):
+                    machine["actions"] = default_machine_action_ids()
                 machine["status"] = "unknown"
                 state["machines"].append(machine)
                 add_log(state, "info", "machines", "Machine registered.", machineId=machine["id"])

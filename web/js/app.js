@@ -59,7 +59,10 @@ function renderPage(pageId) {
   if (typeof content.render === 'function') { content.render(); }
 }
 function errorText(error) {
-  return error instanceof ApiError ? `${error.code}: ${error.message}` : (error?.message || String(error));
+  if (error instanceof ApiError) return `${error.code}: ${error.message}`;
+  const msg = error?.message || String(error);
+  if (msg === 'Failed to fetch' || msg.includes('NetworkError')) return 'Server unreachable';
+  return msg;
 }
 function notify(title, message = '', level = 'neutral') {
   const item = document.createElement('div');
@@ -235,6 +238,28 @@ async function toggleClineProvider(btn) {
   }
 }
 
+function gatewayEnabled(type) {
+  const gw = (state.gateway?.gateway) || (state.gateway) || {};
+  const key = type + 'Enabled';
+  return gw[key] !== false;
+}
+async function toggleGateway(btn, type) {
+  setButtonLoading(btn);
+  try {
+    const enabled = !gatewayEnabled(type);
+    const key = type + 'Enabled';
+    const payload = { gateway: {} };
+    payload.gateway[key] = enabled;
+    await api.updateSettings(payload);
+    if (state.gateway?.gateway) state.gateway.gateway[key] = enabled;
+    else if (state.gateway) state.gateway[key] = enabled;
+    notify(type.charAt(0).toUpperCase() + type.slice(1) + (enabled ? ' enabled' : ' disabled'), '', 'good');
+    await refreshAll();
+  } catch (error) {
+    notify('Toggle failed', errorText(error), 'warning');
+  }
+}
+
 function renderGateways() {
   const urls = gatewayUrls();
   const settings = settingsValue();
@@ -313,13 +338,13 @@ async function refreshAll() {
   const results = await Promise.allSettled(calls);
   results.forEach((result, index) => { if (result.status === 'fulfilled') state[keys[index]] = result.value; else console.warn(`${keys[index]} unavailable`, result.reason); });
   if (!Array.isArray(state.machineActions)) state.machineActions = [];
-  await refreshGatewayHealth();
+  await refreshGatewayHealth().catch(() => {});
   renderAll();
 }
 async function refreshGatewayHealth() {
   const urls = gatewayUrls();
   const checks = {openai:`${urls.openai}/models`,ollama:`${urls.ollama}/api/tags`};
-  const results = await Promise.allSettled(Object.values(checks).map(url => fetch(url, {method:'GET',cache:'no-store'})));
+  const results = await Promise.allSettled(Object.values(checks).map(url => fetch(url, {method:'GET',cache:'no-store'}).catch(() => ({ok:false}))));
   Object.keys(checks).forEach((type, index) => { state.gatewayHealth[type] = results[index].status === 'fulfilled' && results[index].value.ok; });
 }
 async function pollJob(id, timeout = 120000) {

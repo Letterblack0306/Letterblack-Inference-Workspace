@@ -139,20 +139,10 @@
         "runtime": "Z:\\LLM_Proxy",
         "models": "Z:\\LLM_Proxy\\Models"
       },
-      "enabled": true,
       "tags": [
         "host",
         "lan"
       ],
-      "status": "offline",
-      "lastTest": {
-        "machineId": "machine-host",
-        "reachable": false,
-        "latencyMs": 1015.41,
-        "diagnostic": "timed out",
-        "controller": null,
-        "testedAt": 1784959528826
-      },
       "actions": [
         "test",
         "edit",
@@ -161,7 +151,9 @@
         "disconnect",
         "connect",
         "delete"
-      ]
+      ],
+      "enabled": true,
+      "status": "offline"
     },
     {
       "id": "machine-worker-01",
@@ -175,7 +167,7 @@
       },
       "rpc": {
         "port": 50052,
-        "enabled": true
+        "enabled": false
       },
       "paths": {
         "runtime": "",
@@ -189,12 +181,12 @@
       "lastTest": {
         "machineId": "machine-worker-01",
         "reachable": true,
-        "latencyMs": 2.45,
+        "latencyMs": 14.4,
         "diagnostic": null,
         "controller": {
           "error": "Unexpected endpoint or method. (GET /status)"
         },
-        "testedAt": 1784959535295
+        "testedAt": 1784974079757
       },
       "actions": [
         "test",
@@ -205,6 +197,37 @@
         "connect",
         "delete"
       ]
+    },
+    {
+      "id": "machine-mini-f64a70d96cf2",
+      "name": "Hostdf",
+      "addresses": [
+        " 192.168.137.1dssf"
+      ],
+      "controller": {
+        "scheme": "http",
+        "port": 32
+      },
+      "rpc": {
+        "port": 2,
+        "enabled": false
+      },
+      "paths": {
+        "runtime": "",
+        "models": ""
+      },
+      "tags": [],
+      "actions": [
+        "test",
+        "edit",
+        "start-rpc",
+        "stop-rpc",
+        "disconnect",
+        "connect",
+        "delete"
+      ],
+      "enabled": true,
+      "status": "offline"
     }
   ],
   "models": [
@@ -471,6 +494,394 @@
     }
   ],
   "jobs": [
+    {
+      "id": "job-bd7c8ca06a5e",
+      "type": "runtime.stop",
+      "target": {
+        "force": false,
+        "shutdownControlServer": true
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "drain-requests",
+        "stop-host",
+        "stop-workers",
+        "verify-stopped"
+      ],
+      "evidence": [
+        {
+          "phase": "drain-requests",
+          "status": "pass",
+          "timestamp": 1784975164677,
+          "drained": true,
+          "remaining": [],
+          "activeCount": 0
+        },
+        {
+          "phase": "stop-host",
+          "status": "pass",
+          "timestamp": 1784975164724,
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        {
+          "phase": "verify-stopped",
+          "status": "pass",
+          "timestamp": 1784975164812,
+          "process": {
+            "running": false,
+            "pid": null,
+            "returnCode": null
+          }
+        },
+        {
+          "phase": "shutdown-control-server",
+          "status": "scheduled",
+          "timestamp": 1784975164888,
+          "scheduled": true,
+          "delaySeconds": 2.0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784975164566,
+      "updatedAt": 1784975164913,
+      "simulation": false,
+      "result": {
+        "host": {
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        "workers": [],
+        "controlServerShutdown": {
+          "scheduled": true,
+          "delaySeconds": 2.0
+        }
+      }
+    },
+    {
+      "id": "job-e64849041473",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 75,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784974094346,
+          "reachable": true,
+          "latencyMs": 2.43,
+          "diagnostic": null
+        },
+        {
+          "phase": "dispatch",
+          "status": "pass",
+          "timestamp": 1784974094414,
+          "response": {
+            "error": "Unexpected endpoint or method. (POST /rpc/start)"
+          }
+        },
+        {
+          "phase": "verify",
+          "status": "fail",
+          "timestamp": 1784974096492,
+          "reachable": false,
+          "latencyMs": 2035.66,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      ],
+      "error": {
+        "code": "RPC_NOT_READY",
+        "message": "Controller accepted start but RPC port did not become ready.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2035.66,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      },
+      "createdAt": 1784974094238,
+      "updatedAt": 1784974096519,
+      "simulation": false
+    },
+    {
+      "id": "job-7d18dca13d45",
+      "type": "rpc.stop",
+      "target": {
+        "machineId": "machine-mini-f64a70d96cf2"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784974090760,
+          "reachable": false,
+          "latencyMs": 2004.54,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2004.54,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784974088668,
+      "updatedAt": 1784974090788,
+      "simulation": false
+    },
+    {
+      "id": "job-8b2c17cd848b",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-mini-f64a70d96cf2"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784974060401,
+          "reachable": false,
+          "latencyMs": 2001.59,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2001.59,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784974058315,
+      "updatedAt": 1784974060425,
+      "simulation": false
+    },
+    {
+      "id": "job-a7ef06fcde24",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-mini-f64a70d96cf2"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784974054794,
+          "reachable": false,
+          "latencyMs": 2013.94,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2013.94,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784974052699,
+      "updatedAt": 1784974054820,
+      "simulation": false
+    },
+    {
+      "id": "job-6e1c561f34f4",
+      "type": "runtime.stop",
+      "target": {
+        "force": false,
+        "shutdownControlServer": true
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "drain-requests",
+        "stop-host",
+        "stop-workers",
+        "verify-stopped"
+      ],
+      "evidence": [
+        {
+          "phase": "drain-requests",
+          "status": "pass",
+          "timestamp": 1784965127179,
+          "drained": true,
+          "remaining": [],
+          "activeCount": 0
+        },
+        {
+          "phase": "stop-host",
+          "status": "pass",
+          "timestamp": 1784965127220,
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        {
+          "phase": "stop-workers",
+          "status": "pass",
+          "timestamp": 1784965127294,
+          "machineId": "machine-worker-01"
+        },
+        {
+          "phase": "verify-stopped",
+          "status": "pass",
+          "timestamp": 1784965127335,
+          "process": {
+            "running": false,
+            "pid": null,
+            "returnCode": null
+          }
+        },
+        {
+          "phase": "shutdown-control-server",
+          "status": "scheduled",
+          "timestamp": 1784965127394,
+          "scheduled": true,
+          "delaySeconds": 2.0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784965127081,
+      "updatedAt": 1784965127414,
+      "simulation": false,
+      "result": {
+        "host": {
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        "workers": [
+          {
+            "machineId": "machine-worker-01",
+            "ok": true,
+            "response": {
+              "error": "Unexpected endpoint or method. (POST /rpc/stop)"
+            }
+          }
+        ],
+        "controlServerShutdown": {
+          "scheduled": true,
+          "delaySeconds": 2.0
+        }
+      }
+    },
+    {
+      "id": "job-726ab3c7d935",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784965109560,
+          "reachable": false,
+          "latencyMs": 2004.58,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2004.58,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784965107473,
+      "updatedAt": 1784965109580,
+      "simulation": false
+    },
+    {
+      "id": "job-f18c8ddd365f",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784965018678,
+          "reachable": false,
+          "latencyMs": 2005.29,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2005.29,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784965016602,
+      "updatedAt": 1784965018698,
+      "simulation": false
+    },
     {
       "id": "job-068d6836a4ed",
       "type": "runtime.stop",
@@ -14949,6 +15360,335 @@
     }
   ],
   "logs": [
+    {
+      "id": "log-c099ccf608a1",
+      "timestamp": 1784975164937,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-bd7c8ca06a5e completed.",
+      "details": {
+        "jobType": "runtime.stop"
+      }
+    },
+    {
+      "id": "log-10f445e24394",
+      "timestamp": 1784975164573,
+      "severity": "warning",
+      "source": "runtime",
+      "message": "Stop All requested.",
+      "details": {
+        "jobId": "job-bd7c8ca06a5e"
+      }
+    },
+    {
+      "id": "log-5e9f75de185a",
+      "timestamp": 1784974644115,
+      "severity": "info",
+      "source": "machines",
+      "message": "Machine updated.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2"
+      }
+    },
+    {
+      "id": "log-dbd7ebd7a750",
+      "timestamp": 1784974631988,
+      "severity": "info",
+      "source": "machines",
+      "message": "Machine updated.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2"
+      }
+    },
+    {
+      "id": "log-d712e47ed74c",
+      "timestamp": 1784974627278,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2",
+        "reachable": false,
+        "latencyMs": 1.39,
+        "diagnostic": "[Errno 11001] getaddrinfo failed",
+        "controller": null,
+        "testedAt": 1784974627271
+      }
+    },
+    {
+      "id": "log-cb19b8614fea",
+      "timestamp": 1784974516459,
+      "severity": "info",
+      "source": "machines",
+      "message": "Machine updated.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2"
+      }
+    },
+    {
+      "id": "log-60ccee28894c",
+      "timestamp": 1784974096545,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Controller accepted start but RPC port did not become ready.",
+      "details": {
+        "jobId": "job-e64849041473",
+        "code": "RPC_NOT_READY",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2035.66,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      }
+    },
+    {
+      "id": "log-38897ba4a52e",
+      "timestamp": 1784974094245,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-e64849041473"
+      }
+    },
+    {
+      "id": "log-544337466ad7",
+      "timestamp": 1784974090810,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-7d18dca13d45",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2004.54,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-97dfd1d16627",
+      "timestamp": 1784974088677,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC stop requested.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2",
+        "jobId": "job-7d18dca13d45"
+      }
+    },
+    {
+      "id": "log-10914677260d",
+      "timestamp": 1784974079765,
+      "severity": "info",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "reachable": true,
+        "latencyMs": 14.4,
+        "diagnostic": null,
+        "controller": {
+          "error": "Unexpected endpoint or method. (GET /status)"
+        },
+        "testedAt": 1784974079757
+      }
+    },
+    {
+      "id": "log-1e056f8c8b32",
+      "timestamp": 1784974060448,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-8b2c17cd848b",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2001.59,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-8da84f642744",
+      "timestamp": 1784974058324,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2",
+        "jobId": "job-8b2c17cd848b"
+      }
+    },
+    {
+      "id": "log-985db3505881",
+      "timestamp": 1784974054846,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-a7ef06fcde24",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2013.94,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-e2412a1fe71d",
+      "timestamp": 1784974052706,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2",
+        "jobId": "job-a7ef06fcde24"
+      }
+    },
+    {
+      "id": "log-a504d12e3b65",
+      "timestamp": 1784974029948,
+      "severity": "info",
+      "source": "machines",
+      "message": "Machine registered.",
+      "details": {
+        "machineId": "machine-mini-f64a70d96cf2"
+      }
+    },
+    {
+      "id": "log-7ca898ddee31",
+      "timestamp": 1784965127433,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-6e1c561f34f4 completed.",
+      "details": {
+        "jobType": "runtime.stop"
+      }
+    },
+    {
+      "id": "log-6ea54df1755d",
+      "timestamp": 1784965127089,
+      "severity": "warning",
+      "source": "runtime",
+      "message": "Stop All requested.",
+      "details": {
+        "jobId": "job-6e1c561f34f4"
+      }
+    },
+    {
+      "id": "log-a94b5fa75c3d",
+      "timestamp": 1784965109600,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-726ab3c7d935",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2004.58,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-a74f0cba97b4",
+      "timestamp": 1784965107480,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-726ab3c7d935"
+      }
+    },
+    {
+      "id": "log-4115845f5118",
+      "timestamp": 1784965105745,
+      "severity": "info",
+      "source": "machines",
+      "message": "Machine updated.",
+      "details": {
+        "machineId": "machine-host"
+      }
+    },
+    {
+      "id": "log-01ae1bad5e3c",
+      "timestamp": 1784965031221,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-host",
+        "reachable": false,
+        "latencyMs": 1008.88,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784965031215
+      }
+    },
+    {
+      "id": "log-e8ffbb5c74f4",
+      "timestamp": 1784965018721,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-f18c8ddd365f",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2005.29,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-80f488114e96",
+      "timestamp": 1784965016608,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-f18c8ddd365f"
+      }
+    },
+    {
+      "id": "log-eb90bd124642",
+      "timestamp": 1784965016421,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-host",
+        "reachable": false,
+        "latencyMs": 1014.7,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784965016414
+      }
+    },
+    {
+      "id": "log-4ceaa5b74bdd",
+      "timestamp": 1784964998081,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-host",
+        "reachable": false,
+        "latencyMs": 1005.83,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784964998075
+      }
+    },
     {
       "id": "log-9774434af3b1",
       "timestamp": 1784959868524,
