@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 2,
+  "sourceSha256": "ebf939a291ae0a2852db96d78fbaec68ac25c5b2ab9134bfa13437bfdb024352",
+  "rule": "Every backend-affecting prototype handler has exactly one repository binding. Unlisted direct fetches are forbidden.",
+  "repositoryApiModule": "web/js/api.js",
+  "bindings": [
+    {
+      "prototypeFunction": "checkRuntimeHealth",
+      "selectors": [
+        "header-status-text",
+        "diag-pid",
+        "diag-endpoint",
+        "diag-api-status",
+        "persistent-runtime-deck",
+        "deck-pid",
+        "deck-port"
+      ],
+      "repositoryCalls": [
+        "api.system",
+        "api.gateway"
+      ],
+      "stateAuthority": [
+        "system.runtime",
+        "system.runtime.process",
+        "gateway.controlPlane",
+        "gateway.routes"
+      ],
+      "notes": "Do not infer health from /v1/models alone."
+    },
+    {
+      "prototypeFunction": "refreshTelemetry",
+      "selectors": [
+        "diag-vram",
+        "diag-latency",
+        "diag-ttft",
+        "inspector-ttft",
+        "inspector-speed",
+        "inspector-context-text",
+        "inspector-context-bar",
+        "inspector-context-percent"
+      ],
+      "repositoryCalls": [
+        "api.telemetry"
+      ],
+      "stateAuthority": [
+        "telemetry.runtimeProcess",
+        "telemetry.local",
+        "telemetry.machines"
+      ],
+      "notes": "Map nested telemetry; no flat demo fields."
+    },
+    {
+      "prototypeFunction": "refreshModels",
+      "selectors": [
+        "swap-model-select",
+        "model-detected-count",
+        "playground-active-model-name",
+        "active-runtime-model-title",
+        "deck-model-title"
+      ],
+      "repositoryCalls": [
+        "api.models"
+      ],
+      "identity": "model.id",
+      "notes": "Render registered models dynamically. Never use hardcoded aliases as IDs."
+    },
+    {
+      "prototypeFunction": "handleSendPrompt",
+      "selectors": [
+        "prompt-input",
+        "send-btn",
+        "chat-messages",
+        "json-preview"
+      ],
+      "repositoryCalls": [
+        "api.openAIChat",
+        "api.ollamaChat"
+      ],
+      "rawCompatibility": true,
+      "notes": "Use active registered model ID. Preserve X-Request-ID. Browser abort and backend cancel are separate."
+    },
+    {
+      "prototypeFunction": "rescanDirectories",
+      "selectors": [
+        "directories-list",
+        "model-detected-count"
+      ],
+      "repositoryCalls": [
+        "api.settings",
+        "api.updateSettings",
+        "api.scanModels",
+        "api.job",
+        "api.models"
+      ],
+      "transform": "state.directories -> full settings.paths.modelSources; scan body {sources:modelSources}; poll job; refetch models"
+    },
+    {
+      "prototypeFunction": "launchServerForModel",
+      "selectors": [
+        "active-runtime-status",
+        "active-runtime-model-title",
+        "deck-model-title"
+      ],
+      "repositoryCalls": [
+        "api.preflight",
+        "api.launch",
+        "api.job",
+        "api.system"
+      ],
+      "transform": "resolve exact model.id; optional profile.id; preflight; explicit unsafe acknowledgement if required; launch; poll; refresh system"
+    },
+    {
+      "prototypeFunction": "stopServerProcess",
+      "selectors": [
+        "active-runtime-status",
+        "persistent-runtime-deck"
+      ],
+      "repositoryCalls": [
+        "api.stop",
+        "api.job",
+        "api.system"
+      ],
+      "requestBody": {
+        "drainTimeoutSec": "settings.runtime.requestDrainTimeoutSec",
+        "timeoutSec": 10,
+        "force": false
+      },
+      "notes": "202 means queued, not stopped."
+    },
+    {
+      "prototypeFunction": "restartServerProcess",
+      "selectors": [
+        "active-runtime-status"
+      ],
+      "repositoryCalls": [
+        "api.system",
+        "api.stop",
+        "api.job",
+        "api.preflight",
+        "api.launch",
+        "api.system"
+      ],
+      "composition": [
+        "capture activeModelId and activeProfileId",
+        "stop and await succeeded",
+        "preflight",
+        "launch and await succeeded",
+        "refresh system"
+      ],
+      "forbiddenRoute": "/api/runtime/restart"
+    },
+    {
+      "prototypeFunction": "confirmSwapModel",
+      "selectors": [
+        "swap-model-select",
+        "active-runtime-model-title",
+        "deck-model-title"
+      ],
+      "repositoryCalls": [
+        "api.stop",
+        "api.job",
+        "api.preflight",
+        "api.launch",
+        "api.system"
+      ],
+      "composition": [
+        "selected option value must be model.id",
+        "stop and await succeeded",
+        "preflight selected model",
+        "launch and await succeeded",
+        "refresh system"
+      ],
+      "forbiddenRoute": "/api/runtime/swap"
+    },
+    {
+      "prototypeFunction": "shutdownWorkspace",
+      "selectors": [],
+      "repositoryCalls": [
+        "api.stop",
+        "api.job"
+      ],
+      "requestBody": {
+        "shutdownControlServer": true,
+        "force": false
+      },
+      "forbiddenRoute": "/api/workspace/shutdown"
+    },
+    {
+      "prototypeFunction": "testNodeConnection",
+      "selectors": [
+        "cluster-node-grid"
+      ],
+      "repositoryCalls": [
+        "api.machines",
+        "api.testMachine"
+      ],
+      "identity": "machine.id",
+      "notes": "Do not POST host/port to an invented node-test route."
+    },
+    {
+      "prototypeFunction": "confirmAddNode",
+      "selectors": [
+        "new-node-name",
+        "new-node-host",
+        "new-node-port",
+        "cluster-node-grid"
+      ],
+      "repositoryCalls": [
+        "api.createMachine"
+      ],
+      "requiredUiChange": [
+        "collect machine id",
+        "collect controller port",
+        "collect RPC port",
+        "collect rpc enabled",
+        "collect tags/actions or use backend defaults where contract permits"
+      ],
+      "notes": "Current prototype fields are insufficient for validate_machine; do not synthesize missing ports silently."
+    },
+    {
+      "prototypeFunction": "saveProfileChanges",
+      "selectors": [
+        "profile-modal-title",
+        "profile-ctx",
+        "profile-gpu-layers",
+        "profile-threads",
+        "profile-batch",
+        "prof-flash"
+      ],
+      "repositoryCalls": [
+        "api.profiles",
+        "api.createProfile",
+        "api.updateProfile"
+      ],
+      "requiredUiChange": [
+        "explicit profile id",
+        "explicit profile name",
+        "parallel value"
+      ],
+      "notes": "Do not derive identity from display title without operator-visible value."
+    },
+    {
+      "prototypeFunction": "saveWorkspaceSettings",
+      "selectors": [
+        "setting-control-base",
+        "setting-openai-base",
+        "setting-app-root",
+        "setting-llama-binary",
+        "setting-telemetry-interval",
+        "setting-drain-timeout",
+        "check-safety"
+      ],
+      "repositoryCalls": [
+        "api.settings",
+        "api.updateSettings"
+      ],
+      "requiredUiChange": [
+        "control base read-only 127.0.0.1:8088",
+        "OpenAI base derived read-only /v1",
+        "application root read-only",
+        "preserve all settings sections and port values from GET"
+      ],
+      "transform": "llamaBinary -> paths.llamaServerPath; directories -> paths.modelSources; telemetryIntervalMs -> runtime.pollIntervalMs (1000..60000); drainTimeoutSeconds -> runtime.requestDrainTimeoutSec; safetyConfirmations is UI confirmation only and must not replace safety.blockUnsafeLaunch"
+    },
+    {
+      "prototypeFunction": "saveExtensionManifest",
+      "selectors": [
+        "extension-manifest-editor"
+      ],
+      "repositoryCalls": [
+        "api.createExtension",
+        "api.updateExtension"
+      ],
+      "notes": "Local JSON parse is syntax validation only; installed state comes from backend response."
+    },
+    {
+      "prototypeFunction": "clearLogStream",
+      "selectors": [
+        "log-stream-container"
+      ],
+      "repositoryCalls": [],
+      "frontendOnly": true,
+      "notes": "Clears view only; must not imply backend logs were deleted."
+    },
+    {
+      "prototypeFunction": "exportLogsJSON",
+      "selectors": [
+        "log-stream-container"
+      ],
+      "repositoryCalls": [
+        "api.logs"
+      ],
+      "notes": "Export current backend-filtered records; local UI events may be separate."
+    }
+  ],
+  "frontendOnlyFunctions": [
+    "switchHub",
+    "toggleDiagnosticsDrawer",
+    "toggleInspectorPanel",
+    "switchSystemSubTab",
+    "clearChat",
+    "openModal",
+    "closeModal",
+    "copyToClipboard",
+    "filterLogs",
+    "setLogSeverity",
+    "installInspectorResize"
+  ],
+  "forbiddenActiveRoutes": [
+    "/health",
+    "/models",
+    "/api/telemetry",
+    "/api/runtime/stop",
+    "/api/runtime/restart",
+    "/api/runtime/launch",
+    "/api/runtime/swap",
+    "/api/workspace/shutdown",
+    "/api/models/rescan",
+    "/api/nodes/test"
+  ],
+  "acceptance": [
+    "prototype artifact verifier passes",
+    "all selectors in bindings exist in source manifest",
+    "all repositoryCalls exist in web/js/api.js",
+    "no forbidden active route remains in web/index.html or web/js",
+    "all job-returning calls poll to succeeded or failed",
+    "no hardcoded demo runtime/model/machine value is treated as authoritative"
+  ]
+}
