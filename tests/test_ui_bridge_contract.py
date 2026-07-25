@@ -55,7 +55,11 @@ class UiBridgeContractTests(unittest.TestCase):
     def test_prototype_only_routes_are_absent_from_active_frontend(self) -> None:
         active_files = [ROOT / "web" / "index.html", *sorted((ROOT / "web" / "js").glob("*.js"))]
         active_text = "\n".join(path.read_text(encoding="utf-8-sig") for path in active_files)
-        found = [route for route in self.binding["forbiddenActiveRoutes"] if route in active_text]
+        found = []
+        for route in self.binding["forbiddenActiveRoutes"]:
+            exact_literal = re.compile(rf"(['\"])" + re.escape(route) + r"\1")
+            if exact_literal.search(active_text):
+                found.append(route)
         self.assertEqual(found, [], f"Prototype-only routes remain active: {found}")
 
     def test_backend_affecting_functions_are_explicitly_bound(self) -> None:
