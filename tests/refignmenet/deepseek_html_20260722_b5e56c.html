@@ -1,0 +1,13 @@
+<!-- Current - all fields mixed together, no structure -->
+<div class="form-grid two-col">
+  <label>Name<input name="name" required></label>
+  <label>Role<input name="role" placeholder="host, rpc-worker"></label>
+  <label>IP or hostname<input name="address" required></label>
+  <label>Controller port<input name="controllerPort" type="number"></label>
+  <label>RPC port<input name="rpcPort" type="number"></label>
+  <label>Protocol<select name="controllerProtocol">...</select></label>
+  <label class="span-2">Runtime path<input name="runtimePath"></label>
+  <label class="span-2">Models path<input name="modelsPath"></label>
+  <label><input name="rpcEnabled" type="checkbox"> RPC available</label>
+  <label><input name="enabled" type="checkbox" checked> Enabled</label>
+</div>

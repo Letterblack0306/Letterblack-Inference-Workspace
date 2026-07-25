@@ -47,6 +47,7 @@ DEFAULT_STATE: dict[str, Any] = {
     "actions": [],
     "extensions": [],
     "customEndpoints": [],
+    "clineProvider": {"enabled": False, "profiles": []},
 }
 
 

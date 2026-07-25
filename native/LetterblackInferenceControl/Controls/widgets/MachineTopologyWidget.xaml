@@ -1,0 +1,40 @@
+<UserControl x:Class="LetterblackInferenceControl.Controls.Widgets.MachineTopologyWidget"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Border Background="{StaticResource SurfaceRaised}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="6">
+        <DockPanel>
+            <Border DockPanel.Dock="Top" Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="0,0,0,1" Padding="12,8">
+                <Grid>
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                    <TextBlock Text="Machines" FontWeight="SemiBold" FontSize="13"/>
+                    <TextBlock x:Name="MachineCount" Grid.Column="1" Text="0 online" Foreground="{StaticResource Muted}" FontSize="11" Margin="0,0,12,0"/>
+                    <Button x:Name="AddMachineBtn" Grid.Column="2" Content="+" Background="{StaticResource Accent}" Foreground="#F8FAFC" BorderThickness="0" FontSize="14" Width="24" Height="24" Click="AddMachine_Click"/>
+                </Grid>
+            </Border>
+            <ScrollViewer Margin="8">
+                <ItemsControl x:Name="MachineItemsControl">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,0,4" Padding="8" Background="{StaticResource Surface}" BorderBrush="{StaticResource Border}" BorderThickness="1" CornerRadius="4">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                    <Ellipse Width="8" Height="8" Fill="{Binding StatusColor}" Margin="0,0,10,0"/>
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding Address}" Foreground="{StaticResource Muted}" FontSize="11"/>
+                                    </StackPanel>
+                                    <WrapPanel Grid.Column="2">
+                                        <Button Content="Test" Click="TestMachine_Click" Tag="{Binding Id}" Margin="0,0,4,0" Padding="6,3" FontSize="11"/>
+                                        <Button Content="{Binding RpcButtonText}" Click="ToggleRpc_Click" Tag="{Binding Id}" Margin="0,0,4,0" Padding="6,3" FontSize="11"/>
+                                        <Button Content="{Binding ToggleButtonText}" Click="ToggleMachine_Click" Tag="{Binding Id}" Padding="6,3" FontSize="11" 
+                                                Background="{Binding ToggleButtonBg}" Foreground="{Binding ToggleButtonFg}"/>
+                                    </WrapPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>

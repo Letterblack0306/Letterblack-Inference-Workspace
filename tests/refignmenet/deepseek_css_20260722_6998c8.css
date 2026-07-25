@@ -1,0 +1,149 @@
+/* ============================================
+   FORM SYSTEM - Unified form styling
+   ============================================ */
+
+/* Form Container */
+.form-renderer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  background: var(--surface-1);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.form-header .form-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+
+.form-header h2 {
+  flex: 1;
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.form-close {
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-size: var(--font-size-xl);
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.form-close:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+/* Form Body */
+.form-body {
+  padding: var(--space-lg);
+  overflow: auto;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: var(--space-xl);
+}
+
+.form-section:last-child {
+  margin-bottom: 0;
+}
+
+.form-section-header {
+  margin-bottom: var(--space-md);
+}
+
+.form-section-header h3 {
+  margin: 0;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+}
+
+.form-section-header p {
+  margin: var(--space-xs) 0 0;
+  color: var(--text-3);
+  font-size: var(--font-size-sm);
+}
+
+/* Form Fields */
+.form-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.form-fields .field-full {
+  grid-column: 1 / -1;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.form-field label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--text-2);
+}
+
+.form-field label .required {
+  color: var(--danger);
+  margin-left: var(--space-xs);
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  padding: var(--space-sm) var(--space-md);
+  background: var(--canvas-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--font-size-md);
+  font-family: var(--font-family);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  width: 100%;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(94, 234, 212, 0.1);
+}
+
+.form-field input:invalid,
+.form-field select:invalid,
+.form-field textarea:invalid {
+  border-color: var(--danger);
+}
+
+.form-field input:invalid:focus,
+.form-field select:invalid:focus,
+.form-field textarea:invalid:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-field textarea {
+  resize: vertical;
+  font-family: var(--font-mono);
+  font-size: var(--

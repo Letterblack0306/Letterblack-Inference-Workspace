@@ -70,6 +70,13 @@ export const api = {
   cancelRequest: id => request(`/requests/${encodeURIComponent(id)}/cancel`, {method: 'POST', body: '{}'}),
   gateway: () => request('/gateway/status'),
 
+  clineProvider: () => request('/providers/cline'),
+  updateClineProvider: value => request('/providers/cline', {method: 'PUT', body: body(value)}),
+  createClineProfile: value => request('/providers/cline/profiles', {method: 'POST', body: body(value)}),
+  updateClineProfile: (id, value) => request(`/providers/cline/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
+  deleteClineProfile: id => request(`/providers/cline/${encodeURIComponent(id)}`, {method: 'DELETE'}),
+  clineComplete: value => request('/providers/cline/complete', {method: 'POST', body: body(value)}),
+
   workspaces: () => request('/workspaces'),
   extensions: () => request('/extensions'),
   createExtension: value => request('/extensions', {method: 'POST', body: body(value)}),

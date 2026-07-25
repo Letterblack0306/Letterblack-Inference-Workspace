@@ -1,0 +1,13 @@
+{
+  "workspace_root": "G:/Developments/YOUR_CEP_PROJECT",
+  "write_enabled": false,
+  "server_host": "127.0.0.1",
+  "server_port": 8765,
+  "max_file_bytes": 2000000,
+  "model": {
+    "enabled": false,
+    "base_url": "http://127.0.0.1:1234/v1",
+    "model_name": "your-local-coding-model",
+    "api_key": "lm-studio"
+  }
+}

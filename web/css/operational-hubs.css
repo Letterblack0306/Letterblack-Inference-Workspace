@@ -1,0 +1,41 @@
+/* Live operational evidence: no values are invented when a node is unavailable. */
+.runtime-lifecycle {
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:16px;
+  padding:18px;
+  border-bottom:1px solid var(--border);
+}
+.page.active + .page.active { margin-top:42px; padding-top:34px; border-top:1px solid var(--border); }
+.page.active + .page.active .page-header { margin-top:0; }
+.runtime-lifecycle strong { display:block; font-size:1.05rem; margin-top:4px; }
+.runtime-lifecycle p, .runtime-truth, .form-help, .node-unavailable { color:var(--text-3); }
+.runtime-lifecycle.warning { border-left:3px solid var(--warning, #d69e2e); }
+.runtime-truth { margin:0 18px 18px; font-size:.9rem; }
+
+#topologyRoot { margin:0 0 16px; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--canvas-1); }
+.topology-toolbar { flex-wrap:wrap; border-bottom:1px solid var(--border); }
+.topology-chip { border:1px solid var(--border); border-radius:999px; padding:5px 9px; color:var(--text-2); font-size:.78rem; }
+.topology-chip.good { border-color:var(--good, #38a169); color:var(--good, #38a169); }
+.topology-chip.warning { border-color:var(--warning, #d69e2e); color:var(--warning, #d69e2e); }
+.topology-canvas { grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); align-items:start; }
+.machine-node details { margin-top:12px; color:var(--text-2); }
+.machine-node summary { cursor:pointer; }
+.node-gpu-list { display:grid; gap:8px; margin-top:10px; }
+.node-gpu-list div { display:grid; gap:2px; padding-top:8px; border-top:1px solid var(--border); }
+.node-gpu-list span { color:var(--text-3); font-size:.78rem; }
+
+.launch-workers { grid-column:1 / -1; display:grid; gap:8px; border:1px solid var(--border); border-radius:10px; padding:12px; }
+.launch-workers legend { color:var(--text-2); padding:0 4px; }
+.launch-workers label { display:block; color:var(--text-2); }
+
+.diagnostics-drawer { width:min(860px, calc(100vw - 32px)); }
+.diagnostics-summary { display:grid; gap:8px; padding:0 0 14px; border-bottom:1px solid var(--border); }
+.diagnostics-drawer #diagnosticsContent { padding:18px; }
+.diagnostics-drawer pre { max-height:360px; overflow:auto; white-space:pre-wrap; color:var(--text-2); }
+
+@media (max-width:720px) {
+  .topology-canvas { grid-template-columns:1fr; }
+  .runtime-lifecycle { align-items:stretch; flex-direction:column; }
+}

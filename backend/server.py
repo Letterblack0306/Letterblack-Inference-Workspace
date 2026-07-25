@@ -24,6 +24,7 @@ if __package__ in {None, ""}:
     from backend.hardware import estimate_allocation, local_telemetry
     from backend.machine_actions import default_machine_action_ids, machine_action_catalog
     from backend.extensions import combined_actions, combined_endpoints, combined_widgets, execute_http_action, normalized_extension, test_endpoint, validate_action, validate_endpoint, validate_extension
+    from backend.cline_provider import ClineProviderError, complete as cline_complete, status as cline_status, validate_profile as validate_cline_profile
 else:
     from .contracts import create_job, envelope, error, new_id, now_ms, validate_machine, validate_profile, validate_workspace
     from .store import JsonStore
@@ -32,6 +33,7 @@ else:
     from .hardware import estimate_allocation, local_telemetry
     from .machine_actions import default_machine_action_ids, machine_action_catalog
     from .extensions import combined_actions, combined_endpoints, combined_widgets, execute_http_action, normalized_extension, test_endpoint, validate_action, validate_endpoint, validate_extension
+    from .cline_provider import ClineProviderError, complete as cline_complete, status as cline_status, validate_profile as validate_cline_profile
 
 ROOT = Path(__file__).resolve().parents[1]
 WEB_ROOT = ROOT / "web"
@@ -94,6 +96,7 @@ CAPABILITIES = {
         "ggufHeaderParsing": True, "allocationEstimator": True, "unsafeLaunchPrevention": True,
         "actionBuilder": True, "extensionManifests": "declarative-only", "customWidgets": True,
         "customEndpoints": True, "extensionExecutableCode": False,
+        "clineFallback": "authorized-profiles-only",
     },
     "defaultPorts": {"dashboard":8088,"openai":1234,"ollama":11434,"rpc":50052,"controller":50053},
 }
@@ -474,6 +477,31 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_PUT(self) -> None:
         parts = self._parts()
+        if parts == ["api", "v1", "providers", "cline"]:
+            try: body = self._json_body()
+            except (ValueError, json.JSONDecodeError) as exc: self._fail("INVALID_JSON", str(exc), 400); return
+            if not isinstance(body, dict) or not isinstance(body.get("enabled"), bool):
+                self._fail("VALIDATION_FAILED", "enabled must be a boolean.", 422); return
+            result = STORE.mutate(lambda state: state.setdefault("clineProvider", {"enabled": False, "profiles": []}).update({"enabled": body["enabled"]}) or state["clineProvider"])
+            self._ok(result); return
+        if parts[:4] == ["api", "v1", "providers", "cline"] and len(parts) == 5:
+            try: body = self._json_body()
+            except (ValueError, json.JSONDecodeError) as exc: self._fail("INVALID_JSON", str(exc), 400); return
+            profile_id = parts[4]; body["id"] = profile_id
+            issues = validate_cline_profile(body)
+            if issues: self._fail("VALIDATION_FAILED", "Cline profile validation failed.", 422, issues); return
+            def update_cline_profile(state):
+                provider = state.setdefault("clineProvider", {"enabled": False, "profiles": []})
+                for index, _ in enumerate(provider["profiles"]):
+                    if provider["profiles"][index]["id"] == profile_id:
+                        provider["profiles"][index] = {"id": body["id"], "configDirectory": body["configDirectory"], "provider": body.get("provider", "cline"), "freeModels": list(body["freeModels"]), "enabled": bool(body.get("enabled", True)), "priority": int(body.get("priority", 100)), "timeoutSec": int(body.get("timeoutSec", 90))}
+                        add_log(state, "info", "cline", "Authorized Cline profile updated.", profileId=profile_id)
+                        return provider["profiles"][index]
+                return None
+            result = STORE.mutate(update_cline_profile)
+            if result is None: self._fail("CLINE_PROFILE_NOT_FOUND", "Cline profile was not found.", 404)
+            else: self._ok(result)
+            return
         if parts[:3] == ["api", "v1", "profiles"] and len(parts) == 4:
             try: body = self._json_body()
             except (ValueError, json.JSONDecodeError) as exc: self._fail("INVALID_JSON", str(exc), 400); return
@@ -594,6 +622,16 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_DELETE(self) -> None:
         parts = self._parts()
+        if parts[:4] == ["api", "v1", "providers", "cline"] and len(parts) == 5:
+            profile_id = parts[4]
+            def remove_cline_profile(state):
+                provider = state.setdefault("clineProvider", {"enabled": False, "profiles": []}); before = len(provider["profiles"])
+                provider["profiles"] = [item for item in provider["profiles"] if item["id"] != profile_id]
+                if len(provider["profiles"]) == before: return False
+                add_log(state, "warning", "cline", "Authorized Cline profile removed.", profileId=profile_id); return True
+            if STORE.mutate(remove_cline_profile): self._ok({"deleted": profile_id})
+            else: self._fail("CLINE_PROFILE_NOT_FOUND", "Cline profile was not found.", 404)
+            return
         if parts[:3] == ["api", "v1", "profiles"] and len(parts) == 4:
             profile_id = parts[3]
             def remove_profile(state):
@@ -737,6 +775,9 @@ class Handler(BaseHTTPRequestHandler):
                     "ollama": listener["url"],
                 },
             })
+        elif parts == ["providers", "cline"]:
+            provider = state.get("clineProvider", {"enabled": False, "profiles": []})
+            self._ok({"enabled": bool(provider.get("enabled", False)), **cline_status(provider.get("profiles", []))})
         elif parts == ["logs"]:
             self._ok(state["logs"][:200])
         elif parts == ["telemetry"]:
@@ -776,6 +817,31 @@ class Handler(BaseHTTPRequestHandler):
             self._fail("ROUTE_NOT_FOUND", "Unknown API route.", 404)
 
     def _api_post(self, parts: list[str], body: Any) -> None:
+        if parts == ["providers", "cline", "profiles"]:
+            issues = validate_cline_profile(body)
+            if issues:
+                self._fail("VALIDATION_FAILED", "Cline profile validation failed.", 422, issues); return
+            def add_cline_profile(state):
+                provider = state.setdefault("clineProvider", {"enabled": False, "profiles": []})
+                if any(item["id"] == body["id"] for item in provider["profiles"]): return None
+                profile = {"id": body["id"], "configDirectory": body["configDirectory"], "provider": body.get("provider", "cline"), "freeModels": list(body["freeModels"]), "enabled": bool(body.get("enabled", True)), "priority": int(body.get("priority", 100)), "timeoutSec": int(body.get("timeoutSec", 90))}
+                provider["profiles"].append(profile)
+                add_log(state, "info", "cline", "Authorized Cline profile registered.", profileId=profile["id"])
+                return profile
+            result = STORE.mutate(add_cline_profile)
+            if result is None: self._fail("CLINE_PROFILE_EXISTS", "A Cline profile with this ID already exists.", 409)
+            else: self._ok(result, 201)
+            return
+        if parts == ["providers", "cline", "complete"]:
+            state = STORE.snapshot(); provider = state.get("clineProvider", {})
+            if not provider.get("enabled", False):
+                self._fail("CLINE_PROVIDER_DISABLED", "Cline fallback is disabled.", 409); return
+            try:
+                result = cline_complete(provider.get("profiles", []), body.get("prompt", "") if isinstance(body, dict) else "", cwd=str(ROOT))
+            except ClineProviderError as exc:
+                self._fail(exc.code, str(exc), 503, exc.details); return
+            STORE.mutate(lambda st: add_log(st, "info", "cline", "Cline fallback completed.", route=result.get("route"), latencyMs=result.get("latencyMs")))
+            self._ok(result); return
         if parts == ["workspaces"]:
             issues = validate_workspace(body)
             if issues:

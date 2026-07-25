@@ -10,13 +10,15 @@
   <link rel="stylesheet" href="css/operator.css">
   <link rel="stylesheet" href="css/extensions.css">
   <link rel="stylesheet" href="css/layout-repair.css">
+  <link rel="stylesheet" href="css/pages/machines.css">
+  <link rel="stylesheet" href="css/operational-hubs.css">
   <link rel="icon" href="data:,">
 </head>
 <body>
   <div class="app-shell">
     <header class="app-bar">
       <div class="brand-block"><button class="icon-button mobile-nav-toggle" id="mobileNavToggle" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#icon-menu"/></svg></button><div class="brand-mark"><span></span><span></span><span></span></div><div><div class="eyebrow">LETTERBLACK</div><div class="product-name">Inference Workspace</div></div></div>
-      <div class="global-health"><div class="health-pill neutral" id="runtimeHealth">Runtime stopped</div><div class="health-pill neutral" id="gatewayHealth">Gateway unavailable</div><div class="health-pill neutral" id="machineHealth">0 machines online</div></div>
+      <div class="global-health"><button class="health-pill neutral" id="runtimeHealth" type="button" aria-label="Open runtime diagnostics">Runtime stopped</button><button class="health-pill neutral" id="gatewayHealth" type="button" aria-label="Open gateway diagnostics">Gateway unavailable</button><button class="health-pill neutral" id="machineHealth" type="button" aria-label="Open cluster diagnostics">0 machines online</button></div>
       <div class="app-actions"><button class="button secondary" id="jobsBtn" type="button">Jobs <span id="jobCount">0</span></button><button class="button danger" id="stopAllBtn" type="button">Shutdown workspace</button></div>
     </header>
 
@@ -41,7 +43,7 @@
       <section class="page active" data-page-view="chat">
         <div class="page-header"><div><p class="eyebrow">PLAYGROUND</p><h1>Test your model</h1><p class="page-description">Select a model, start the runtime, and send a real inference request.</p></div></div>
         <div class="operator-strip">
-          <label>Model<select id="chatModel"></select></label><label>Profile<select id="chatProfile"></select></label><label>Gateway<select id="chatGateway"><option value="openai">OpenAI compatible</option><option value="ollama">Ollama compatible</option></select></label>
+          <label>Model<select id="chatModel"></select></label><label>Profile<select id="chatProfile"></select></label><label>Gateway<select id="chatGateway"><option value="openai">OpenAI compatible</option><option value="ollama">Ollama compatible</option><option value="cline">Authorized Cline fallback</option></select></label>
           <div class="endpoint-copy"><span>Endpoint</span><code id="chatEndpoint">Unavailable</code><button class="button compact secondary" id="copyChatEndpoint" type="button">Copy</button></div>
           <button class="button primary" id="startSelectedModel" type="button">Start model</button>
         </div>
@@ -62,7 +64,7 @@
 
       <section class="page" data-page-view="runtime"><div class="page-header"><div><p class="eyebrow">PROCESS</p><h1>Runtime</h1><p class="page-description">Launch, stop, and inspect the active llama.cpp server.</p></div></div><div class="content-card" id="runtimePanel"></div></section>
 
-      <section class="page" data-page-view="machines"><div class="page-header"><div><p class="eyebrow">CLUSTER</p><h1>Machines</h1><p class="page-description">Edit host and worker connectivity.</p></div><button class="button primary" id="addMachineBtn" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#icon-plus"/></svg> Add machine</button></div><div class="machine-grid" id="machineGrid"></div></section>
+      <section class="page" data-page-view="machines"><div class="page-header"><div><p class="eyebrow">CLUSTER</p><h1>Machines</h1><p class="page-description">Edit host and worker connectivity.</p></div><button class="button primary" id="addMachineBtn" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#icon-plus"/></svg> Add machine</button></div><div id="topologyRoot"><div class="topology-toolbar" id="topologySummary"></div><div class="topology-canvas" id="topologyCanvas"></div></div><div class="machine-grid" id="machineGrid"></div></section>
 
       <section class="page" data-page-view="gateways"><div class="page-header"><div><p class="eyebrow">ENDPOINTS</p><h1>Gateways</h1><p class="page-description">Copy, test, and configure client endpoints.</p></div></div><div class="endpoint-grid" id="gatewayGrid"></div></section>
 
@@ -99,8 +101,9 @@
   <dialog id="endpointDialog" class="modal"><form id="endpointForm"><div class="modal-header"><div><p class="eyebrow">REGISTERED ENDPOINT</p><h2>Create endpoint</h2></div><button class="icon-button extension-dialog-close" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#icon-close"/></svg></button></div><div class="form-grid"><label>Name<input name="name" required></label><label>Endpoint ID<input name="id" pattern="[a-z0-9][a-z0-9._-]{1,63}" required></label><label>Base URL<input name="baseUrl" type="url" placeholder="http://127.0.0.1:8080" required></label><label>Health path<input name="healthPath" placeholder="/health"></label><label><input name="enabled" type="checkbox" checked> Enabled</label></div><div class="modal-actions"><button type="button" class="button secondary extension-dialog-close">Cancel</button><button type="submit" class="button primary">Create endpoint</button></div></form></dialog>
 
   <div class="job-drawer" id="jobDrawer" hidden><div class="job-head"><strong>Background jobs</strong><button class="icon-button" id="closeJobsBtn" type="button"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#icon-close"/></svg></button></div><div id="jobList"></div></div>
+  <dialog id="diagnosticsDrawer" class="modal diagnostics-drawer"><div class="modal-header"><div><p class="eyebrow">LIVE DIAGNOSTICS</p><h2>Runtime and cluster evidence</h2></div><button class="icon-button dialog-close" type="button" aria-label="Close diagnostics"><svg class="icon" aria-hidden="true"><use href="assets/icons.svg#icon-close"/></svg></button></div><div id="diagnosticsContent">Loading runtime evidence</div><div class="modal-actions"><button type="button" class="button secondary dialog-close">Close</button><button type="button" class="button primary" id="diagnosticsOpenLogs">Open logs</button></div></dialog>
   <div class="toast-region" id="toastRegion" aria-live="polite"></div>
-    <script type="module" src="js/app.js?v=20260722-3"></script>
+  <script type="module" src="js/app.js"></script>
   <div id="operationalTruthMarkers" hidden aria-hidden="true">
     <span>Host unknown</span>
     <span>Machines unknown</span>

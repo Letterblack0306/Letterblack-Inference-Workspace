@@ -23,6 +23,10 @@
   border-color:rgba(94,234,212,.3);
 }
 
+.machine-node.worker-node {
+  border-color:rgba(139, 92, 246, .3);
+}
+
 .node-head {
   display:grid;
   grid-template-columns:10px 1fr;
@@ -83,6 +87,12 @@
   color:var(--text);
   font-size:13px;
   margin:4px;
+}
+
+.topology-column {
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
 .add-machine-card {

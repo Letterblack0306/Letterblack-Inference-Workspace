@@ -1,0 +1,63 @@
+{
+  "allowed_read_paths": [
+    "."
+  ],
+  "allowed_write_paths": [
+    "client",
+    "host",
+    "jsx",
+    "src",
+    "tests",
+    "CSXS/manifest.xml",
+    "package.json"
+  ],
+  "forbidden_globs": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/*.zxp",
+    "**/*.p12",
+    "**/*.key",
+    "**/*.pem",
+    "**/.env*",
+    "**/credentials*",
+    "**/secrets*",
+    ".git/**",
+    "node_modules/**",
+    "**/_FILTER/**",
+    "_FILTER/**"
+  ],
+  "required_files": [
+    "package.json"
+  ],
+  "allowed_commands": [
+    [
+      "npm",
+      "test"
+    ],
+    [
+      "npm",
+      "run",
+      "lint"
+    ],
+    [
+      "npm",
+      "run",
+      "build"
+    ],
+    [
+      "npm",
+      "run",
+      "verify"
+    ]
+  ],
+  "required_validation_commands": [
+    [
+      "npm",
+      "test"
+    ]
+  ],
+  "max_changed_files": 12,
+  "max_patch_bytes": 300000,
+  "require_clean_base_hash": true,
+  "store_only_verified_repairs": true
+}

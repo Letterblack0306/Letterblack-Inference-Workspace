@@ -148,10 +148,10 @@
       "lastTest": {
         "machineId": "machine-host",
         "reachable": false,
-        "latencyMs": 1013.35,
+        "latencyMs": 1000.46,
         "diagnostic": "timed out",
         "controller": null,
-        "testedAt": 1784732145943
+        "testedAt": 1784749869287
       },
       "actions": [
         "test",
@@ -189,10 +189,10 @@
       "lastTest": {
         "machineId": "machine-worker-01",
         "reachable": false,
-        "latencyMs": 1000.79,
+        "latencyMs": 1003.34,
         "diagnostic": "timed out",
         "controller": null,
-        "testedAt": 1784732150115
+        "testedAt": 1784749690614
       },
       "actions": [
         "test",
@@ -278,7 +278,7 @@
           1
         ]
       },
-      "discoveredAt": 1784743300224
+      "discoveredAt": 1784755220594
     },
     {
       "id": "model-4f1978ee6288",
@@ -303,7 +303,7 @@
         "headCount": 32,
         "headCountKv": 8
       },
-      "discoveredAt": 1784743302385
+      "discoveredAt": 1784755221857
     },
     {
       "id": "model-24b3c88ffb8c",
@@ -371,7 +371,7 @@
           0
         ]
       },
-      "discoveredAt": 1784743297842
+      "discoveredAt": 1784755219118
     },
     {
       "id": "model-c12383468d43",
@@ -396,7 +396,7 @@
         "headCount": 32,
         "headCountKv": 8
       },
-      "discoveredAt": 1784743303180
+      "discoveredAt": 1784755222499
     },
     {
       "id": "model-f34cd0a3a94c",
@@ -421,7 +421,7 @@
         "headCount": 32,
         "headCountKv": 8
       },
-      "discoveredAt": 1784743301273
+      "discoveredAt": 1784755221217
     },
     {
       "id": "model-89ccf13cd59e",
@@ -446,7 +446,7 @@
         "headCount": 16,
         "headCountKv": 4
       },
-      "discoveredAt": 1784743304079
+      "discoveredAt": 1784755223609
     }
   ],
   "profiles": [
@@ -469,6 +469,2183 @@
     }
   ],
   "jobs": [
+    {
+      "id": "job-53f33c062d54",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 75,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784755448421,
+          "reachable": true,
+          "latencyMs": 4.7,
+          "diagnostic": null
+        },
+        {
+          "phase": "dispatch",
+          "status": "pass",
+          "timestamp": 1784755448568,
+          "response": {
+            "error": "Unexpected endpoint or method. (POST /rpc/start)"
+          }
+        },
+        {
+          "phase": "verify",
+          "status": "fail",
+          "timestamp": 1784755450711,
+          "reachable": false,
+          "latencyMs": 2041.31,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      ],
+      "error": {
+        "code": "RPC_NOT_READY",
+        "message": "Controller accepted start but RPC port did not become ready.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2041.31,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      },
+      "createdAt": 1784755448109,
+      "updatedAt": 1784755450775,
+      "simulation": false
+    },
+    {
+      "id": "job-c60b6907e536",
+      "type": "models.scan",
+      "target": {},
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784755218448,
+          "sourceCount": 2
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784755223630,
+          "modelCount": 6
+        }
+      ],
+      "error": null,
+      "createdAt": 1784755217651,
+      "updatedAt": 1784755223841,
+      "simulation": false,
+      "result": {
+        "modelCount": 6,
+        "models": [
+          {
+            "id": "model-b30c629fe83c",
+            "name": "Gg Hf Qat_Gemma 4 12B It Qat Q4_0 Unquantized",
+            "path": "C:\\Proxy _server\\models\\gemma-4-12B-it-QAT-GGUF\\gemma-4-12B-it-QAT-Q4_0.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 6975878560,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 667,
+              "metadataCount": 45,
+              "architecture": "gemma4",
+              "name": "Gg Hf Qat_Gemma 4 12B It Qat Q4_0 Unquantized",
+              "quantizationVersion": 2,
+              "fileType": 2,
+              "blockCount": 48,
+              "contextLength": 262144,
+              "embeddingLength": 3840,
+              "headCount": 16,
+              "headCountKv": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1
+              ]
+            },
+            "discoveredAt": 1784755220594
+          },
+          {
+            "id": "model-4f1978ee6288",
+            "name": "Llama3.1 Heretic Unsensored",
+            "path": "C:\\Proxy _server\\models\\llama3.1-heretic-unsensored-i1-GGUF\\llama3.1-heretic-unsensored.i1-Q4_K_S.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 4692684832,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 292,
+              "metadataCount": 91,
+              "architecture": "llama",
+              "name": "Llama3.1 Heretic Unsensored",
+              "quantizationVersion": 2,
+              "fileType": 14,
+              "blockCount": 32,
+              "contextLength": 131072,
+              "embeddingLength": 4096,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784755221857
+          },
+          {
+            "id": "model-24b3c88ffb8c",
+            "name": "Lmstudio Community_Nn",
+            "path": "C:\\Proxy _server\\models\\NVIDIA-Nemotron-3-Nano-4B-Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 2837072896,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 263,
+              "metadataCount": 36,
+              "architecture": "nemotron_h",
+              "name": "Lmstudio Community_Nn",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 42,
+              "contextLength": 1048576,
+              "embeddingLength": 3136,
+              "headCount": 40,
+              "headCountKv": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "discoveredAt": 1784755219118
+          },
+          {
+            "id": "model-c12383468d43",
+            "name": "mistralai_Ministral 3 14B Reasoning 2512",
+            "path": "C:\\Proxy _server\\models\\Ministral-3-14B-Reasoning-2512-GGUF\\Ministral-3-14B-Reasoning-2512-Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 8239066144,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 363,
+              "metadataCount": 42,
+              "architecture": "mistral3",
+              "name": "mistralai_Ministral 3 14B Reasoning 2512",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 40,
+              "contextLength": 262144,
+              "embeddingLength": 5120,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784755222499
+          },
+          {
+            "id": "model-f34cd0a3a94c",
+            "name": "Model",
+            "path": "C:\\Proxy _server\\models\\Llama-3.2-11B-Vision-Instruct-GGUF\\Llama-3.2-11B-Vision-Instruct.Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 5963057216,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 396,
+              "metadataCount": 26,
+              "architecture": "mllama",
+              "name": "Model",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 40,
+              "contextLength": 131072,
+              "embeddingLength": 4096,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784755221217
+          },
+          {
+            "id": "model-89ccf13cd59e",
+            "name": "Qwen_Qwen3.5 9B",
+            "path": "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 5627044256,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 427,
+              "metadataCount": 34,
+              "architecture": "qwen35",
+              "name": "Qwen_Qwen3.5 9B",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 32,
+              "contextLength": 262144,
+              "embeddingLength": 4096,
+              "headCount": 16,
+              "headCountKv": 4
+            },
+            "discoveredAt": 1784755223609
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-54246f7d3dfe",
+      "type": "models.scan",
+      "target": {
+        "sources": [
+          "C:\\Proxy _server\\llama-cuda-12.4"
+        ]
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784755216760,
+          "sourceCount": 1
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784755216888,
+          "modelCount": 0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784755216403,
+      "updatedAt": 1784755217069,
+      "simulation": false,
+      "result": {
+        "modelCount": 0,
+        "models": []
+      }
+    },
+    {
+      "id": "job-b66380331a31",
+      "type": "runtime.launch",
+      "target": {
+        "modelId": "model-89ccf13cd59e",
+        "profileId": "aa",
+        "rpcMachineIds": []
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate",
+        "test-machines",
+        "start-host",
+        "verify-api"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784755166852,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ]
+        },
+        {
+          "phase": "start-host",
+          "status": "pass",
+          "timestamp": 1784755168961,
+          "pid": 14524,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ],
+          "logPath": "C:\\Proxy _server\\ControlUI\\data\\logs\\llama-server-1784755166.log"
+        },
+        {
+          "phase": "verify-api",
+          "status": "pass",
+          "timestamp": 1784755169077,
+          "probe": {
+            "reachable": true,
+            "latencyMs": 15.99,
+            "diagnostic": null
+          }
+        }
+      ],
+      "error": null,
+      "createdAt": 1784755166729,
+      "updatedAt": 1784755169135,
+      "simulation": false,
+      "preflight": {
+        "confidence": "high",
+        "risk": "safe",
+        "modelWeightsBytes": 5627044256,
+        "kvCacheBytes": 4294967296,
+        "runtimeReserveBytes": 858993459,
+        "estimatedTotalBytes": 10781005011,
+        "gpuTotalBytes": 17179869184,
+        "gpuFreeBytes": 14251196416,
+        "safeLimitBytes": 12826076774,
+        "headroomBytes": 3470191405,
+        "inputs": {
+          "gpuLayers": 99,
+          "totalLayers": 32,
+          "contextSize": 16384,
+          "batchSize": 256,
+          "parallel": 2,
+          "cacheBytesPerElement": 2.0,
+          "safetyMargin": 0.1
+        },
+        "warnings": [
+          {
+            "code": "GPU_LAYERS_EXCEED_MODEL",
+            "message": "GPU layer count exceeds the model block count."
+          }
+        ]
+      },
+      "result": {
+        "runtime": {
+          "state": "ready",
+          "activeModelId": "model-89ccf13cd59e",
+          "activeProfileId": "aa",
+          "pid": 14524,
+          "port": 1234,
+          "host": "127.0.0.1",
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ],
+          "logPath": "C:\\Proxy _server\\ControlUI\\data\\logs\\llama-server-1784755166.log",
+          "readyAt": 1784755169101
+        }
+      }
+    },
+    {
+      "id": "job-867e0a551a74",
+      "type": "models.scan",
+      "target": {},
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784755075595,
+          "sourceCount": 2
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784755078850,
+          "modelCount": 6
+        }
+      ],
+      "error": null,
+      "createdAt": 1784755075476,
+      "updatedAt": 1784755078917,
+      "simulation": false,
+      "result": {
+        "modelCount": 6,
+        "models": [
+          {
+            "id": "model-b30c629fe83c",
+            "name": "Gg Hf Qat_Gemma 4 12B It Qat Q4_0 Unquantized",
+            "path": "C:\\Proxy _server\\models\\gemma-4-12B-it-QAT-GGUF\\gemma-4-12B-it-QAT-Q4_0.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 6975878560,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 667,
+              "metadataCount": 45,
+              "architecture": "gemma4",
+              "name": "Gg Hf Qat_Gemma 4 12B It Qat Q4_0 Unquantized",
+              "quantizationVersion": 2,
+              "fileType": 2,
+              "blockCount": 48,
+              "contextLength": 262144,
+              "embeddingLength": 3840,
+              "headCount": 16,
+              "headCountKv": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1
+              ]
+            },
+            "discoveredAt": 1784755076882
+          },
+          {
+            "id": "model-4f1978ee6288",
+            "name": "Llama3.1 Heretic Unsensored",
+            "path": "C:\\Proxy _server\\models\\llama3.1-heretic-unsensored-i1-GGUF\\llama3.1-heretic-unsensored.i1-Q4_K_S.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 4692684832,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 292,
+              "metadataCount": 91,
+              "architecture": "llama",
+              "name": "Llama3.1 Heretic Unsensored",
+              "quantizationVersion": 2,
+              "fileType": 14,
+              "blockCount": 32,
+              "contextLength": 131072,
+              "embeddingLength": 4096,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784755077840
+          },
+          {
+            "id": "model-24b3c88ffb8c",
+            "name": "Lmstudio Community_Nn",
+            "path": "C:\\Proxy _server\\models\\NVIDIA-Nemotron-3-Nano-4B-Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 2837072896,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 263,
+              "metadataCount": 36,
+              "architecture": "nemotron_h",
+              "name": "Lmstudio Community_Nn",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 42,
+              "contextLength": 1048576,
+              "embeddingLength": 3136,
+              "headCount": 40,
+              "headCountKv": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "discoveredAt": 1784755076024
+          },
+          {
+            "id": "model-c12383468d43",
+            "name": "mistralai_Ministral 3 14B Reasoning 2512",
+            "path": "C:\\Proxy _server\\models\\Ministral-3-14B-Reasoning-2512-GGUF\\Ministral-3-14B-Reasoning-2512-Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 8239066144,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 363,
+              "metadataCount": 42,
+              "architecture": "mistral3",
+              "name": "mistralai_Ministral 3 14B Reasoning 2512",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 40,
+              "contextLength": 262144,
+              "embeddingLength": 5120,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784755078271
+          },
+          {
+            "id": "model-f34cd0a3a94c",
+            "name": "Model",
+            "path": "C:\\Proxy _server\\models\\Llama-3.2-11B-Vision-Instruct-GGUF\\Llama-3.2-11B-Vision-Instruct.Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 5963057216,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 396,
+              "metadataCount": 26,
+              "architecture": "mllama",
+              "name": "Model",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 40,
+              "contextLength": 131072,
+              "embeddingLength": 4096,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784755077314
+          },
+          {
+            "id": "model-89ccf13cd59e",
+            "name": "Qwen_Qwen3.5 9B",
+            "path": "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "sourceId": "source-settings-1",
+            "sizeBytes": 5627044256,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 427,
+              "metadataCount": 34,
+              "architecture": "qwen35",
+              "name": "Qwen_Qwen3.5 9B",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 32,
+              "contextLength": 262144,
+              "embeddingLength": 4096,
+              "headCount": 16,
+              "headCountKv": 4
+            },
+            "discoveredAt": 1784755078842
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-1851248d3e47",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 75,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784755033905,
+          "reachable": true,
+          "latencyMs": 2.46,
+          "diagnostic": null
+        },
+        {
+          "phase": "dispatch",
+          "status": "pass",
+          "timestamp": 1784755033983,
+          "response": {
+            "error": "Unexpected endpoint or method. (POST /rpc/start)"
+          }
+        },
+        {
+          "phase": "verify",
+          "status": "fail",
+          "timestamp": 1784755036046,
+          "reachable": false,
+          "latencyMs": 2027.84,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      ],
+      "error": {
+        "code": "RPC_NOT_READY",
+        "message": "Controller accepted start but RPC port did not become ready.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2027.84,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      },
+      "createdAt": 1784755033751,
+      "updatedAt": 1784755036067,
+      "simulation": false
+    },
+    {
+      "id": "job-cd2d8eb2504c",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 75,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784755031672,
+          "reachable": true,
+          "latencyMs": 25.57,
+          "diagnostic": null
+        },
+        {
+          "phase": "dispatch",
+          "status": "pass",
+          "timestamp": 1784755031723,
+          "response": {
+            "error": "Unexpected endpoint or method. (POST /rpc/start)"
+          }
+        },
+        {
+          "phase": "verify",
+          "status": "fail",
+          "timestamp": 1784755033819,
+          "reachable": false,
+          "latencyMs": 2037.42,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      ],
+      "error": {
+        "code": "RPC_NOT_READY",
+        "message": "Controller accepted start but RPC port did not become ready.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2037.42,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      },
+      "createdAt": 1784755031568,
+      "updatedAt": 1784755033882,
+      "simulation": false
+    },
+    {
+      "id": "job-bf6e8332b1dd",
+      "type": "runtime.stop",
+      "target": {
+        "force": false,
+        "shutdownControlServer": true
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 85,
+      "phases": [
+        "drain-requests",
+        "stop-host",
+        "stop-workers",
+        "verify-stopped"
+      ],
+      "evidence": [
+        {
+          "phase": "drain-requests",
+          "status": "pass",
+          "timestamp": 1784751329720,
+          "drained": true,
+          "remaining": [],
+          "activeCount": 0
+        },
+        {
+          "phase": "stop-host",
+          "status": "pass",
+          "timestamp": 1784751330326,
+          "stopped": true,
+          "wasRunning": true,
+          "forced": false,
+          "returnCode": 1
+        },
+        {
+          "phase": "stop-workers",
+          "status": "fail",
+          "timestamp": 1784751332399,
+          "machineId": "machine-worker-01",
+          "code": "CONTROLLER_UNREACHABLE"
+        },
+        {
+          "phase": "verify-stopped",
+          "status": "pass",
+          "timestamp": 1784751332441,
+          "process": {
+            "running": false,
+            "pid": null,
+            "returnCode": null
+          }
+        }
+      ],
+      "error": {
+        "code": "WORKERS_NOT_STOPPED",
+        "message": "One or more selected worker runtimes could not be stopped.",
+        "details": {
+          "workers": [
+            {
+              "machineId": "machine-worker-01",
+              "ok": false,
+              "error": {
+                "code": "CONTROLLER_UNREACHABLE",
+                "message": "Controller request failed."
+              }
+            }
+          ]
+        }
+      },
+      "createdAt": 1784751329415,
+      "updatedAt": 1784751332483,
+      "simulation": false
+    },
+    {
+      "id": "job-621e3da47537",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784751256522,
+          "reachable": false,
+          "latencyMs": 2003.19,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2003.19,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784751254439,
+      "updatedAt": 1784751256542,
+      "simulation": false
+    },
+    {
+      "id": "job-14a96963e9e1",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784751255391,
+          "reachable": false,
+          "latencyMs": 1995.44,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 1995.44,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784751253302,
+      "updatedAt": 1784751255417,
+      "simulation": false
+    },
+    {
+      "id": "job-9b993551497c",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749728062,
+          "reachable": false,
+          "latencyMs": 2014.0,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2014.0,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749725681,
+      "updatedAt": 1784749728117,
+      "simulation": false
+    },
+    {
+      "id": "job-e1b0d7480c6b",
+      "type": "runtime.launch",
+      "target": {
+        "modelId": "model-89ccf13cd59e",
+        "profileId": "aa"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 50,
+      "phases": [
+        "validate",
+        "test-machines",
+        "start-host",
+        "verify-api"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784749725605,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ]
+        }
+      ],
+      "error": {
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "message": "A managed llama-server process is already running.",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      },
+      "createdAt": 1784749725167,
+      "updatedAt": 1784749725960,
+      "simulation": false,
+      "preflight": {
+        "confidence": "high",
+        "risk": "safe",
+        "modelWeightsBytes": 5627044256,
+        "kvCacheBytes": 4294967296,
+        "runtimeReserveBytes": 858993459,
+        "estimatedTotalBytes": 10781005011,
+        "gpuTotalBytes": 17179869184,
+        "gpuFreeBytes": 14463008768,
+        "safeLimitBytes": 13016707891,
+        "headroomBytes": 3682003757,
+        "inputs": {
+          "gpuLayers": 99,
+          "totalLayers": 32,
+          "contextSize": 16384,
+          "batchSize": 256,
+          "parallel": 2,
+          "cacheBytesPerElement": 2.0,
+          "safetyMargin": 0.1
+        },
+        "warnings": [
+          {
+            "code": "GPU_LAYERS_EXCEED_MODEL",
+            "message": "GPU layer count exceeds the model block count."
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-43f89a2426ca",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749696010,
+          "reachable": false,
+          "latencyMs": 2001.37,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2001.37,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749693710,
+      "updatedAt": 1784749696059,
+      "simulation": false
+    },
+    {
+      "id": "job-8a5de6a74c9e",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749695763,
+          "reachable": false,
+          "latencyMs": 2005.35,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2005.35,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749693560,
+      "updatedAt": 1784749695815,
+      "simulation": false
+    },
+    {
+      "id": "job-12a6a27460da",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749693308,
+          "reachable": false,
+          "latencyMs": 2007.1,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2007.1,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749691043,
+      "updatedAt": 1784749693359,
+      "simulation": false
+    },
+    {
+      "id": "job-b571d5d4b383",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749693123,
+          "reachable": false,
+          "latencyMs": 2006.64,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2006.64,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749690843,
+      "updatedAt": 1784749693176,
+      "simulation": false
+    },
+    {
+      "id": "job-0b6eac9b1a98",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749692895,
+          "reachable": false,
+          "latencyMs": 2008.82,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2008.82,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749690707,
+      "updatedAt": 1784749692956,
+      "simulation": false
+    },
+    {
+      "id": "job-6bc57ef8286d",
+      "type": "runtime.launch",
+      "target": {
+        "modelId": "model-89ccf13cd59e",
+        "profileId": "aa"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 50,
+      "phases": [
+        "validate",
+        "test-machines",
+        "start-host",
+        "verify-api"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784749551114,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ]
+        }
+      ],
+      "error": {
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "message": "A managed llama-server process is already running.",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      },
+      "createdAt": 1784749550845,
+      "updatedAt": 1784749551284,
+      "simulation": false,
+      "preflight": {
+        "confidence": "high",
+        "risk": "safe",
+        "modelWeightsBytes": 5627044256,
+        "kvCacheBytes": 4294967296,
+        "runtimeReserveBytes": 858993459,
+        "estimatedTotalBytes": 10781005011,
+        "gpuTotalBytes": 17179869184,
+        "gpuFreeBytes": 14503903232,
+        "safeLimitBytes": 13053512908,
+        "headroomBytes": 3722898221,
+        "inputs": {
+          "gpuLayers": 99,
+          "totalLayers": 32,
+          "contextSize": 16384,
+          "batchSize": 256,
+          "parallel": 2,
+          "cacheBytesPerElement": 2.0,
+          "safetyMargin": 0.1
+        },
+        "warnings": [
+          {
+            "code": "GPU_LAYERS_EXCEED_MODEL",
+            "message": "GPU layer count exceeds the model block count."
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-3aa4b0af5e55",
+      "type": "runtime.launch",
+      "target": {
+        "modelId": "model-89ccf13cd59e",
+        "profileId": "aa"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 50,
+      "phases": [
+        "validate",
+        "test-machines",
+        "start-host",
+        "verify-api"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784749529598,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ]
+        }
+      ],
+      "error": {
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "message": "A managed llama-server process is already running.",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      },
+      "createdAt": 1784749529309,
+      "updatedAt": 1784749529775,
+      "simulation": false,
+      "preflight": {
+        "confidence": "high",
+        "risk": "safe",
+        "modelWeightsBytes": 5627044256,
+        "kvCacheBytes": 4294967296,
+        "runtimeReserveBytes": 858993459,
+        "estimatedTotalBytes": 10781005011,
+        "gpuTotalBytes": 17179869184,
+        "gpuFreeBytes": 14503903232,
+        "safeLimitBytes": 13053512908,
+        "headroomBytes": 3722898221,
+        "inputs": {
+          "gpuLayers": 99,
+          "totalLayers": 32,
+          "contextSize": 16384,
+          "batchSize": 256,
+          "parallel": 2,
+          "cacheBytesPerElement": 2.0,
+          "safetyMargin": 0.1
+        },
+        "warnings": [
+          {
+            "code": "GPU_LAYERS_EXCEED_MODEL",
+            "message": "GPU layer count exceeds the model block count."
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-3838e4d75193",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749448803,
+          "reachable": false,
+          "latencyMs": 2008.12,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2008.12,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749446286,
+      "updatedAt": 1784749448881,
+      "simulation": false
+    },
+    {
+      "id": "job-4a5745e6adc8",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749437903,
+          "reachable": false,
+          "latencyMs": 2007.41,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2007.41,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749435724,
+      "updatedAt": 1784749437966,
+      "simulation": false
+    },
+    {
+      "id": "job-75e0e6b5bf5a",
+      "type": "runtime.launch",
+      "target": {
+        "modelId": "model-89ccf13cd59e",
+        "profileId": "aa"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 50,
+      "phases": [
+        "validate",
+        "test-machines",
+        "start-host",
+        "verify-api"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784749382490,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ]
+        }
+      ],
+      "error": {
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "message": "A managed llama-server process is already running.",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      },
+      "createdAt": 1784749382222,
+      "updatedAt": 1784749382637,
+      "simulation": false,
+      "preflight": {
+        "confidence": "high",
+        "risk": "safe",
+        "modelWeightsBytes": 5627044256,
+        "kvCacheBytes": 4294967296,
+        "runtimeReserveBytes": 858993459,
+        "estimatedTotalBytes": 10781005011,
+        "gpuTotalBytes": 17179869184,
+        "gpuFreeBytes": 14514388992,
+        "safeLimitBytes": 13062950092,
+        "headroomBytes": 3733383981,
+        "inputs": {
+          "gpuLayers": 99,
+          "totalLayers": 32,
+          "contextSize": 16384,
+          "batchSize": 256,
+          "parallel": 2,
+          "cacheBytesPerElement": 2.0,
+          "safetyMargin": 0.1
+        },
+        "warnings": [
+          {
+            "code": "GPU_LAYERS_EXCEED_MODEL",
+            "message": "GPU layer count exceeds the model block count."
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-cf84041536fc",
+      "type": "runtime.launch",
+      "target": {
+        "modelId": "model-89ccf13cd59e",
+        "profileId": "aa"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 50,
+      "phases": [
+        "validate",
+        "test-machines",
+        "start-host",
+        "verify-api"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784749347922,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ]
+        }
+      ],
+      "error": {
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "message": "A managed llama-server process is already running.",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      },
+      "createdAt": 1784749347696,
+      "updatedAt": 1784749348067,
+      "simulation": false,
+      "preflight": {
+        "confidence": "high",
+        "risk": "safe",
+        "modelWeightsBytes": 5627044256,
+        "kvCacheBytes": 4294967296,
+        "runtimeReserveBytes": 858993459,
+        "estimatedTotalBytes": 10781005011,
+        "gpuTotalBytes": 17179869184,
+        "gpuFreeBytes": 14514388992,
+        "safeLimitBytes": 13062950092,
+        "headroomBytes": 3733383981,
+        "inputs": {
+          "gpuLayers": 99,
+          "totalLayers": 32,
+          "contextSize": 16384,
+          "batchSize": 256,
+          "parallel": 2,
+          "cacheBytesPerElement": 2.0,
+          "safetyMargin": 0.1
+        },
+        "warnings": [
+          {
+            "code": "GPU_LAYERS_EXCEED_MODEL",
+            "message": "GPU layer count exceeds the model block count."
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-c7f5023b46c0",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749161105,
+          "reachable": false,
+          "latencyMs": 2008.75,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2008.75,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749158901,
+      "updatedAt": 1784749161162,
+      "simulation": false
+    },
+    {
+      "id": "job-d441368b4d49",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749155306,
+          "reachable": false,
+          "latencyMs": 2013.93,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2013.93,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749153127,
+      "updatedAt": 1784749155373,
+      "simulation": false
+    },
+    {
+      "id": "job-5f9a6e53bcac",
+      "type": "runtime.launch",
+      "target": {
+        "modelId": "model-89ccf13cd59e",
+        "profileId": "aa"
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate",
+        "test-machines",
+        "start-host",
+        "verify-api"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784749121752,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ]
+        },
+        {
+          "phase": "start-host",
+          "status": "pass",
+          "timestamp": 1784749121837,
+          "pid": 74156,
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ],
+          "logPath": "C:\\Proxy _server\\ControlUI\\data\\logs\\llama-server-1784749121.log"
+        },
+        {
+          "phase": "verify-api",
+          "status": "pass",
+          "timestamp": 1784749121927,
+          "probe": {
+            "reachable": true,
+            "latencyMs": 23.59,
+            "diagnostic": null
+          }
+        }
+      ],
+      "error": null,
+      "createdAt": 1784749121627,
+      "updatedAt": 1784749121987,
+      "simulation": false,
+      "preflight": {
+        "confidence": "high",
+        "risk": "safe",
+        "modelWeightsBytes": 5627044256,
+        "kvCacheBytes": 4294967296,
+        "runtimeReserveBytes": 858993459,
+        "estimatedTotalBytes": 10781005011,
+        "gpuTotalBytes": 17179869184,
+        "gpuFreeBytes": 14515437568,
+        "safeLimitBytes": 13063893811,
+        "headroomBytes": 3734432557,
+        "inputs": {
+          "gpuLayers": 99,
+          "totalLayers": 32,
+          "contextSize": 16384,
+          "batchSize": 256,
+          "parallel": 2,
+          "cacheBytesPerElement": 2.0,
+          "safetyMargin": 0.1
+        },
+        "warnings": [
+          {
+            "code": "GPU_LAYERS_EXCEED_MODEL",
+            "message": "GPU layer count exceeds the model block count."
+          }
+        ]
+      },
+      "result": {
+        "runtime": {
+          "state": "ready",
+          "activeModelId": "model-89ccf13cd59e",
+          "activeProfileId": "aa",
+          "pid": 74156,
+          "port": 1234,
+          "host": "127.0.0.1",
+          "command": [
+            "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+            "-m",
+            "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "1234",
+            "-ngl",
+            "99",
+            "-c",
+            "16384",
+            "-b",
+            "256",
+            "-t",
+            "8",
+            "--parallel",
+            "2",
+            "-fa",
+            "on",
+            "--tensor-split",
+            "1,1",
+            "--split-mode",
+            "layer"
+          ],
+          "logPath": "C:\\Proxy _server\\ControlUI\\data\\logs\\llama-server-1784749121.log",
+          "readyAt": 1784749121952
+        }
+      }
+    },
+    {
+      "id": "job-3d4424baabb7",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749069206,
+          "reachable": false,
+          "latencyMs": 2002.19,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2002.19,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749067129,
+      "updatedAt": 1784749069226,
+      "simulation": false
+    },
+    {
+      "id": "job-4b3a8a60bd49",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749065647,
+          "reachable": false,
+          "latencyMs": 2006.89,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2006.89,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749063562,
+      "updatedAt": 1784749065674,
+      "simulation": false
+    },
+    {
+      "id": "job-40884be469ad",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749027205,
+          "reachable": false,
+          "latencyMs": 2003.37,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2003.37,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749025112,
+      "updatedAt": 1784749027226,
+      "simulation": false
+    },
+    {
+      "id": "job-c31f358f15a2",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784749023743,
+          "reachable": false,
+          "latencyMs": 2014.99,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2014.99,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784749021655,
+      "updatedAt": 1784749023763,
+      "simulation": false
+    },
     {
       "id": "job-b7c9b483b092",
       "type": "models.scan",
@@ -14377,6 +16554,842 @@
   ],
   "logs": [
     {
+      "id": "log-395dd6cc450c",
+      "timestamp": 1784760423548,
+      "severity": "info",
+      "source": "endpoints",
+      "message": "Custom endpoint registered.",
+      "details": {
+        "endpointId": "openrouter"
+      }
+    },
+    {
+      "id": "log-d09cab1d9017",
+      "timestamp": 1784755450851,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Controller accepted start but RPC port did not become ready.",
+      "details": {
+        "jobId": "job-53f33c062d54",
+        "code": "RPC_NOT_READY",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2041.31,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      }
+    },
+    {
+      "id": "log-df39d6b8a04b",
+      "timestamp": 1784755448131,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-53f33c062d54"
+      }
+    },
+    {
+      "id": "log-71b4d6fa8d5d",
+      "timestamp": 1784755223902,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-c60b6907e536 completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
+    {
+      "id": "log-30bd549ba709",
+      "timestamp": 1784755217134,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-54246f7d3dfe completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
+    {
+      "id": "log-91ca5d4c8f03",
+      "timestamp": 1784755169156,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-b66380331a31 completed.",
+      "details": {
+        "jobType": "runtime.launch"
+      }
+    },
+    {
+      "id": "log-6f7f5c768c64",
+      "timestamp": 1784755166736,
+      "severity": "info",
+      "source": "runtime",
+      "message": "Runtime launch requested.",
+      "details": {
+        "jobId": "job-b66380331a31"
+      }
+    },
+    {
+      "id": "log-536fefbd4117",
+      "timestamp": 1784755078937,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-867e0a551a74 completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
+    {
+      "id": "log-de6929938dc8",
+      "timestamp": 1784755036088,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Controller accepted start but RPC port did not become ready.",
+      "details": {
+        "jobId": "job-1851248d3e47",
+        "code": "RPC_NOT_READY",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2027.84,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      }
+    },
+    {
+      "id": "log-e808cc073581",
+      "timestamp": 1784755033926,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Controller accepted start but RPC port did not become ready.",
+      "details": {
+        "jobId": "job-cd2d8eb2504c",
+        "code": "RPC_NOT_READY",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2037.42,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      }
+    },
+    {
+      "id": "log-c6edaf5ab916",
+      "timestamp": 1784755033759,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-1851248d3e47"
+      }
+    },
+    {
+      "id": "log-d990b599f46a",
+      "timestamp": 1784755031574,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-cd2d8eb2504c"
+      }
+    },
+    {
+      "id": "log-d33529a2b04c",
+      "timestamp": 1784751332504,
+      "severity": "error",
+      "source": "jobs",
+      "message": "One or more selected worker runtimes could not be stopped.",
+      "details": {
+        "jobId": "job-bf6e8332b1dd",
+        "code": "WORKERS_NOT_STOPPED",
+        "details": {
+          "workers": [
+            {
+              "machineId": "machine-worker-01",
+              "ok": false,
+              "error": {
+                "code": "CONTROLLER_UNREACHABLE",
+                "message": "Controller request failed."
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "log-9db2920addc1",
+      "timestamp": 1784751329422,
+      "severity": "warning",
+      "source": "runtime",
+      "message": "Stop All requested.",
+      "details": {
+        "jobId": "job-bf6e8332b1dd"
+      }
+    },
+    {
+      "id": "log-9822de765e4f",
+      "timestamp": 1784751256566,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-621e3da47537",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2003.19,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-adeaccc83f7a",
+      "timestamp": 1784751255439,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-14a96963e9e1",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 1995.44,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-5113518c4fff",
+      "timestamp": 1784751254446,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-621e3da47537"
+      }
+    },
+    {
+      "id": "log-10ee83aaa7d7",
+      "timestamp": 1784751253311,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-14a96963e9e1"
+      }
+    },
+    {
+      "id": "log-c2dda013ca20",
+      "timestamp": 1784749869302,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-host",
+        "reachable": false,
+        "latencyMs": 1000.46,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784749869287
+      }
+    },
+    {
+      "id": "log-7b2cb26d7d28",
+      "timestamp": 1784749868304,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-host",
+        "reachable": false,
+        "latencyMs": 1015.49,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784749868292
+      }
+    },
+    {
+      "id": "log-92b1526e5d01",
+      "timestamp": 1784749728169,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-9b993551497c",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2014.0,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-4a6168db65bc",
+      "timestamp": 1784749726615,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-host",
+        "reachable": false,
+        "latencyMs": 1027.18,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784749726594
+      }
+    },
+    {
+      "id": "log-d9d44d01d14c",
+      "timestamp": 1784749726102,
+      "severity": "error",
+      "source": "jobs",
+      "message": "A managed llama-server process is already running.",
+      "details": {
+        "jobId": "job-e1b0d7480c6b",
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      }
+    },
+    {
+      "id": "log-41e5baae7051",
+      "timestamp": 1784749725754,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-9b993551497c"
+      }
+    },
+    {
+      "id": "log-54d21048c31b",
+      "timestamp": 1784749725183,
+      "severity": "info",
+      "source": "runtime",
+      "message": "Runtime launch requested.",
+      "details": {
+        "jobId": "job-e1b0d7480c6b"
+      }
+    },
+    {
+      "id": "log-042d1b8021fc",
+      "timestamp": 1784749696114,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-43f89a2426ca",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2001.37,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-a91c0cc62f79",
+      "timestamp": 1784749695870,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-8a5de6a74c9e",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2005.35,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-2784cc57b6a3",
+      "timestamp": 1784749693783,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-43f89a2426ca"
+      }
+    },
+    {
+      "id": "log-2a27da139cf8",
+      "timestamp": 1784749693577,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-8a5de6a74c9e"
+      }
+    },
+    {
+      "id": "log-6a27c42bb4ee",
+      "timestamp": 1784749693412,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-12a6a27460da",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2007.1,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-4544ffaf2456",
+      "timestamp": 1784749693224,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-b571d5d4b383",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2006.64,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-4acbd746af90",
+      "timestamp": 1784749693009,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-0b6eac9b1a98",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2008.82,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-2aabad1b10de",
+      "timestamp": 1784749691113,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-12a6a27460da"
+      }
+    },
+    {
+      "id": "log-a703fe29b4cc",
+      "timestamp": 1784749690915,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-b571d5d4b383"
+      }
+    },
+    {
+      "id": "log-cf1bdac0ca88",
+      "timestamp": 1784749690721,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-0b6eac9b1a98"
+      }
+    },
+    {
+      "id": "log-722905e4d78a",
+      "timestamp": 1784749690629,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "reachable": false,
+        "latencyMs": 1003.34,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784749690614
+      }
+    },
+    {
+      "id": "log-af33713d14ea",
+      "timestamp": 1784749551359,
+      "severity": "error",
+      "source": "jobs",
+      "message": "A managed llama-server process is already running.",
+      "details": {
+        "jobId": "job-6bc57ef8286d",
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      }
+    },
+    {
+      "id": "log-902a2a372ed9",
+      "timestamp": 1784749550859,
+      "severity": "info",
+      "source": "runtime",
+      "message": "Runtime launch requested.",
+      "details": {
+        "jobId": "job-6bc57ef8286d"
+      }
+    },
+    {
+      "id": "log-69191c751679",
+      "timestamp": 1784749529834,
+      "severity": "error",
+      "source": "jobs",
+      "message": "A managed llama-server process is already running.",
+      "details": {
+        "jobId": "job-3aa4b0af5e55",
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      }
+    },
+    {
+      "id": "log-af10523b1aaa",
+      "timestamp": 1784749529325,
+      "severity": "info",
+      "source": "runtime",
+      "message": "Runtime launch requested.",
+      "details": {
+        "jobId": "job-3aa4b0af5e55"
+      }
+    },
+    {
+      "id": "log-4a1cb16c6603",
+      "timestamp": 1784749448935,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-3838e4d75193",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2008.12,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-95b910a2526b",
+      "timestamp": 1784749446412,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-3838e4d75193"
+      }
+    },
+    {
+      "id": "log-851cb1af0452",
+      "timestamp": 1784749438013,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-4a5745e6adc8",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2007.41,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-331cb2cc47ec",
+      "timestamp": 1784749435735,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-4a5745e6adc8"
+      }
+    },
+    {
+      "id": "log-be9dab533499",
+      "timestamp": 1784749382688,
+      "severity": "error",
+      "source": "jobs",
+      "message": "A managed llama-server process is already running.",
+      "details": {
+        "jobId": "job-75e0e6b5bf5a",
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      }
+    },
+    {
+      "id": "log-5afad4fb2a09",
+      "timestamp": 1784749382235,
+      "severity": "info",
+      "source": "runtime",
+      "message": "Runtime launch requested.",
+      "details": {
+        "jobId": "job-75e0e6b5bf5a"
+      }
+    },
+    {
+      "id": "log-9c5e494bd208",
+      "timestamp": 1784749348111,
+      "severity": "error",
+      "source": "jobs",
+      "message": "A managed llama-server process is already running.",
+      "details": {
+        "jobId": "job-cf84041536fc",
+        "code": "RUNTIME_ALREADY_RUNNING",
+        "details": {
+          "running": true,
+          "pid": 74156,
+          "returnCode": null
+        }
+      }
+    },
+    {
+      "id": "log-2e1071a29489",
+      "timestamp": 1784749347709,
+      "severity": "info",
+      "source": "runtime",
+      "message": "Runtime launch requested.",
+      "details": {
+        "jobId": "job-cf84041536fc"
+      }
+    },
+    {
+      "id": "log-6eb62b533380",
+      "timestamp": 1784749276427,
+      "severity": "info",
+      "source": "settings",
+      "message": "Settings updated.",
+      "details": {
+        "restartRequired": []
+      }
+    },
+    {
+      "id": "log-1969dba50d20",
+      "timestamp": 1784749276110,
+      "severity": "info",
+      "source": "settings",
+      "message": "Settings updated.",
+      "details": {
+        "restartRequired": []
+      }
+    },
+    {
+      "id": "log-65a5ca3417a7",
+      "timestamp": 1784749161217,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-c7f5023b46c0",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2008.75,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-7c670528a0b8",
+      "timestamp": 1784749158916,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-c7f5023b46c0"
+      }
+    },
+    {
+      "id": "log-118d242d3b92",
+      "timestamp": 1784749155428,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-d441368b4d49",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2013.93,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-3aa73f25acaf",
+      "timestamp": 1784749153138,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-d441368b4d49"
+      }
+    },
+    {
+      "id": "log-9190d223055b",
+      "timestamp": 1784749122011,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-5f9a6e53bcac completed.",
+      "details": {
+        "jobType": "runtime.launch"
+      }
+    },
+    {
+      "id": "log-18701d2512e4",
+      "timestamp": 1784749121635,
+      "severity": "info",
+      "source": "runtime",
+      "message": "Runtime launch requested.",
+      "details": {
+        "jobId": "job-5f9a6e53bcac"
+      }
+    },
+    {
+      "id": "log-8ea696da5ec1",
+      "timestamp": 1784749069249,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-3d4424baabb7",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2002.19,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-f00dc1599fc9",
+      "timestamp": 1784749067135,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-3d4424baabb7"
+      }
+    },
+    {
+      "id": "log-c4acb5e94ea6",
+      "timestamp": 1784749065693,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-4b3a8a60bd49",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2006.89,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-cb7704437ae1",
+      "timestamp": 1784749063568,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-4b3a8a60bd49"
+      }
+    },
+    {
+      "id": "log-0dc8e17591fa",
+      "timestamp": 1784749027250,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-40884be469ad",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2003.37,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-3d6feed8ce31",
+      "timestamp": 1784749025118,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-40884be469ad"
+      }
+    },
+    {
+      "id": "log-fffdc714b001",
+      "timestamp": 1784749023783,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-c31f358f15a2",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2014.99,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-9bb93496ed98",
+      "timestamp": 1784749021661,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-c31f358f15a2"
+      }
+    },
+    {
       "id": "log-e921f12ec3d4",
       "timestamp": 1784743304274,
       "severity": "info",
@@ -17246,9 +20259,39 @@
     }
   ],
   "runtime": {
-    "state": "stopped",
-    "activeModelId": null,
-    "activeProfileId": null
+    "state": "ready",
+    "activeModelId": "model-89ccf13cd59e",
+    "activeProfileId": "aa",
+    "pid": 14524,
+    "port": 1234,
+    "host": "127.0.0.1",
+    "command": [
+      "C:\\Proxy _server\\llama-cuda-12.4\\llama-server.exe",
+      "-m",
+      "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "1234",
+      "-ngl",
+      "99",
+      "-c",
+      "16384",
+      "-b",
+      "256",
+      "-t",
+      "8",
+      "--parallel",
+      "2",
+      "-fa",
+      "on",
+      "--tensor-split",
+      "1,1",
+      "--split-mode",
+      "layer"
+    ],
+    "logPath": "C:\\Proxy _server\\ControlUI\\data\\logs\\llama-server-1784755166.log",
+    "readyAt": 1784755169101
   },
   "modelSources": [
     {
@@ -17277,7 +20320,20 @@
   },
   "actions": [],
   "extensions": [],
-  "customEndpoints": [],
+  "customEndpoints": [
+    {
+      "id": "openrouter",
+      "name": "OpenRouter",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "healthCheck": {
+        "path": "/models",
+        "method": "GET"
+      },
+      "enabled": true,
+      "createdAt": 1784760423548,
+      "updatedAt": 1784760423548
+    }
+  ],
   "settings": {
     "paths": {
       "applicationRoot": "C:\\Proxy _server\\ControlUI",
@@ -17303,5 +20359,9 @@
       "blockUnsafeLaunch": true,
       "allowRemoteDashboard": false
     }
+  },
+  "clineProvider": {
+    "enabled": false,
+    "profiles": []
   }
 }

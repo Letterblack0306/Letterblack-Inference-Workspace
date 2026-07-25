@@ -11,18 +11,19 @@ const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp
 const state = {system:null, settings:null, capabilities:null, machines:[], machineActions:[], models:[], profiles:[], jobs:[], telemetry:null, logs:[], logLevel:'all', logSearch:'', gateway:null, gatewayHealth:{openai:null,ollama:null}, timer:null, chatAbort:null};
 
 const PAGES = [
-  {id:'chat', label:'Chat', icon:'icon-chat', showCount:false},
-  {id:'setup', label:'Setup', icon:'icon-setup', showCount:false},
-  {id:'models', label:'Models', icon:'icon-models', showCount:true, countId:'modelCount'},
-  {id:'runtime', label:'Runtime', icon:'icon-runtime', showCount:false},
-  {id:'machines', label:'Machines', icon:'icon-machines', showCount:true, countId:'machineCount'},
-  {id:'gateways', label:'Gateways', icon:'icon-gateways', showCount:false},
-  {id:'telemetry', label:'Telemetry', icon:'icon-telemetry', showCount:false},
-  {id:'profiles', label:'Profiles', icon:'icon-profiles', showCount:false},
-  {id:'extensions', label:'Extensions', icon:'icon-extensions', showCount:true, countId:'extensionCount'},
-  {id:'logs', label:'Logs', icon:'icon-logs', showCount:false},
-    {id:'settings', label:'Settings', icon:'icon-settings', showCount:false},
+  {id:'playground', label:'Playground', icon:'icon-chat', showCount:false},
+  {id:'models-runtime', label:'Models & Runtime', icon:'icon-models', showCount:true, countId:'modelCount'},
+  {id:'infrastructure', label:'Infrastructure', icon:'icon-machines', showCount:true, countId:'machineCount'},
+  {id:'system', label:'System & Extensions', icon:'icon-settings', showCount:false},
 ];
+
+const HUBS = {
+  playground:['chat'],
+  'models-runtime':['setup','models','runtime','profiles'],
+  infrastructure:['machines','gateways','telemetry'],
+  system:['extensions','logs','settings'],
+};
+const PAGE_TO_HUB = Object.fromEntries(Object.entries(HUBS).flatMap(([hub, pages]) => pages.map(page => [page, hub])));
 
 const PAGE_CONTENT = {
   chat: { title: 'Playground', subtitle: 'Test your model', description: 'Select a model, start the runtime, and send a real inference request.', render: renderChatAvailability },
@@ -73,7 +74,8 @@ function formatTime(value) {
 function renderNavigation() {
   const nav = $('#navigation nav');
   if (!nav) return;
-  nav.innerHTML = PAGES.map(page => `<button class="nav-item${page.id === (persistentState.get('activePage') || 'chat') ? ' active' : ''}" data-page="${page.id}" type="button"><svg class="nav-glyph icon" aria-hidden="true"><use href="assets/icons.svg#${page.icon}"/></svg><span>${esc(page.label)}</span>${page.showCount ? `<span class="nav-count" id="${page.countId}">0</span>` : ''}</button>`).join('');
+  const activeHub = PAGE_TO_HUB[persistentState.get('activePage')] || persistentState.get('activePage') || 'playground';
+  nav.innerHTML = PAGES.map(page => `<button class="nav-item${page.id === activeHub ? ' active' : ''}" data-page="${page.id}" type="button"><svg class="nav-glyph icon" aria-hidden="true"><use href="assets/icons.svg#${page.icon}"/></svg><span>${esc(page.label)}</span>${page.showCount ? `<span class="nav-count" id="${page.countId}">0</span>` : ''}</button>`).join('');
 }
 function gatewayUrls() {
   const controlPlane = state.gateway?.controlPlane || {host:'127.0.0.1',port:8088};
@@ -87,11 +89,13 @@ function gatewayUrls() {
   };
 }
 function navigate(page) {
-  $$(".nav-item[data-page]").forEach(item => item.classList.toggle('active', item.dataset.page === page));
-  $$(".page[data-page-view]").forEach(view => view.classList.toggle('active', view.dataset.pageView === page));
+  const hub = PAGE_TO_HUB[page] || (HUBS[page] ? page : 'playground');
+  const visiblePages = HUBS[hub] || ['chat'];
+  $$(".nav-item[data-page]").forEach(item => item.classList.toggle('active', item.dataset.page === hub));
+  $$(".page[data-page-view]").forEach(view => view.classList.toggle('active', visiblePages.includes(view.dataset.pageView)));
   $('#navigation')?.classList.remove('open');
-  persistentState.set('activePage', page);
-  renderPage(page);
+  persistentState.set('activePage', hub);
+  visiblePages.forEach(renderPage);
 }
 
 function renderHeader() {
@@ -124,18 +128,21 @@ function fillSelectors() {
 function updateChatEndpoint() {
   const urls = gatewayUrls();
   const type = $('#chatGateway').value;
-  $('#chatEndpoint').textContent = type === 'ollama' ? urls.ollama : urls.openai;
+  $('#chatEndpoint').textContent = type === 'ollama' ? urls.ollama : type === 'cline' ? 'Authorized Cline profiles → local GGUF' : urls.openai;
+  $('#sendChat').disabled = !isRunning() && type !== 'cline';
 }
 function renderChatAvailability() {
+  const clineSelected = $('#chatGateway').value === 'cline';
   const missing = [];
-  if (!state.models.length) missing.push('Add a model folder or GGUF file.');
-  if (!state.profiles.length) missing.push('A profile is optional, but recommended for repeatable launch settings.');
-  if (!isRunning()) missing.push('Start the selected model before sending a prompt.');
+  if (!clineSelected && !state.models.length) missing.push('Add a model folder or GGUF file.');
+  if (!clineSelected && !state.profiles.length) missing.push('A profile is optional, but recommended for repeatable launch settings.');
+  if (!clineSelected && !isRunning()) missing.push('Start the selected model before sending a prompt.');
+  if (clineSelected) missing.push('Cline uses only profiles registered in Settings. If every authorized cloud route is exhausted, LIW falls back to the local GGUF runtime when it is ready.');
   const notice = $('#chatSetupNotice');
   notice.hidden = missing.length === 0;
-  notice.innerHTML = missing.length ? `<strong>${state.models.length ? 'Runtime not ready' : 'No model configured'}</strong><p>${missing.join(' ')}</p><div><button class="button primary" data-open-page="${state.models.length ? 'runtime' : 'models'}" type="button">${state.models.length ? 'Open runtime controls' : 'Add model source'}</button></div>` : '';
+  notice.innerHTML = missing.length ? `<strong>${clineSelected ? 'Authorized fallback route' : state.models.length ? 'Runtime not ready' : 'No model configured'}</strong><p>${missing.join(' ')}</p><div><button class="button primary" data-open-page="${clineSelected ? 'settings' : state.models.length ? 'runtime' : 'models'}" type="button">${clineSelected ? 'Configure Cline fallback' : state.models.length ? 'Open runtime controls' : 'Add model source'}</button></div>` : '';
   notice.querySelector('[data-open-page]')?.addEventListener('click', event => navigate(event.currentTarget.dataset.openPage));
-  $('#sendChat').disabled = !isRunning();
+  $('#sendChat').disabled = !isRunning() && $('#chatGateway').value !== 'cline';
 }
 
 function renderSetup() {
@@ -164,15 +171,60 @@ function renderModels() {
     const meta = model.metadata || model.gguf || {};
     return `<tr><td><strong>${esc(model.name || model.filename || model.id)}</strong><small>${esc(model.path || '')}</small></td><td>${esc(model.architecture || meta.architecture || 'Unknown')}</td><td>${esc(model.quantization || meta.fileType || 'Unknown')}</td><td>${bytes(model.sizeBytes ?? model.size)}</td><td>${esc(model.contextLength || meta.contextLength || 'Unknown')}</td><td><button class="button compact primary use-model" data-id="${esc(model.id)}" type="button">Chat</button><button class="button compact secondary launch-model" data-id="${esc(model.id)}" type="button">Launch</button></td></tr>`;
   }).join('') : '<tr><td colspan="6"><div class="empty-state"><h3>No models registered</h3><p>Add a model folder above, then scan for GGUF files.</p></div></td></tr>';
-                  $('.use-model').forEach(button => button.addEventListener('click', () => { $('#chatModel').value = button.dataset.id; navigate('chat'); }));
-  $('.launch-model').forEach(button => button.addEventListener('click', () => quickLaunch(button.dataset.id)));
+  $$('.use-model').forEach(button => button.addEventListener('click', () => { $('#chatModel').value = button.dataset.id; navigate('chat'); }));
+  $$('.launch-model').forEach(button => button.addEventListener('click', () => openLaunch(button.dataset.id)));
+}
+
+function runtimeLifecycle() {
+  const current = runtime();
+  const active = state.jobs.find(job => ['runtime.launch', 'runtime.preflight'].includes(job.type) && !['completed', 'succeeded', 'failed', 'cancelled', 'done'].includes(String(job.state || '').toLowerCase()));
+  const failed = state.jobs.find(job => ['runtime.launch', 'runtime.preflight'].includes(job.type) && ['failed', 'cancelled'].includes(String(job.state || '').toLowerCase()));
+  const workerCheckPhase = `test${'-'}machines`;
+  if (active) return {label: active.phase === workerCheckPhase ? 'Checking worker readiness' : (active.phase || 'Preflight'), detail: `Job ${active.id} · ${Number(active.progress || 0)}%`, level:'neutral'};
+  if (isRunning()) return {label:'Ready', detail:'llama-server is accepting requests.', level:'good'};
+  if (failed) return {label:'Launch failed', detail: failed.error?.message || failed.error?.code || `Job ${failed.id} failed.`, level:'warning'};
+  return {label:'Stopped', detail:'No managed llama-server process is running.', level:'neutral'};
 }
 
 function renderRuntime() {
   const current = runtime(); const process = processState(); const model = activeModel(); const urls = gatewayUrls();
-  $('#runtimePanel').innerHTML = `<div class="runtime-summary"><div><span>Status</span><strong>${esc(current.state || (process.running ? 'running' : 'stopped'))}</strong></div><div><span>Model</span><strong>${esc(model?.name || model?.filename || current.activeModelId || 'None')}</strong></div><div><span>PID</span><strong>${esc(process.pid || 'Not running')}</strong></div><div><span>OpenAI endpoint</span><code>${esc(urls.openai)}</code></div></div><div class="runtime-actions"><button class="button primary" id="runtimeLaunchBtn" type="button">Launch model</button><button class="button danger-soft" id="runtimeStopBtn" type="button">Stop runtime</button></div>`;
-          $('#runtimeLaunchBtn').addEventListener('click', () => quickLaunch());
+  const lifecycle = runtimeLifecycle();
+  $('#runtimePanel').innerHTML = `<div class="runtime-lifecycle ${esc(lifecycle.level)}"><div><span>Lifecycle</span><strong>${esc(lifecycle.label)}</strong><p>${esc(lifecycle.detail)}</p></div>${badge(lifecycle.label, lifecycle.level)}</div><div class="runtime-summary"><div><span>Status</span><strong>${esc(current.state || (process.running ? 'running' : 'stopped'))}</strong></div><div><span>Model</span><strong>${esc(model?.name || model?.filename || current.activeModelId || 'None')}</strong></div><div><span>PID</span><strong>${esc(process.pid || 'Not running')}</strong></div><div><span>OpenAI endpoint</span><code>${esc(urls.openai)}</code></div></div><p class="runtime-truth">A single host llama-server returns one response. Selected RPC workers participate only after their RPC ports pass readiness checks.</p><div class="runtime-actions"><button class="button primary" id="runtimeLaunchBtn" type="button">Preflight and launch</button><button class="button danger-soft" id="runtimeStopBtn" type="button" ${isRunning() ? '' : 'disabled'}>Stop runtime</button></div>`;
+  $('#runtimeLaunchBtn').addEventListener('click', () => openLaunch());
   $('#runtimeStopBtn').addEventListener('click', stopRuntime);
+}
+
+function machineTelemetry(machine) {
+  const telemetry = state.telemetry || {};
+  const isHost = (machine.tags || []).some(tag => ['host', 'local'].includes(String(tag).toLowerCase()));
+  if (isHost) return telemetry.local || null;
+  return telemetry.machines?.[machine.id] || telemetry.remote?.[machine.id] || null;
+}
+function nodeSummary(machine) {
+  const data = machineTelemetry(machine);
+  const gpus = Array.isArray(data?.gpus) ? data.gpus : (Array.isArray(data?.nvidia) ? data.nvidia : []);
+  const totals = gpus.reduce((result, gpu) => {
+    result.used += Number(gpu.memoryUsedBytes ?? gpu.memoryUsed ?? 0);
+    result.total += Number(gpu.memoryTotalBytes ?? gpu.memoryTotal ?? 0);
+    result.load += Number(gpu.utilizationPercent ?? gpu.utilizationGpu ?? gpu.utilization ?? 0);
+    result.temp += Number(gpu.temperatureC ?? 0); result.count += 1; return result;
+  }, {used:0,total:0,load:0,temp:0,count:0});
+  const vram = totals.total ? Math.round(totals.used / totals.total * 100) : null;
+  const load = totals.count ? Math.round(totals.load / totals.count) : null;
+  const temp = totals.count ? Math.round(totals.temp / totals.count) : null;
+  const details = gpus.length ? `<details><summary>Per-GPU telemetry (${gpus.length})</summary><div class="node-gpu-list">${gpus.map(gpu => `<div><strong>${esc(gpu.name || gpu.uuid || `GPU ${gpu.index ?? ''}`)}</strong><span>VRAM ${bytes(gpu.memoryUsedBytes ?? gpu.memoryUsed)} / ${bytes(gpu.memoryTotalBytes ?? gpu.memoryTotal)} · ${esc(gpu.utilizationPercent ?? gpu.utilizationGpu ?? gpu.utilization ?? 'Unknown')}% load · ${esc(gpu.temperatureC ?? 'Unknown')} °C</span></div>`).join('')}</div></details>` : '<p class="node-unavailable">Telemetry unavailable until this node reports to the control plane.</p>';
+  return {vram, load, temp, details, known:gpus.length > 0};
+}
+function renderTopology() {
+  const summary = $('#topologySummary'); const canvas = $('#topologyCanvas');
+  if (!summary || !canvas) return;
+  const rpcWorkers = state.machines.filter(machine => machine.rpc?.enabled && machine.enabled !== false);
+  const readyWorkers = rpcWorkers.filter(machine => ['online', 'reachable'].includes(String(machine.status).toLowerCase()));
+  summary.innerHTML = `<span class="topology-chip">${state.machines.length} configured node${state.machines.length === 1 ? '' : 's'}</span><span class="topology-chip ${readyWorkers.length === rpcWorkers.length && rpcWorkers.length ? 'good' : 'warning'}">RPC workers ready: ${readyWorkers.length}/${rpcWorkers.length}</span><span class="topology-chip">One response endpoint: ${esc(gatewayUrls().openai)}</span>`;
+  canvas.innerHTML = state.machines.length ? state.machines.map(machine => {
+    const metrics = nodeSummary(machine); const online = ['online', 'reachable'].includes(String(machine.status).toLowerCase());
+    return `<article class="machine-node ${(machine.tags || []).some(tag => String(tag).toLowerCase() === 'host') ? 'host-node' : 'worker-node'}"><div class="node-head"><span class="status-dot ${online ? 'good' : 'neutral'}"></span><strong>${esc(machine.name || machine.id)}</strong><small>${esc(machine.addresses?.[0] || 'Address unknown')} · RPC :${esc(machine.rpc?.port || 'unknown')}</small></div><div class="node-grid"><span>VRAM</span><b>${metrics.vram == null ? 'Unknown' : `${metrics.vram}%`}</b><span>GPU load</span><b>${metrics.load == null ? 'Unknown' : `${metrics.load}%`}</b><span>Avg temp</span><b>${metrics.temp == null ? 'Unknown' : `${metrics.temp} °C`}</b></div><div class="mini-meter"><span style="width:${metrics.vram ?? 0}%"></span></div>${metrics.details}</article>`;
+  }).join('') : '<div class="empty-state"><p>Add a host or RPC worker to configure the cluster.</p></div>';
 }
 
 function renderMachines() {
@@ -184,9 +236,9 @@ function renderMachines() {
     const machineId = esc(machine.id);
     return `<article class="content-card machine-card"><div class="section-head"><div><h3>${esc(machine.name || machine.id)}</h3><code>${esc(machine.addresses?.[0] || 'Unknown')}</code></div>${badge(machineStatus, isOnline ? 'good' : 'neutral')}</div><dl class="machine-details"><div><dt>Controller</dt><dd>${esc(machine.controller?.scheme || 'http')} :${esc(machine.controller?.port || 'unknown')}</dd></div><div><dt>RPC</dt><dd>:${esc(machine.rpc?.port || 'unknown')}</dd></div><div><dt>Role</dt><dd>${esc((machine.tags || []).join(', ') || 'Unassigned')}</dd></div></dl><div class="runtime-actions"><button class="button compact ${isOnline ? 'danger-soft' : 'secondary'} machine-stop" data-id="${machineId}" type="button" ${isOnline ? '' : 'disabled'}>Stop</button><button class="button compact ${isOnline ? 'secondary' : 'primary'} machine-start" data-id="${machineId}" type="button" ${isOnline ? 'disabled' : ''}>Start</button>${actionButtons}</div></article>`;
   }).join('') : '<div class="empty-state"><h3>No machines registered</h3><p>Add a host or RPC worker.</p></div>';
-            $('.machine-action').forEach(button => button.addEventListener('click', () => runMachineAction(button.dataset.id, button.dataset.operation, button.dataset.enabled)));
-  $('.machine-start').forEach(button => button.addEventListener('click', () => startMachine(button.dataset.id)));
-  $('.machine-stop').forEach(button => button.addEventListener('click', () => stopMachine(button.dataset.id)));
+  $$('.machine-action').forEach(button => button.addEventListener('click', () => runMachineAction(button.dataset.id, button.dataset.operation, button.dataset.enabled)));
+  $$('.machine-start').forEach(button => button.addEventListener('click', () => startMachine(button.dataset.id)));
+  $$('.machine-stop').forEach(button => button.addEventListener('click', () => stopMachine(button.dataset.id)));
 }
 
 async function startMachine(machineId) {
@@ -264,7 +316,7 @@ function renderJobs() {
   $('#jobCount').textContent = active.length;
   $('#jobList').innerHTML = state.jobs.length ? state.jobs.slice(0, 30).map(job => `<div class="job-item"><strong>${esc(job.type || job.id)}</strong><small>${esc(job.phase || job.state || 'unknown')}</small><div class="ux-progress"><span style="width:${Math.max(0, Math.min(100, Number(job.progress || 0)))}%"></span></div></div>`).join('') : '<div class="empty-state"><p>No jobs.</p></div>';
 }
-function renderAll() { renderHeader(); fillSelectors(); renderChatAvailability(); renderSetup(); renderModelSources(); renderModels(); renderRuntime(); renderMachines(); renderGateways(); renderTelemetry(); renderProfiles(); renderLogs(); renderJobs(); }
+function renderAll() { renderHeader(); fillSelectors(); renderChatAvailability(); renderSetup(); renderModelSources(); renderModels(); renderRuntime(); renderMachines(); renderTopology(); renderGateways(); renderTelemetry(); renderProfiles(); renderLogs(); renderJobs(); renderDiagnostics(); }
 
 async function refreshAll() {
   const calls = [api.capabilities(), api.system(), api.settings(), api.machines(), api.machineActions(), api.models(), api.profiles(), api.jobs(), api.telemetry(), api.logs(), api.gateway()];
@@ -304,7 +356,7 @@ async function addModelSource(event) {
   const current = settingsValue(); const existing = current.paths?.modelSources || current.modelSources || [];
   const next = [...existing, path].filter((item, index, all) => all.indexOf(item) === index);
   const payload = structuredClone(current); payload.paths = {...(payload.paths || {}), modelSources:next};
-  try { await api.updateSettings(payload); $('#modelSourcePath').value = ''; notify('Model folder added', path, 'good'); await refreshAll(); await scanModels({modelSources:[path]}); }
+  try { await api.updateSettings(payload); $('#modelSourcePath').value = ''; notify('Model folder added', path, 'good'); await refreshAll(); await scanModels({sources:[path]}); }
   catch (error) { notify('Could not add model folder', errorText(error), 'warning'); }
 }
 async function removeModelSource(index) {
@@ -313,13 +365,13 @@ async function removeModelSource(index) {
   try { await api.updateSettings(payload); await refreshAll(); }
   catch (error) { notify('Could not remove model folder', errorText(error), 'warning'); }
 }
-async function quickLaunch(modelId, profileId) {
+async function quickLaunch(modelId, profileId, rpcMachineIds = []) {
   if (!modelId) return notify('No model selected', 'Choose a model first.', 'warning');
   try {
     notify('Launching model...', '', 'neutral');
-    const preflight = await api.preflight({modelId, profileId});
+    const preflight = await api.preflight({modelId, profileId, rpcMachineIds});
     if (!preflight.launchAllowed) return notify('Launch blocked', 'Preflight did not approve this configuration.', 'warning');
-    const job = await api.launch({modelId, profileId});
+    const job = await api.launch({modelId, profileId, rpcMachineIds});
     notify('Runtime launch started', job.id, 'good');
     await pollJob(job.id);
     await refreshAll();
@@ -330,16 +382,17 @@ async function quickLaunch(modelId, profileId) {
 }
 function openLaunch(modelId = '') {
   if (!state.models.length) { navigate('models'); return notify('No models registered', 'Add a model source first.', 'warning'); }
-  $('#launchPanel').innerHTML = `<div class="form-grid"><label>Model<select id="launchModelSelect">${state.models.map(model => `<option value="${esc(model.id)}" ${model.id === modelId ? 'selected' : ''}>${esc(model.name || model.filename || model.id)}</option>`).join('')}</select></label><label>Profile<select id="launchProfileSelect"><option value="">No profile</option>${state.profiles.map(profile => `<option value="${esc(profile.id)}">${esc(profile.name || profile.id)}</option>`).join('')}</select></label><div id="preflightResult">Preflight has not run.</div></div>`;
+  const workers = state.machines.filter(machine => machine.rpc?.enabled && machine.enabled !== false);
+  $('#launchPanel').innerHTML = `<div class="form-grid"><label>Model<select id="launchModelSelect">${state.models.map(model => `<option value="${esc(model.id)}" ${model.id === modelId ? 'selected' : ''}>${esc(model.name || model.filename || model.id)}</option>`).join('')}</select></label><label>Profile<select id="launchProfileSelect"><option value="">No profile</option>${state.profiles.map(profile => `<option value="${esc(profile.id)}">${esc(profile.name || profile.id)}</option>`).join('')}</select></label><fieldset class="launch-workers"><legend>Compatible RPC workers</legend>${workers.length ? workers.map(machine => { const ready = ['online','reachable'].includes(String(machine.status).toLowerCase()); return `<label><input class="launch-rpc-worker" type="checkbox" value="${esc(machine.id)}" ${ready ? '' : 'disabled'}> ${esc(machine.name || machine.id)} — ${ready ? `ready at ${esc(machine.addresses?.[0])}:${esc(machine.rpc?.port)}` : 'not ready; run Test / Start RPC first'}</label>`; }).join('') : '<p>No RPC workers are configured.</p>'}<p class="form-help">Workers are validated before launch. They do not create a second response stream.</p></fieldset><div id="preflightResult">Preflight has not run.</div></div>`;
   $('#launchDialog').showModal();
 }
 async function preflightAndLaunch() {
-  const modelId = $('#launchModelSelect').value; const profileId = $('#launchProfileSelect').value || undefined;
+  const modelId = $('#launchModelSelect').value; const profileId = $('#launchProfileSelect').value || undefined; const rpcMachineIds = $$('.launch-rpc-worker:checked').map(input => input.value);
   try {
-    const preflight = await api.preflight({modelId, profileId});
+    const preflight = await api.preflight({modelId, profileId, rpcMachineIds});
     $('#preflightResult').textContent = `Allocation risk: ${preflight.allocation?.risk || 'unknown'} · Allowed: ${Boolean(preflight.launchAllowed)}`;
     if (!preflight.launchAllowed) return notify('Launch blocked', 'Preflight did not approve this configuration.', 'warning');
-    const job = await api.launch({modelId, profileId}); $('#launchDialog').close(); notify('Runtime launch started', job.id); await pollJob(job.id); await refreshAll(); navigate('chat');
+    const job = await api.launch({modelId, profileId, rpcMachineIds}); $('#launchDialog').close(); notify('Runtime launch started', job.id); await pollJob(job.id); await refreshAll(); navigate('chat');
   } catch (error) { notify('Runtime launch failed', errorText(error), 'warning'); }
 }
 async function shutdownWorkspace() {
@@ -425,10 +478,20 @@ function appendMessage(role, content, id = '') {
 }
 function updateAssistantMessage(article, content) { article.querySelector('div').innerHTML = esc(content).replace(/\n/g,'<br>'); $('#chatMessages').scrollTop = $('#chatMessages').scrollHeight; }
 async function sendChat(event) {
-  event.preventDefault(); const prompt = $('#chatPrompt').value.trim(); if (!prompt || !isRunning()) return;
+  event.preventDefault(); const prompt = $('#chatPrompt').value.trim(); const selectedGateway = $('#chatGateway').value; if (!prompt || (!isRunning() && selectedGateway !== 'cline')) return;
   appendMessage('user', prompt); $('#chatPrompt').value = ''; const assistant = appendMessage('assistant', '');
-  const gateway = $('#chatGateway').value; const model = $('#chatModel').value || runtime().activeModelId; const started = performance.now(); state.chatAbort = new AbortController(); $('#cancelChat').disabled = false; $('#sendChat').disabled = true; $('#chatStatus').textContent = 'Sending'; $('#chatRequestId').textContent = 'Pending'; $('#chatRoute').textContent = gateway === 'ollama' ? '/api/chat' : '/v1/chat/completions'; $('#chatRaw').textContent = '';
+  const gateway = selectedGateway; const model = $('#chatModel').value || runtime().activeModelId; const started = performance.now(); state.chatAbort = new AbortController(); $('#cancelChat').disabled = false; $('#sendChat').disabled = true; $('#chatStatus').textContent = 'Sending'; $('#chatRequestId').textContent = 'Pending'; $('#chatRoute').textContent = gateway === 'ollama' ? '/api/chat' : gateway === 'cline' ? '/api/v1/providers/cline/complete' : '/v1/chat/completions'; $('#chatRaw').textContent = '';
   try {
+    if (gateway === 'cline') {
+      try {
+        const result = await api.clineComplete({prompt});
+        const elapsed = performance.now() - started;
+        updateAssistantMessage(assistant, result.text || 'Cline returned no text.'); $('#chatLatency').textContent = `${Math.round(result.latencyMs ?? elapsed)} ms`; $('#chatStatus').textContent = 'Completed'; $('#chatRoute').textContent = `Cline ${result.route?.profileId || 'profile'} / ${result.route?.model || 'model'}`; $('#chatRaw').textContent = JSON.stringify({route:result.route, attempts:result.attempts}, null, 2); $('#chatTokensPerSecond').textContent = 'Not reported'; return;
+      } catch (error) {
+        if (error.code !== 'ALL_CLOUD_ROUTES_EXHAUSTED' || !isRunning()) throw error;
+        $('#chatRoute').textContent = 'Local GGUF fallback';
+      }
+    }
     const response = gateway === 'ollama' ? await api.ollamaChat({model,messages:[{role:'user',content:prompt}],stream:$('#streamChat').checked}, state.chatAbort.signal) : await api.openAIChat({model,messages:[{role:'user',content:prompt}],stream:$('#streamChat').checked}, state.chatAbort.signal);
     const requestId = response.headers.get('x-request-id') || response.headers.get('request-id') || 'Not returned'; $('#chatRequestId').textContent = requestId;
     let output = ''; let raw = '';
@@ -450,16 +513,21 @@ async function sendChat(event) {
   finally { state.chatAbort = null; $('#cancelChat').disabled = true; $('#sendChat').disabled = !isRunning(); }
 }
 
+function wireNavigationHandlers() {
   $$('.nav-item[data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
-  $('.nav-item[data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
   $('#mobileNavToggle').addEventListener('click', () => $('#navigation').classList.toggle('open'));
   $$('.dialog-close').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
   $('#jobsBtn').addEventListener('click', () => $('#jobDrawer').hidden = !$('#jobDrawer').hidden);
   $('#closeJobsBtn').addEventListener('click', () => $('#jobDrawer').hidden = true);
+  $$('.health-pill').forEach(pill => pill.addEventListener('click', openDiagnostics));
+  $('#diagnosticsOpenLogs').addEventListener('click', () => { $('#diagnosticsDrawer').close(); navigate('logs'); });
 }
-function rebindNav() {
-  $$('#navigation nav .nav-item[data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
+function renderDiagnostics() {
+  const root = $('#diagnosticsContent'); if (!root) return;
+  const lifecycle = runtimeLifecycle(); const errors = (Array.isArray(state.logs) ? state.logs : []).filter(log => ['error', 'warning'].includes(String(log.severity || log.level || '').toLowerCase())).slice(0, 12);
+  root.innerHTML = `<div class="diagnostics-summary"><p><strong>Runtime:</strong> ${esc(lifecycle.label)} — ${esc(lifecycle.detail)}</p><p><strong>Cluster:</strong> ${state.machines.filter(machine => ['online','reachable'].includes(String(machine.status).toLowerCase())).length}/${state.machines.length} nodes online</p><p><strong>Gateway:</strong> ${esc(gatewayUrls().openai)} (${state.gatewayHealth.openai === true ? 'verified' : 'not verified'})</p></div><h3>Recent warnings and errors</h3><pre>${esc(errors.length ? errors.map(log => `[${formatTime(log.timestamp || log.at)}] ${String(log.severity || log.level || 'warning').toUpperCase()} ${log.source || 'system'} ${log.message || ''}`).join('\n') : 'No warnings or errors returned by the control plane.')}</pre>`;
 }
+function openDiagnostics() { $('#diagnosticsDrawer').showModal(); renderDiagnostics(); }
 
 function wireWorkspaceHandlers() {
   $('#stopAllBtn').addEventListener('click', shutdownWorkspace);
@@ -480,7 +548,7 @@ function wireMachineAndProfileHandlers() {
 }
 
 function wireChatHandlers() {
-  $('#chatGateway').addEventListener('change', updateChatEndpoint);
+  $('#chatGateway').addEventListener('change', () => { updateChatEndpoint(); renderChatAvailability(); });
   $('#copyChatEndpoint').addEventListener('click', () => copyText($('#chatEndpoint').textContent));
   $('#chatForm').addEventListener('submit', sendChat);
   $('#cancelChat').addEventListener('click', () => state.chatAbort?.abort());
@@ -503,7 +571,7 @@ function wire() {
 
 function validStartPage() {
   const saved = persistentState.get('activePage', 'chat');
-  return document.querySelector('.page[data-page-view="' + saved + '"]') ? saved : 'chat';
+  return HUBS[saved] ? saved : (PAGE_TO_HUB[saved] || 'playground');
 }
 function ledgerCheck(key) {
   switch (key) {
@@ -529,7 +597,6 @@ function exposeAgentApi() {
 async function boot() {
   await Promise.all([configLoader.load(), persistentState.load(), menuLedger.load()]);
   renderNavigation();
-  rebindNav();
   wire();
   navigate(validStartPage());
   await refreshAll();

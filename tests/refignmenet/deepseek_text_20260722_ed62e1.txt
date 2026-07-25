@@ -1,0 +1,5 @@
+┌──────────────────────────────────────────────────────────┐
+│ Runtime Path                                            │
+│ [C:\llama\llama-server.exe    ] [Browse...]             │
+│ Full path to the llama-server executable                │
+└──────────────────────────────────────────────────────────┘

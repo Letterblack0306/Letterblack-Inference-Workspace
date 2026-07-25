@@ -34,11 +34,28 @@ export function installSettingsUi(api, notify) {
         <label><input id="settingBlockUnsafe" type="checkbox"> Block high-risk launches</label>
         <div id="settingsStatus" class="inline-notice">Loading settings…</div>
       </div>
+      <div class="content-card settings-section">
+        <h3>Authorized Cline fallback</h3>
+        <p>LIW stores only profile metadata. It never reads, copies, rotates, or logs Cline credentials, providers.json, or backups.</p>
+        <label><input id="clineProviderEnabled" type="checkbox"> Enable authorized Cline fallback</label>
+        <div id="clineProviderStatus" class="inline-notice">Checking Cline CLI…</div>
+        <div id="clineProfileList"></div>
+        <form id="clineProfileForm" class="form-grid">
+          <label>Profile ID<input name="id" pattern="[a-z0-9][a-z0-9._-]{1,63}" placeholder="cline-profile-a" required></label>
+          <label>Cline configuration directory<input name="configDirectory" placeholder="C:\\Users\\prave\\.cline-liw\\profile-a\\settings" required></label>
+          <label>Provider ID<input name="provider" value="cline" required></label>
+          <label>Priority<input name="priority" type="number" value="10" min="0" required></label>
+          <label>Timeout (seconds)<input name="timeoutSec" type="number" value="90" min="5" max="600" required></label>
+          <label>Authorized free model IDs<textarea name="freeModels" rows="3" placeholder="One model ID per line" required></textarea></label>
+          <button class="button secondary" type="submit">Register Cline profile</button>
+        </form>
+      </div>
     </div>`;
 
   const byId = id => document.getElementById(id);
   const status = byId('settingsStatus');
   let loadedSettings = null;
+  let clineProvider = null;
 
   function setStatus(message, kind = 'neutral') {
     status.textContent = message;
@@ -83,6 +100,23 @@ export function installSettingsUi(api, notify) {
     };
   }
 
+  function renderCline() {
+    const statusNode = byId('clineProviderStatus');
+    const list = byId('clineProfileList');
+    const profiles = clineProvider?.profiles || [];
+    byId('clineProviderEnabled').checked = clineProvider?.enabled === true;
+    const cli = clineProvider?.cliAvailable ? `CLI available: ${clineProvider.cliPath || 'cline'}` : 'CLINE_UNAVAILABLE: install Cline before enabling fallback.';
+    const catalogue = clineProvider?.catalogueReason || 'Free model IDs are registered explicitly; configuration files are not inspected.';
+    statusNode.textContent = `${cli} ${catalogue}`; statusNode.className = `inline-notice ${clineProvider?.cliAvailable ? 'good' : 'warning'}`;
+    list.innerHTML = profiles.length ? profiles.map(profile => `<div class="source-row"><code>${profile.id}</code><span>${profile.configDirectoryExists ? 'Directory found' : 'Directory missing'} · ${profile.freeModels.join(', ')}</span><button class="button compact danger-soft cline-profile-delete" data-id="${profile.id}" type="button">Remove</button></div>`).join('') : '<p>No authorized Cline profiles registered.</p>';
+    list.querySelectorAll('.cline-profile-delete').forEach(button => button.addEventListener('click', async () => { try { await api.deleteClineProfile(button.dataset.id); await loadCline(); notify('Cline profile removed', button.dataset.id, 'good'); } catch (error) { notify('Cline profile removal failed', error.message || error, 'warning'); } }));
+  }
+
+  async function loadCline() {
+    try { clineProvider = await api.clineProvider(); renderCline(); }
+    catch (error) { clineProvider = {enabled:false, profiles:[], cliAvailable:false, catalogueReason:`${error.code || 'CLINE_STATUS_UNAVAILABLE'}: ${error.message || error}`}; renderCline(); }
+  }
+
   async function load() {
     try {
       const result = await api.settings();
@@ -91,7 +125,20 @@ export function installSettingsUi(api, notify) {
     } catch (error) {
       setStatus(`${error.code || 'SETTINGS_UNAVAILABLE'}: ${error.message || error}`, 'warning');
     }
+    await loadCline();
   }
+
+  byId('clineProviderEnabled').addEventListener('change', async event => {
+    try { clineProvider = await api.updateClineProvider({enabled:event.currentTarget.checked}); renderCline(); notify('Cline fallback updated', event.currentTarget.checked ? 'Enabled' : 'Disabled', 'good'); }
+    catch (error) { notify('Cline fallback update failed', error.message || error, 'warning'); await loadCline(); }
+  });
+
+  byId('clineProfileForm').addEventListener('submit', async event => {
+    event.preventDefault(); const data = Object.fromEntries(new FormData(event.currentTarget));
+    const payload = {id:data.id.trim(), configDirectory:data.configDirectory.trim(), provider:data.provider.trim(), priority:Number(data.priority), timeoutSec:Number(data.timeoutSec), freeModels:data.freeModels.split(/\r?\n/).map(value => value.trim()).filter(Boolean), enabled:true};
+    try { await api.createClineProfile(payload); event.currentTarget.reset(); await loadCline(); notify('Cline profile registered', payload.id, 'good'); }
+    catch (error) { notify('Cline profile rejected', `${error.code || 'VALIDATION_FAILED'}: ${error.message || error}`, 'warning'); }
+  });
 
   byId('saveSettingsBtn').addEventListener('click', async () => {
     try {

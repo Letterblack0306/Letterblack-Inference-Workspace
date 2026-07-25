@@ -1,0 +1,108 @@
+<!-- Generated from FORM_REGISTRY - automatically organized -->
+<div class="form-renderer form-two-col">
+  <div class="form-header">
+    <h2>Add/Edit Machine</h2>
+  </div>
+  
+  <div class="form-body">
+    <!-- Section: Basic Info -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <h3>Basic Information</h3>
+      </div>
+      <div class="form-fields">
+        <div class="form-field">
+          <label>Machine Name <span class="required">*</span></label>
+          <input type="text" placeholder="e.g., workstation-01" 
+                 pattern="^[a-z0-9][a-z0-9._-]{1,63}$">
+          <div class="field-help">A friendly name to identify this machine</div>
+        </div>
+        <div class="form-field">
+          <label>Role</label>
+          <input type="text" placeholder="host, rpc-worker, custom">
+          <div class="field-help">Tags to categorize this machine</div>
+        </div>
+        <div class="form-field">
+          <label>IP Address / Hostname <span class="required">*</span></label>
+          <input type="text" placeholder="192.168.1.100" 
+                 pattern="^(\d{1,3}\.){3}\d{1,3}$|^[a-zA-Z0-9.-]+$">
+          <div class="field-help">Network address of the machine</div>
+          <div class="field-validation" hidden>Enter a valid IP address or hostname</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Network Configuration -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <h3>Network Configuration</h3>
+      </div>
+      <div class="form-fields">
+        <div class="form-field">
+          <label>Controller Port <span class="required">*</span></label>
+          <div class="port-input">
+            <input type="number" value="8088" min="1" max="65535">
+            <span class="port-hint">1-65535</span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>RPC Port <span class="required">*</span></label>
+          <div class="port-input">
+            <input type="number" value="8089" min="1" max="65535">
+            <span class="port-hint">1-65535</span>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Protocol</label>
+          <select>
+            <option value="http">HTTP</option>
+            <option value="https">HTTPS</option>
+          </select>
+        </div>
+        <div class="form-field checkbox-wrapper">
+          <label>
+            <input type="checkbox" name="rpcEnabled">
+            <span>RPC Available</span>
+          </label>
+          <div class="field-help">Enable RPC on this machine</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: File Paths -->
+    <div class="form-section">
+      <div class="form-section-header">
+        <h3>File Paths</h3>
+      </div>
+      <div class="form-fields">
+        <div class="form-field field-full">
+          <label>Runtime Path</label>
+          <div class="file-picker">
+            <input type="text" placeholder="Select a file..." 
+                   class="file-picker-input">
+            <button type="button" class="button secondary compact">
+              Browse...
+            </button>
+          </div>
+          <div class="field-help">Full path to the llama-server executable</div>
+        </div>
+        <div class="form-field field-full">
+          <label>Models Path</label>
+          <div class="file-picker">
+            <input type="text" placeholder="Select a folder..." 
+                   class="folder-picker-input">
+            <button type="button" class="button secondary compact">
+              Browse...
+            </button>
+          </div>
+          <div class="field-help">Directory containing GGUF model files</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <button type="button" class="button secondary">Cancel</button>
+    <button type="submit" class="button primary">Save Machine</button>
+  </div>
+</div>
