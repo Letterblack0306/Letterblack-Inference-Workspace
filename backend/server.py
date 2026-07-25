@@ -904,7 +904,7 @@ class Handler(BaseHTTPRequestHandler):
                 machine.setdefault("enabled", True)
                 machine.setdefault("tags", [])
                 machine.setdefault("paths", {})
-                if not machine.get("actions"):
+                if "actions" not in machine:
                     machine["actions"] = default_machine_action_ids()
                 machine["status"] = "unknown"
                 state["machines"].append(machine)

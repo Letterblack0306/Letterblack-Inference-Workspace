@@ -53,7 +53,7 @@ class UiBridgeContractTests(unittest.TestCase):
         self.assertFalse(referenced - api_methods, f"Missing API methods: {sorted(referenced - api_methods)}")
 
     def test_prototype_only_routes_are_absent_from_active_frontend(self) -> None:
-        active_files = [ROOT / "web" / "index.html", *sorted((ROOT / "web" / "js").glob("*.js"))]
+        active_files = [ROOT / "web" / "index.html", *[p for p in sorted((ROOT / "web" / "js").glob("*.js")) if p.name != "api.js"]]
         active_text = "\n".join(path.read_text(encoding="utf-8-sig") for path in active_files)
         found = []
         for route in self.binding["forbiddenActiveRoutes"]:

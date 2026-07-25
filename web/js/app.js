@@ -182,8 +182,8 @@ function renderModels() {
     const meta = model.metadata || model.gguf || {};
     return `<tr><td><strong>${esc(model.name || model.filename || model.id)}</strong><small>${esc(model.path || '')}</small></td><td>${esc(model.architecture || meta.architecture || 'Unknown')}</td><td>${esc(model.quantization || meta.fileType || 'Unknown')}</td><td>${bytes(model.sizeBytes ?? model.size)}</td><td>${esc(model.contextLength || meta.contextLength || 'Unknown')}</td><td><button class="button compact primary use-model" data-id="${esc(model.id)}" type="button">Chat</button><button class="button compact secondary launch-model" data-id="${esc(model.id)}" type="button">Launch</button></td></tr>`;
   }).join('') : '<tr><td colspan="6"><div class="empty-state"><h3>No models registered</h3><p>Add a model folder above, then scan for GGUF files.</p></div></td></tr>';
-                  $('.use-model').forEach(button => button.addEventListener('click', () => { $('#chatModel').value = button.dataset.id; navigate('chat'); }));
-  $('.launch-model').forEach(button => button.addEventListener('click', () => quickLaunch(button.dataset.id)));
+                  $$('.use-model').forEach(button => button.addEventListener('click', () => { $('#chatModel').value = button.dataset.id; navigate('chat'); }));
+  $$('.launch-model').forEach(button => button.addEventListener('click', () => quickLaunch(button.dataset.id)));
 }
 
 function renderRuntime() {
@@ -235,28 +235,6 @@ async function toggleClineProvider(btn) {
     await refreshAll();
   } catch (error) {
     notify('Cline toggle failed', errorText(error), 'warning');
-  }
-}
-
-function gatewayEnabled(type) {
-  const gw = (state.gateway?.gateway) || (state.gateway) || {};
-  const key = type + 'Enabled';
-  return gw[key] !== false;
-}
-async function toggleGateway(btn, type) {
-  setButtonLoading(btn);
-  try {
-    const enabled = !gatewayEnabled(type);
-    const key = type + 'Enabled';
-    const payload = { gateway: {} };
-    payload.gateway[key] = enabled;
-    await api.updateSettings(payload);
-    if (state.gateway?.gateway) state.gateway.gateway[key] = enabled;
-    else if (state.gateway) state.gateway[key] = enabled;
-    notify(type.charAt(0).toUpperCase() + type.slice(1) + (enabled ? ' enabled' : ' disabled'), '', 'good');
-    await refreshAll();
-  } catch (error) {
-    notify('Toggle failed', errorText(error), 'warning');
   }
 }
 

@@ -57,7 +57,7 @@ export const api = {
   startRpc: id => request(`/machines/${encodeURIComponent(id)}/rpc/start`, {method: 'POST', body: '{}'}),
   stopRpc: id => request(`/machines/${encodeURIComponent(id)}/rpc/stop`, {method: 'POST', body: '{}'}),
 
-  models: () => request('/' + 'models'),
+  models: () => request('/models'),
   scanModels: value => request('/models/scan', {method: 'POST', body: body(value)}),
 
   profiles: () => request('/profiles'),
