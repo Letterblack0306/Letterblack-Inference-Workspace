@@ -1,0 +1,18 @@
+{
+  "id": "observe",
+  "label": "Observe",
+  "items": [
+    {
+      "id": "telemetry",
+      "label": "Telemetry",
+      "icon": "telemetry",
+      "page": "telemetry"
+    },
+    {
+      "id": "logs",
+      "label": "Logs",
+      "icon": "logs",
+      "page": "logs"
+    }
+  ]
+}

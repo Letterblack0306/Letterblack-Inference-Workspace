@@ -1,0 +1,31 @@
+{
+  "section": "system",
+  "menus": [
+    {
+      "id": "extensions",
+      "label": "Extensions",
+      "icon": "extensions",
+      "page": "extensions",
+      "section": "system",
+      "description": "Manage permission-bound manifests, actions, and endpoints.",
+      "guidance": "Import declarative manifests, create actions, register endpoints.",
+      "state": {
+        "requires": [],
+        "recommends": []
+      }
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "settings",
+      "page": "settings",
+      "section": "system",
+      "description": "Configure paths, ports, binding, polling, and safety.",
+      "guidance": "Adjust application settings; some changes need a restart.",
+      "state": {
+        "requires": [],
+        "recommends": []
+      }
+    }
+  ]
+}

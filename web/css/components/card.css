@@ -1,0 +1,38 @@
+.content-card {
+  border:1px solid var(--border);
+  border-radius:var(--radius-md);
+  background:var(--surface-1);
+}
+
+.split-workbench {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.playground-card,.response-card {
+  padding:18px;
+  min-height:520px;
+}
+
+.response-empty {
+  min-height:480px;
+  display:grid;
+  place-content:center;
+  text-align:center;
+  color:var(--text-3);
+}
+
+.response-empty span {
+  font:32px var(--font-mono);
+  color:var(--accent);
+}
+
+.add-card {
+  border-style:dashed;
+}
+
+.tall-card {
+  padding:18px;
+  min-height:420px;
+}

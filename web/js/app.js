@@ -1,4 +1,4 @@
-import {api, ApiError} from './api.js';
+﻿import {api, ApiError} from './api.js';
 import {configLoader} from './config-loader.js';
 import {persistentState} from './persistent-state.js';
 import {menuLedger} from './menu-ledger.js';
@@ -7,8 +7,23 @@ import {icon} from './icons.js';
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const $$$ = $$; // backward compatibility alias
+
+function setButtonLoading(btn) {
+  btn.disabled = true;
+  btn.dataset.originalText = btn.textContent;
+  btn.classList.add('is-loading');
+  btn.textContent = (btn.dataset.originalText || 'Action') + '\u2026';
+}
+function clearButtonLoading(btn) {
+  btn.disabled = false;
+  btn.classList.remove('is-loading');
+  if (btn.dataset.originalText) { btn.textContent = btn.dataset.originalText; delete btn.dataset.originalText; }
+}
+function resetMachineButtons(machineId) {
+  $$('.machine-action[data-id="'+machineId+'"], .machine-start[data-id="'+machineId+'"], .machine-stop[data-id="'+machineId+'"]').forEach(clearButtonLoading);
+}
 const esc = value => String(value ?? '').replace(/[&<>'"]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\'':'&#39;','"':'&quot;'}[char]));
-const state = {system:null, settings:null, capabilities:null, machines:[], machineActions:[], models:[], profiles:[], jobs:[], telemetry:null, logs:[], logLevel:'all', logSearch:'', gateway:null, gatewayHealth:{openai:null,ollama:null}, timer:null, chatAbort:null};
+const state = {system:null, settings:null, capabilities:null, machines:[], machineActions:[], models:[], profiles:[], jobs:[], telemetry:null, logs:[], logLevel:'all', logSearch:'', gateway:null, gatewayHealth:{openai:null,ollama:null}, clineProvider:null, timer:null, chatAbort:null};
 
 const PAGES = [
   {id:'chat', label:'Chat', icon:'icon-chat', showCount:false},
@@ -22,6 +37,7 @@ const PAGES = [
   {id:'extensions', label:'Extensions', icon:'icon-extensions', showCount:true, countId:'extensionCount'},
   {id:'logs', label:'Logs', icon:'icon-logs', showCount:false},
   {id:'settings', label:'Settings', icon:'icon-settings', showCount:false},
+];
 
 const PAGE_CONTENT = {
   chat: { title: 'Playground', subtitle: 'Test your model', description: 'Select a model, start the runtime, and send a real inference request.', render: renderChatAvailability },
@@ -183,9 +199,9 @@ function renderMachines() {
     const machineId = esc(machine.id);
     return `<article class="content-card machine-card"><div class="section-head"><div><h3>${esc(machine.name || machine.id)}</h3><code>${esc(machine.addresses?.[0] || 'Unknown')}</code></div>${badge(machineStatus, isOnline ? 'good' : 'neutral')}</div><dl class="machine-details"><div><dt>Controller</dt><dd>${esc(machine.controller?.scheme || 'http')} :${esc(machine.controller?.port || 'unknown')}</dd></div><div><dt>RPC</dt><dd>:${esc(machine.rpc?.port || 'unknown')}</dd></div><div><dt>Role</dt><dd>${esc((machine.tags || []).join(', ') || 'Unassigned')}</dd></div></dl><div class="runtime-actions"><button class="button compact ${isOnline ? 'danger-soft' : 'secondary'} machine-stop" data-id="${machineId}" type="button" ${isOnline ? '' : 'disabled'}>Stop</button><button class="button compact ${isOnline ? 'secondary' : 'primary'} machine-start" data-id="${machineId}" type="button" ${isOnline ? 'disabled' : ''}>Start</button>${actionButtons}</div></article>`;
   }).join('') : '<div class="empty-state"><h3>No machines registered</h3><p>Add a host or RPC worker.</p></div>';
-            $('.machine-action').forEach(button => button.addEventListener('click', () => runMachineAction(button.dataset.id, button.dataset.operation, button.dataset.enabled)));
-  $('.machine-start').forEach(button => button.addEventListener('click', () => startMachine(button.dataset.id)));
-  $('.machine-stop').forEach(button => button.addEventListener('click', () => stopMachine(button.dataset.id)));
+  $$('.machine-action').forEach(button => button.addEventListener('click', () => { setButtonLoading(button); runMachineAction(button.dataset.id, button.dataset.operation, button.dataset.enabled); }));
+  $$('.machine-start').forEach(button => button.addEventListener('click', () => { setButtonLoading(button); startMachine(button.dataset.id); }));
+  $$('.machine-stop').forEach(button => button.addEventListener('click', () => { if (!confirm('Stop this machine?')) return; setButtonLoading(button); stopMachine(button.dataset.id); }));
 }
 
 async function startMachine(machineId) {
@@ -194,17 +210,29 @@ async function startMachine(machineId) {
     notify('Machine RPC start requested', job.id, 'neutral');
     await pollJob(job.id);
     await refreshAll();
-  } catch (error) { notify('Machine start failed', errorText(error), 'warning'); }
+  } catch (error) { notify('Machine start failed', errorText(error), 'warning'); resetMachineButtons(machineId); }
 }
 
 async function stopMachine(machineId) {
-  if (!confirm('Stop this machine?')) return;
   try {
     const job = await api.stopRpc(machineId);
     notify('Machine RPC stop requested', job.id, 'neutral');
     await pollJob(job.id);
     await refreshAll();
-  } catch (error) { notify('Machine stop failed', errorText(error), 'warning'); }
+  } catch (error) { notify('Machine stop failed', errorText(error), 'warning'); resetMachineButtons(machineId); }
+}
+
+async function toggleClineProvider(btn) {
+  setButtonLoading(btn);
+  try {
+    const enabled = state.clineProvider?.enabled !== true;
+    const result = await api.clineEnable({ enabled });
+    state.clineProvider = result;
+    notify(enabled ? 'Cline provider enabled' : 'Cline provider disabled', result.cliPath || '', 'good');
+    await refreshAll();
+  } catch (error) {
+    notify('Cline toggle failed', errorText(error), 'warning');
+  }
 }
 
 function renderGateways() {
@@ -214,10 +242,24 @@ function renderGateways() {
     {name:'Control plane', url:urls.dashboard, type:'dashboard', healthy:state.gateway !== null, detail:'Applied listener: 127.0.0.1:8088. Remote control is unsupported.'},
     {name:'OpenAI compatible', url:urls.openai, type:'openai', healthy:state.gatewayHealth.openai, detail:`Saved port ${settings.ports?.openaiGateway || 1234} is not applied. This route shares the control-plane listener.`},
     {name:'Ollama compatible', url:urls.ollama, type:'ollama', healthy:state.gatewayHealth.ollama, detail:`Saved port ${settings.ports?.ollamaGateway || 11434} is not applied. This route shares the control-plane listener.`},
-  ];
+    ];
+  // Cline provider card  
+  if (state.capabilities?.features?.clineProvider) {
+    const cd = state.clineProvider || {};
+    const ce = cd.enabled === true;
+    const cp = cd.profiles || [];
+    cards.push({
+      name: 'Cline provider',
+      url: cd.cliPath || 'Cline CLI detected',
+      type: 'cline',
+      healthy: ce,
+      detail: ce ? (cp.length ? cp.length + ' authorized profile(s)' : 'No profiles.') : 'Disabled. Toggle to enable.',
+    });
+  }
   $('#gatewayGrid').innerHTML = cards.map(card => { const status = card.healthy === true ? 'Available' : card.healthy === false ? 'Unavailable' : 'Health unverified'; return `<article class="content-card endpoint-card"><div class="section-head"><div><h2>${esc(card.name)}</h2><code>${esc(card.url)}</code></div>${badge(status, card.healthy === true ? 'good' : 'neutral')}</div><div class="runtime-actions"><button class="button compact secondary copy-endpoint" data-url="${esc(card.url)}" type="button" ${card.healthy === true ? '' : 'disabled'}>Copy URL</button><button class="button compact secondary test-gateway" data-type="${card.type}" type="button">Test health</button></div><p>${esc(card.detail)}</p></article>`; }).join('');
   $$('.copy-endpoint').forEach(button => button.addEventListener('click', () => copyText(button.dataset.url)));
   $$('.test-gateway').forEach(button => button.addEventListener('click', () => testGateway(button.dataset.type)));
+  $$('.cline-toggle').forEach(button => button.addEventListener('click', () => toggleClineProvider(button)));
 }
 
 function renderTelemetry() {
@@ -266,8 +308,8 @@ function renderJobs() {
 function renderAll() { renderHeader(); fillSelectors(); renderChatAvailability(); renderSetup(); renderModelSources(); renderModels(); renderRuntime(); renderMachines(); renderGateways(); renderTelemetry(); renderProfiles(); renderLogs(); renderJobs(); }
 
 async function refreshAll() {
-  const calls = [api.capabilities(), api.system(), api.settings(), api.machines(), api.machineActions(), api.models(), api.profiles(), api.jobs(), api.telemetry(), api.logs(), api.gateway()];
-  const keys = ['capabilities','system','settings','machines','machineActions','models','profiles','jobs','telemetry','logs','gateway'];
+  const calls = [api.capabilities(), api.system(), api.settings(), api.machines(), api.machineActions(), api.clineProvider(), api.models(), api.profiles(), api.jobs(), api.telemetry(), api.logs(), api.gateway()];
+  const keys = ['capabilities','system','settings','machines','machineActions','clineProvider','models','profiles','jobs','telemetry','logs','gateway'];
   const results = await Promise.allSettled(calls);
   results.forEach((result, index) => { if (result.status === 'fulfilled') state[keys[index]] = result.value; else console.warn(`${keys[index]} unavailable`, result.reason); });
   if (!Array.isArray(state.machineActions)) state.machineActions = [];
@@ -377,24 +419,51 @@ async function saveMachine(event) {
   try { data.id ? await api.updateMachine(id, payload) : await api.createMachine(payload); $('#machineDialog').close(); notify('Machine saved', payload.name, 'good'); await refreshAll(); }
   catch (error) { notify('Machine save failed', errorText(error), 'warning'); }
 }
-async function deleteMachine(id) { if (!confirm(`Delete machine ${id}?`)) return; try { await api.deleteMachine(id); await refreshAll(); } catch (error) { notify('Delete failed', errorText(error), 'warning'); } }
-async function testMachine(id) { try { const result = await api.testMachine(id); notify(result.reachable ? 'Machine reachable' : 'Machine unavailable', result.reachable ? `${result.latencyMs ?? 'Unknown'} ms` : result.error?.message || id, result.reachable ? 'good' : 'warning'); await refreshAll(); } catch (error) { notify('Machine test failed', errorText(error), 'warning'); } }
-async function rpc(id, action) { try { const job = action === 'start' ? await api.startRpc(id) : await api.stopRpc(id); await pollJob(job.id); await refreshAll(); } catch (error) { notify(`RPC ${action} failed`, errorText(error), 'warning'); } }
+async function deleteMachine(id) {
+  const machine = state.machines.find(item => item.id === id);
+  const name = machine?.name || id;
+  if (!confirm('Delete machine ' + name + '?')) { resetMachineButtons(id); return; }
+  try { await api.deleteMachine(id); notify('Machine deleted', name, 'good'); await refreshAll(); }
+  catch (error) { notify('Delete failed', errorText(error), 'warning'); resetMachineButtons(id); }
+}
+async function testMachine(id) {
+  try {
+    const result = await api.testMachine(id);
+    const reachable = result.reachable;
+    const machine = state.machines.find(item => item.id === id);
+    if (machine) machine.status = reachable ? 'reachable' : 'offline';
+    const card = document.querySelector('.machine-card [data-id="' + id + '"]')?.closest('.machine-card');
+    if (card) {
+      const bdg = card.querySelector('.status-badge');
+      if (bdg) { bdg.textContent = reachable ? (machine?.status || 'reachable') : 'offline'; bdg.className = 'status-badge ' + (reachable ? 'good' : 'warning'); }
+    }
+    notify(reachable ? 'Machine reachable' : 'Machine unavailable', reachable ? (result.latencyMs ?? 'Unknown') + ' ms' : (result.error?.message || id), reachable ? 'good' : 'warning');
+    resetMachineButtons(id);
+  } catch (error) { notify('Machine test failed', errorText(error), 'warning'); resetMachineButtons(id); }
+}
+async function rpc(id, action) {
+  try {
+    const job = action === 'start' ? await api.startRpc(id) : await api.stopRpc(id);
+    notify('RPC ' + action + ' requested', job.id, 'neutral');
+    await pollJob(job.id);
+    await refreshAll();
+  } catch (error) { notify('RPC ' + action + ' failed', errorText(error), 'warning'); resetMachineButtons(id); }
+}
 async function setMachineEnabled(id, enabled) {
   const machine = state.machines.find(item => item.id === id);
-  if (!machine) return notify('Machine unavailable', id, 'warning');
+  if (!machine) { notify('Machine unavailable', id, 'warning'); resetMachineButtons(id); return; }
   const payload = structuredClone(machine); payload.enabled = enabled; payload.status = enabled ? 'unknown' : 'disconnected';
   try { await api.updateMachine(id, payload); notify(enabled ? 'Machine connected' : 'Machine disconnected', machine.name || id, 'good'); await refreshAll(); }
-  catch (error) { notify('Machine update failed', errorText(error), 'warning'); }
+  catch (error) { notify('Machine update failed', errorText(error), 'warning'); resetMachineButtons(id); }
 }
 async function runMachineAction(id, operation, enabledValue) {
   if (operation === 'test') return testMachine(id);
-  if (operation === 'edit') return openMachine(state.machines.find(machine => machine.id === id));
+  if (operation === 'edit') { resetMachineButtons(id); return openMachine(state.machines.find(machine => machine.id === id)); }
   if (operation === 'rpc-start') return rpc(id, 'start');
   if (operation === 'rpc-stop') return rpc(id, 'stop');
   if (operation === 'set-enabled') return setMachineEnabled(id, enabledValue === 'true');
   if (operation === 'delete') return deleteMachine(id);
-  notify('Unsupported machine action', operation, 'warning');
+  notify('Unsupported machine action', operation, 'warning'); resetMachineButtons(id);
 }
 
 function openProfile(profile = null, duplicate = false) {
@@ -449,8 +518,8 @@ async function sendChat(event) {
   finally { state.chatAbort = null; $('#cancelChat').disabled = true; $('#sendChat').disabled = !isRunning(); }
 }
 
+function wireNavigationHandlers() {
   $$('.nav-item[data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
-  $('.nav-item[data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
   $('#mobileNavToggle').addEventListener('click', () => $('#navigation').classList.toggle('open'));
   $$('.dialog-close').forEach(button => button.addEventListener('click', () => button.closest('dialog').close()));
   $('#jobsBtn').addEventListener('click', () => $('#jobDrawer').hidden = !$('#jobDrawer').hidden);

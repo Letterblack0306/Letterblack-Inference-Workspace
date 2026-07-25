@@ -1,0 +1,158 @@
+@media(max-width:1280px) {
+  .global-health .neutral {
+    display:none;
+  }
+  .app-shell {
+    grid-template-columns:210px minmax(0,1fr) 0;
+  }
+  .app-shell.inspector-open {
+    grid-template-columns:210px minmax(0,1fr) 320px;
+  }
+  .widget.span-8,.widget.span-7 {
+    grid-column:span 12;
+  }
+  .widget.span-4,.widget.span-5 {
+    grid-column:span 6;
+  }
+  .topology-canvas {
+    grid-template-columns:1fr 90px 1fr;
+  }
+}
+
+@media(max-width:900px) {
+  body {
+    overflow:auto;
+  }
+  .app-shell,.app-shell.inspector-open {
+    height:auto;
+    min-height:100%;
+    grid-template-columns:1fr;
+    grid-template-rows:64px auto;
+    grid-template-areas:"header" "main";
+  }
+  .app-bar {
+    position:sticky;
+    top:0;
+  }
+  .brand-block {
+    min-width:0;
+  }
+  .workspace-switcher,.global-health {
+    display:none;
+  }
+  .mobile-nav-toggle {
+    display:block;
+  }
+  .navigation {
+    position:fixed;
+    left:0;
+    top:64px;
+    bottom:0;
+    width:250px;
+    z-index:35;
+    transform:translateX(-102%);
+    transition:transform .2s ease;
+  }
+  .navigation.open {
+    transform:translateX(0);
+  }
+  .main-content {
+    padding:18px;
+  }
+  .app-actions .secondary {
+    display:none;
+  }
+  .workspace-grid {
+    grid-template-columns:1fr;
+  }
+  .widget.span-4,.widget.span-5,.widget.span-7,.widget.span-8 {
+    grid-column:1;
+  }
+  .runtime-stats {
+    grid-template-columns:1fr 1fr;
+  }
+  .topology-canvas {
+    grid-template-columns:1fr;
+  }
+  .topology-link {
+    padding:8px 0;
+  }
+  .inspector {
+    position:fixed;
+    right:0;
+    top:64px;
+    bottom:0;
+    width:min(360px,92vw);
+    z-index:45;
+    box-shadow:var(--shadow);
+  }
+  .page-header {
+    display:block;
+  }
+  .page-header-actions {
+    margin-top:14px;
+  }
+  .split-workbench,.telemetry-dashboard,.settings-layout {
+    grid-template-columns:1fr;
+  }
+  .toolbar-row,.log-toolbar {
+    flex-wrap:wrap;
+  }
+  .form-grid.two-col {
+    grid-template-columns:1fr;
+  }
+  .span-2 {
+    grid-column:auto;
+  }
+}
+
+@media(max-width:560px) {
+  .app-bar {
+    padding:0 10px;
+  }
+  .product-name {
+    display:none;
+  }
+  .button {
+    padding:8px 10px;
+  }
+  .app-actions .danger {
+    font-size:0;
+  }
+  .app-actions .danger::after {
+    content:"Stop";
+    font-size:11px;
+  }
+  .page-header h1 {
+    font-size:25px;
+  }
+  .runtime-stats {
+    grid-template-columns:1fr;
+  }
+  .action-grid {
+    grid-template-columns:1fr;
+  }
+  .telemetry-metrics {
+    grid-template-columns:1fr;
+  }
+  .allocation-legend {
+    flex-direction:column;
+    gap:5px;
+  }
+  .machine-grid,.endpoint-grid,.profile-grid {
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:1000px) {
+  .content-grid.two {
+    grid-template-columns:1fr;
+  }
+  .manifest-row {
+    align-items:flex-start;
+    flex-direction:column;
+  }
+  .manifest-meta {
+    justify-content:flex-start;
+  }
+}

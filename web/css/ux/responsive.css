@@ -1,0 +1,9 @@
+@media(max-width:700px) {
+  .choice-grid,.launch-summary {
+    grid-template-columns:1fr;
+  }
+  .job-drawer {
+    right:10px;
+    top:72px;
+  }
+}

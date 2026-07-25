@@ -43,6 +43,13 @@ export const api = {
 
   machines: () => request('/machines'),
   machineActions: () => request('/machine-actions'),
+  clineProvider: () => request('/providers/cline'),
+  clineEnable: value => request('/providers/cline/enabled', {method: 'PUT', body: body(value)}),
+  clineProfiles: () => request('/providers/cline/profiles'),
+  clineCreateProfile: value => request('/providers/cline/profiles', {method: 'POST', body: body(value)}),
+  clineUpdateProfile: (id, value) => request(`/providers/cline/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
+  clineDeleteProfile: id => request(`/providers/cline/${encodeURIComponent(id)}`, {method: 'DELETE'}),
+  clineComplete: (value, signal) => rawRequest('/providers/cline/complete', {method:'POST', headers:{'Content-Type':'application/json'}, body:body(value), signal}),
   createMachine: value => request('/machines', {method: 'POST', body: body(value)}),
   updateMachine: (id, value) => request(`/machines/${encodeURIComponent(id)}`, {method: 'PUT', body: body(value)}),
   deleteMachine: id => request(`/machines/${encodeURIComponent(id)}`, {method: 'DELETE'}),

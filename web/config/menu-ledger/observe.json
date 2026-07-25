@@ -1,0 +1,31 @@
+{
+  "section": "observe",
+  "menus": [
+    {
+      "id": "telemetry",
+      "label": "Telemetry",
+      "icon": "telemetry",
+      "page": "telemetry",
+      "section": "observe",
+      "description": "GPU, memory, runtime, and request metrics.",
+      "guidance": "Monitor utilization, VRAM, temperature, and power.",
+      "state": {
+        "requires": [],
+        "recommends": []
+      }
+    },
+    {
+      "id": "logs",
+      "label": "Logs",
+      "icon": "logs",
+      "page": "logs",
+      "section": "observe",
+      "description": "Detailed runtime and control-plane activity.",
+      "guidance": "Filter, search, and export logs.",
+      "state": {
+        "requires": [],
+        "recommends": []
+      }
+    }
+  ]
+}

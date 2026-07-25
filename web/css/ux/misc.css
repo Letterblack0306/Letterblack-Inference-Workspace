@@ -1,0 +1,19 @@
+.kbd {
+  border:1px solid var(--border);
+  background:var(--control);
+  border-radius:5px;
+  padding:1px 5px;
+  font:10px var(--font-mono);
+}
+
+.save-state {
+  display:inline-flex;
+  align-items:center;
+  color:var(--text-3);
+  font-size:11px;
+}
+
+.button[disabled] {
+  opacity:.45;
+  cursor:not-allowed;
+}

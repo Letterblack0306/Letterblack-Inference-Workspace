@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "activePage": "chat",
+  "lastUsed": {
+    "model": null,
+    "profile": null,
+    "gateway": "openai"
+  },
+  "preferences": {
+    "theme": "dark",
+    "pollInterval": 5000,
+    "streamResponses": true
+  }
+}

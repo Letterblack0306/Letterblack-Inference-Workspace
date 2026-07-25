@@ -1,0 +1,57 @@
+.job-drawer {
+  position:fixed;
+  right:18px;
+  top:82px;
+  width:min(390px,calc(100vw - 36px));
+  z-index:60;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--surface-1);
+  box-shadow:var(--shadow);
+  padding:14px;
+}
+
+.job-drawer[hidden] {
+  display:none;
+}
+
+.job-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.job-item {
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--canvas-2);
+  margin-top:8px;
+}
+
+.job-item strong,.job-item small {
+  display:block;
+}
+
+.job-item small {
+  color:var(--text-3);
+  margin:4px 0 10px;
+}
+
+.job-phase {
+  display:flex;
+  justify-content:space-between;
+  color:var(--text-3);
+  font:10px var(--font-mono);
+  margin-top:7px;
+}
+
+.dirty-dot {
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--warning);
+  display:inline-block;
+  margin-right:6px;
+}

@@ -1,0 +1,53 @@
+/* Phase 6 extensibility surfaces */
+.stack-list {
+  display:grid;
+  gap:10px;
+  margin-top:16px;
+}
+
+.manifest-row,.asset-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--surface-2);
+}
+
+.manifest-row h3,.asset-row strong {
+  display:block;
+  margin:7px 0 4px;
+}
+
+.manifest-row p {
+  margin:8px 0 0;
+  color:var(--text-3);
+  font-size:13px;
+}
+
+.manifest-row code,.asset-row code {
+  display:block;
+  color:var(--text-3);
+  font-size:12px;
+}
+
+.manifest-meta {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.manifest-meta small {
+  padding:5px 8px;
+  border:1px solid var(--border);
+  border-radius:999px;
+  color:var(--text-3);
+}
+
+.compact-empty {
+  min-height:190px;
+}

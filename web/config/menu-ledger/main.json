@@ -1,0 +1,34 @@
+{
+  "section": "main",
+  "menus": [
+    {
+      "id": "chat",
+      "label": "Chat",
+      "icon": "chat",
+      "page": "chat",
+      "section": "main",
+      "description": "Test your model with a real inference request.",
+      "guidance": "Select a model, start the runtime, then send a prompt.",
+      "state": {
+        "requires": [],
+        "recommends": [
+          "runtime.running",
+          "models.selected"
+        ]
+      }
+    },
+    {
+      "id": "setup",
+      "label": "Setup",
+      "icon": "setup",
+      "page": "setup",
+      "section": "main",
+      "description": "Guided steps to run your first model.",
+      "guidance": "Follow the steps: add a source, scan, create a profile, launch.",
+      "state": {
+        "requires": [],
+        "recommends": []
+      }
+    }
+  ]
+}

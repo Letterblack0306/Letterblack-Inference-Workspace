@@ -1,0 +1,19 @@
+{
+  "id": "system",
+  "label": "System",
+  "items": [
+    {
+      "id": "extensions",
+      "label": "Extensions",
+      "icon": "extensions",
+      "page": "extensions",
+      "badgeId": "extensionCount"
+    },
+    {
+      "id": "settings",
+      "label": "Settings",
+      "icon": "settings",
+      "page": "settings"
+    }
+  ]
+}

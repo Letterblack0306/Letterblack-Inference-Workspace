@@ -1,0 +1,18 @@
+{
+  "id": "main",
+  "label": "Main",
+  "items": [
+    {
+      "id": "chat",
+      "label": "Chat",
+      "icon": "chat",
+      "page": "chat"
+    },
+    {
+      "id": "setup",
+      "label": "Setup",
+      "icon": "setup",
+      "page": "setup"
+    }
+  ]
+}

@@ -148,10 +148,10 @@
       "lastTest": {
         "machineId": "machine-host",
         "reachable": false,
-        "latencyMs": 1013.35,
+        "latencyMs": 1015.41,
         "diagnostic": "timed out",
         "controller": null,
-        "testedAt": 1784732145943
+        "testedAt": 1784959528826
       },
       "actions": [
         "test",
@@ -185,14 +185,16 @@
         "rpc-worker"
       ],
       "enabled": true,
-      "status": "offline",
+      "status": "reachable",
       "lastTest": {
         "machineId": "machine-worker-01",
-        "reachable": false,
-        "latencyMs": 1000.79,
-        "diagnostic": "timed out",
-        "controller": null,
-        "testedAt": 1784732150115
+        "reachable": true,
+        "latencyMs": 2.45,
+        "diagnostic": null,
+        "controller": {
+          "error": "Unexpected endpoint or method. (GET /status)"
+        },
+        "testedAt": 1784959535295
       },
       "actions": [
         "test",
@@ -210,7 +212,7 @@
       "id": "model-b30c629fe83c",
       "name": "Gg Hf Qat_Gemma 4 12B It Qat Q4_0 Unquantized",
       "path": "C:\\Proxy _server\\models\\gemma-4-12B-it-QAT-GGUF\\gemma-4-12B-it-QAT-Q4_0.gguf",
-      "sourceId": "source-settings-1",
+      "sourceId": "source-manual",
       "sizeBytes": 6975878560,
       "sidecarPath": null,
       "metadata": {
@@ -278,13 +280,13 @@
           1
         ]
       },
-      "discoveredAt": 1784743300224
+      "discoveredAt": 1784959465985
     },
     {
       "id": "model-4f1978ee6288",
       "name": "Llama3.1 Heretic Unsensored",
       "path": "C:\\Proxy _server\\models\\llama3.1-heretic-unsensored-i1-GGUF\\llama3.1-heretic-unsensored.i1-Q4_K_S.gguf",
-      "sourceId": "source-settings-1",
+      "sourceId": "source-manual",
       "sizeBytes": 4692684832,
       "sidecarPath": null,
       "metadata": {
@@ -303,13 +305,13 @@
         "headCount": 32,
         "headCountKv": 8
       },
-      "discoveredAt": 1784743302385
+      "discoveredAt": 1784959466795
     },
     {
       "id": "model-24b3c88ffb8c",
       "name": "Lmstudio Community_Nn",
       "path": "C:\\Proxy _server\\models\\NVIDIA-Nemotron-3-Nano-4B-Q4_K_M.gguf",
-      "sourceId": "source-settings-1",
+      "sourceId": "source-manual",
       "sizeBytes": 2837072896,
       "sidecarPath": null,
       "metadata": {
@@ -371,13 +373,13 @@
           0
         ]
       },
-      "discoveredAt": 1784743297842
+      "discoveredAt": 1784959465101
     },
     {
       "id": "model-c12383468d43",
       "name": "mistralai_Ministral 3 14B Reasoning 2512",
       "path": "C:\\Proxy _server\\models\\Ministral-3-14B-Reasoning-2512-GGUF\\Ministral-3-14B-Reasoning-2512-Q4_K_M.gguf",
-      "sourceId": "source-settings-1",
+      "sourceId": "source-manual",
       "sizeBytes": 8239066144,
       "sidecarPath": null,
       "metadata": {
@@ -396,13 +398,13 @@
         "headCount": 32,
         "headCountKv": 8
       },
-      "discoveredAt": 1784743303180
+      "discoveredAt": 1784959467183
     },
     {
       "id": "model-f34cd0a3a94c",
       "name": "Model",
       "path": "C:\\Proxy _server\\models\\Llama-3.2-11B-Vision-Instruct-GGUF\\Llama-3.2-11B-Vision-Instruct.Q4_K_M.gguf",
-      "sourceId": "source-settings-1",
+      "sourceId": "source-manual",
       "sizeBytes": 5963057216,
       "sidecarPath": null,
       "metadata": {
@@ -421,13 +423,13 @@
         "headCount": 32,
         "headCountKv": 8
       },
-      "discoveredAt": 1784743301273
+      "discoveredAt": 1784959466379
     },
     {
       "id": "model-89ccf13cd59e",
       "name": "Qwen_Qwen3.5 9B",
       "path": "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
-      "sourceId": "source-settings-1",
+      "sourceId": "source-manual",
       "sizeBytes": 5627044256,
       "sidecarPath": null,
       "metadata": {
@@ -446,7 +448,7 @@
         "headCount": 16,
         "headCountKv": 4
       },
-      "discoveredAt": 1784743304079
+      "discoveredAt": 1784959467720
     }
   ],
   "profiles": [
@@ -469,6 +471,577 @@
     }
   ],
   "jobs": [
+    {
+      "id": "job-068d6836a4ed",
+      "type": "runtime.stop",
+      "target": {
+        "force": false,
+        "shutdownControlServer": true
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "drain-requests",
+        "stop-host",
+        "stop-workers",
+        "verify-stopped"
+      ],
+      "evidence": [
+        {
+          "phase": "drain-requests",
+          "status": "pass",
+          "timestamp": 1784959868264,
+          "drained": true,
+          "remaining": [],
+          "activeCount": 0
+        },
+        {
+          "phase": "stop-host",
+          "status": "pass",
+          "timestamp": 1784959868302,
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        {
+          "phase": "stop-workers",
+          "status": "pass",
+          "timestamp": 1784959868372,
+          "machineId": "machine-worker-01"
+        },
+        {
+          "phase": "verify-stopped",
+          "status": "pass",
+          "timestamp": 1784959868416,
+          "process": {
+            "running": false,
+            "pid": null,
+            "returnCode": null
+          }
+        },
+        {
+          "phase": "shutdown-control-server",
+          "status": "scheduled",
+          "timestamp": 1784959868477,
+          "scheduled": true,
+          "delaySeconds": 2.0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784959868165,
+      "updatedAt": 1784959868504,
+      "simulation": false,
+      "result": {
+        "host": {
+          "stopped": true,
+          "wasRunning": false,
+          "returnCode": null
+        },
+        "workers": [
+          {
+            "machineId": "machine-worker-01",
+            "ok": true,
+            "response": {
+              "error": "Unexpected endpoint or method. (POST /rpc/stop)"
+            }
+          }
+        ],
+        "controlServerShutdown": {
+          "scheduled": true,
+          "delaySeconds": 2.0
+        }
+      }
+    },
+    {
+      "id": "job-f09a7f0a5cc0",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-worker-01"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 75,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "pass",
+          "timestamp": 1784959531417,
+          "reachable": true,
+          "latencyMs": 2.41,
+          "diagnostic": null
+        },
+        {
+          "phase": "dispatch",
+          "status": "pass",
+          "timestamp": 1784959531478,
+          "response": {
+            "error": "Unexpected endpoint or method. (POST /rpc/start)"
+          }
+        },
+        {
+          "phase": "verify",
+          "status": "fail",
+          "timestamp": 1784959533549,
+          "reachable": false,
+          "latencyMs": 2037.89,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      ],
+      "error": {
+        "code": "RPC_NOT_READY",
+        "message": "Controller accepted start but RPC port did not become ready.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2037.89,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      },
+      "createdAt": 1784959531327,
+      "updatedAt": 1784959533569,
+      "simulation": false
+    },
+    {
+      "id": "job-5671325e1100",
+      "type": "rpc.start",
+      "target": {
+        "machineId": "machine-host"
+      },
+      "state": "failed",
+      "phase": "failed",
+      "progress": 10,
+      "phases": [
+        "validate",
+        "dispatch",
+        "verify"
+      ],
+      "evidence": [
+        {
+          "phase": "validate",
+          "status": "fail",
+          "timestamp": 1784959526251,
+          "reachable": false,
+          "latencyMs": 2010.35,
+          "diagnostic": "timed out"
+        }
+      ],
+      "error": {
+        "code": "CONTROLLER_UNREACHABLE",
+        "message": "Worker controller is unreachable.",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2010.35,
+          "diagnostic": "timed out"
+        }
+      },
+      "createdAt": 1784959524166,
+      "updatedAt": 1784959526272,
+      "simulation": false
+    },
+    {
+      "id": "job-89f05aec8618",
+      "type": "models.scan",
+      "target": {
+        "sources": [
+          "C:\\Proxy _server\\models"
+        ]
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784959464696,
+          "sourceCount": 1
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784959467727,
+          "modelCount": 6
+        }
+      ],
+      "error": null,
+      "createdAt": 1784959464596,
+      "updatedAt": 1784959467802,
+      "simulation": false,
+      "result": {
+        "modelCount": 6,
+        "models": [
+          {
+            "id": "model-b30c629fe83c",
+            "name": "Gg Hf Qat_Gemma 4 12B It Qat Q4_0 Unquantized",
+            "path": "C:\\Proxy _server\\models\\gemma-4-12B-it-QAT-GGUF\\gemma-4-12B-it-QAT-Q4_0.gguf",
+            "sourceId": "source-manual",
+            "sizeBytes": 6975878560,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 667,
+              "metadataCount": 45,
+              "architecture": "gemma4",
+              "name": "Gg Hf Qat_Gemma 4 12B It Qat Q4_0 Unquantized",
+              "quantizationVersion": 2,
+              "fileType": 2,
+              "blockCount": 48,
+              "contextLength": 262144,
+              "embeddingLength": 3840,
+              "headCount": 16,
+              "headCountKv": [
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1,
+                8,
+                8,
+                8,
+                8,
+                8,
+                1
+              ]
+            },
+            "discoveredAt": 1784959465985
+          },
+          {
+            "id": "model-4f1978ee6288",
+            "name": "Llama3.1 Heretic Unsensored",
+            "path": "C:\\Proxy _server\\models\\llama3.1-heretic-unsensored-i1-GGUF\\llama3.1-heretic-unsensored.i1-Q4_K_S.gguf",
+            "sourceId": "source-manual",
+            "sizeBytes": 4692684832,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 292,
+              "metadataCount": 91,
+              "architecture": "llama",
+              "name": "Llama3.1 Heretic Unsensored",
+              "quantizationVersion": 2,
+              "fileType": 14,
+              "blockCount": 32,
+              "contextLength": 131072,
+              "embeddingLength": 4096,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784959466795
+          },
+          {
+            "id": "model-24b3c88ffb8c",
+            "name": "Lmstudio Community_Nn",
+            "path": "C:\\Proxy _server\\models\\NVIDIA-Nemotron-3-Nano-4B-Q4_K_M.gguf",
+            "sourceId": "source-manual",
+            "sizeBytes": 2837072896,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 263,
+              "metadataCount": 36,
+              "architecture": "nemotron_h",
+              "name": "Lmstudio Community_Nn",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 42,
+              "contextLength": 1048576,
+              "embeddingLength": 3136,
+              "headCount": 40,
+              "headCountKv": [
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                8,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            "discoveredAt": 1784959465101
+          },
+          {
+            "id": "model-c12383468d43",
+            "name": "mistralai_Ministral 3 14B Reasoning 2512",
+            "path": "C:\\Proxy _server\\models\\Ministral-3-14B-Reasoning-2512-GGUF\\Ministral-3-14B-Reasoning-2512-Q4_K_M.gguf",
+            "sourceId": "source-manual",
+            "sizeBytes": 8239066144,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 363,
+              "metadataCount": 42,
+              "architecture": "mistral3",
+              "name": "mistralai_Ministral 3 14B Reasoning 2512",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 40,
+              "contextLength": 262144,
+              "embeddingLength": 5120,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784959467183
+          },
+          {
+            "id": "model-f34cd0a3a94c",
+            "name": "Model",
+            "path": "C:\\Proxy _server\\models\\Llama-3.2-11B-Vision-Instruct-GGUF\\Llama-3.2-11B-Vision-Instruct.Q4_K_M.gguf",
+            "sourceId": "source-manual",
+            "sizeBytes": 5963057216,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 396,
+              "metadataCount": 26,
+              "architecture": "mllama",
+              "name": "Model",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 40,
+              "contextLength": 131072,
+              "embeddingLength": 4096,
+              "headCount": 32,
+              "headCountKv": 8
+            },
+            "discoveredAt": 1784959466379
+          },
+          {
+            "id": "model-89ccf13cd59e",
+            "name": "Qwen_Qwen3.5 9B",
+            "path": "C:\\Proxy _server\\models\\Qwen3.5-9B-GGUF\\Qwen3.5-9B-Q4_K_M.gguf",
+            "sourceId": "source-manual",
+            "sizeBytes": 5627044256,
+            "sidecarPath": null,
+            "metadata": {
+              "format": "GGUF",
+              "headerState": "parsed",
+              "version": 3,
+              "tensorCount": 427,
+              "metadataCount": 34,
+              "architecture": "qwen35",
+              "name": "Qwen_Qwen3.5 9B",
+              "quantizationVersion": 2,
+              "fileType": 15,
+              "blockCount": 32,
+              "contextLength": 262144,
+              "embeddingLength": 4096,
+              "headCount": 16,
+              "headCountKv": 4
+            },
+            "discoveredAt": 1784959467720
+          }
+        ]
+      }
+    },
+    {
+      "id": "job-fca5556ac2d4",
+      "type": "models.scan",
+      "target": {
+        "sources": [
+          "C:\\Proxy _server\\llama-cuda-12.4"
+        ]
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784959450614,
+          "sourceCount": 1
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784959450666,
+          "modelCount": 0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784959450510,
+      "updatedAt": 1784959450727,
+      "simulation": false,
+      "result": {
+        "modelCount": 0,
+        "models": []
+      }
+    },
+    {
+      "id": "job-682c012dc5a5",
+      "type": "models.scan",
+      "target": {
+        "sources": [
+          "C:\\Proxy _server\\llama-cuda-12.4"
+        ]
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784959438841,
+          "sourceCount": 1
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784959438882,
+          "modelCount": 0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784959438631,
+      "updatedAt": 1784959438944,
+      "simulation": false,
+      "result": {
+        "modelCount": 0,
+        "models": []
+      }
+    },
+    {
+      "id": "job-37e42dd3a2df",
+      "type": "models.scan",
+      "target": {
+        "sources": [
+          "C:\\Proxy _server\\llama-cuda-12.4"
+        ]
+      },
+      "state": "succeeded",
+      "phase": "complete",
+      "progress": 100,
+      "phases": [
+        "validate-sources",
+        "enumerate",
+        "register"
+      ],
+      "evidence": [
+        {
+          "phase": "validate-sources",
+          "status": "pass",
+          "timestamp": 1784959438598,
+          "sourceCount": 1
+        },
+        {
+          "phase": "enumerate",
+          "status": "pass",
+          "timestamp": 1784959438641,
+          "modelCount": 0
+        }
+      ],
+      "error": null,
+      "createdAt": 1784959438484,
+      "updatedAt": 1784959438789,
+      "simulation": false,
+      "result": {
+        "modelCount": 0,
+        "models": []
+      }
+    },
     {
       "id": "job-b7c9b483b092",
       "type": "models.scan",
@@ -14376,6 +14949,152 @@
     }
   ],
   "logs": [
+    {
+      "id": "log-9774434af3b1",
+      "timestamp": 1784959868524,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-068d6836a4ed completed.",
+      "details": {
+        "jobType": "runtime.stop"
+      }
+    },
+    {
+      "id": "log-342ad0424f14",
+      "timestamp": 1784959868171,
+      "severity": "warning",
+      "source": "runtime",
+      "message": "Stop All requested.",
+      "details": {
+        "jobId": "job-068d6836a4ed"
+      }
+    },
+    {
+      "id": "log-8a7bae8a1c09",
+      "timestamp": 1784959535300,
+      "severity": "info",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "reachable": true,
+        "latencyMs": 2.45,
+        "diagnostic": null,
+        "controller": {
+          "error": "Unexpected endpoint or method. (GET /status)"
+        },
+        "testedAt": 1784959535295
+      }
+    },
+    {
+      "id": "log-d2839c92075b",
+      "timestamp": 1784959533588,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Controller accepted start but RPC port did not become ready.",
+      "details": {
+        "jobId": "job-f09a7f0a5cc0",
+        "code": "RPC_NOT_READY",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2037.89,
+          "diagnostic": "[WinError 10061] No connection could be made because the target machine actively refused it"
+        }
+      }
+    },
+    {
+      "id": "log-1660df795f7e",
+      "timestamp": 1784959531333,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-worker-01",
+        "jobId": "job-f09a7f0a5cc0"
+      }
+    },
+    {
+      "id": "log-67b42663e7a6",
+      "timestamp": 1784959528833,
+      "severity": "warning",
+      "source": "machines",
+      "message": "Connection test completed.",
+      "details": {
+        "machineId": "machine-host",
+        "reachable": false,
+        "latencyMs": 1015.41,
+        "diagnostic": "timed out",
+        "controller": null,
+        "testedAt": 1784959528826
+      }
+    },
+    {
+      "id": "log-ea9b43f91e1f",
+      "timestamp": 1784959526290,
+      "severity": "error",
+      "source": "jobs",
+      "message": "Worker controller is unreachable.",
+      "details": {
+        "jobId": "job-5671325e1100",
+        "code": "CONTROLLER_UNREACHABLE",
+        "details": {
+          "reachable": false,
+          "latencyMs": 2010.35,
+          "diagnostic": "timed out"
+        }
+      }
+    },
+    {
+      "id": "log-e5ecb8c04283",
+      "timestamp": 1784959524173,
+      "severity": "info",
+      "source": "rpc",
+      "message": "RPC start requested.",
+      "details": {
+        "machineId": "machine-host",
+        "jobId": "job-5671325e1100"
+      }
+    },
+    {
+      "id": "log-148edc6d78c8",
+      "timestamp": 1784959467823,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-89f05aec8618 completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
+    {
+      "id": "log-f334ac5d9b99",
+      "timestamp": 1784959450747,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-fca5556ac2d4 completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
+    {
+      "id": "log-5bc88d5e36ea",
+      "timestamp": 1784959438965,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-682c012dc5a5 completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
+    {
+      "id": "log-483981c55233",
+      "timestamp": 1784959438822,
+      "severity": "info",
+      "source": "jobs",
+      "message": "Job job-37e42dd3a2df completed.",
+      "details": {
+        "jobType": "models.scan"
+      }
+    },
     {
       "id": "log-e921f12ec3d4",
       "timestamp": 1784743304274,
