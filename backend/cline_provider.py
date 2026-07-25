@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+import os
 import shutil
 import subprocess
 import time
@@ -14,7 +15,7 @@ FALLBACK_FAILURES = {"CLOUD_QUOTA_EXHAUSTED", "CLOUD_RATE_LIMITED", "CLOUD_MODEL
 
 EVIDENCE_CONTRACT = """
 You are operating inside a repository through Letterblack Inference Workspace.
-Use the workspace as the only source of truth.
+Use the approved workspace root as the only source of truth.
 
 Execution contract:
 1. Inspect relevant files before diagnosing or proposing a change.
@@ -24,11 +25,14 @@ Execution contract:
 5. Never claim a fix, test pass, or successful command unless the corresponding command output was observed in this run.
 6. When evidence is insufficient, report UNKNOWN and stop instead of guessing.
 7. Do not broaden scope beyond the user request.
-8. End with an EVIDENCE section containing inspected paths and commands actually executed.
+8. End with an EVIDENCE section containing inspected workspace-relative paths and commands actually executed.
 """.strip()
 
-_PATH_EVIDENCE = re.compile(r"(?:[A-Za-z]:\\\\[^\r\n]+|(?:^|\s)(?:[\w.-]+/)+[\w.-]+)", re.MULTILINE)
-_CONSERVATIVE_RESULT = re.compile(r"\b(?:UNKNOWN|NOT VERIFIED|INSUFFICIENT EVIDENCE)\b", re.IGNORECASE)
+_WINDOWS_ABSOLUTE = re.compile(r"^[A-Za-z]:[\\/]")
+_EVIDENCE_SECTION = re.compile(r"(?ims)^\s*EVIDENCE\s*:?[ \t]*\n(?P<body>.*)$")
+_PATH_TOKEN = re.compile(r"(?<![\w.-])(?:[A-Za-z]:[\\/][^\r\n:*?\"<>|]+|(?:[\w.-]+[\\/])+[\w.-]+)")
+_FORBIDDEN_PATH_PARTS = {".cline", ".ssh", ".aws", ".azure", ".config", "credentials", "secrets"}
+_SECRET_FILE_NAMES = {"providers.json", ".env", ".env.local", "id_rsa", "id_ed25519"}
 
 
 class ClineProviderError(RuntimeError):
@@ -36,6 +40,42 @@ class ClineProviderError(RuntimeError):
         super().__init__(message)
         self.code = code
         self.details = details
+
+
+def _is_absolute(value: str | Path) -> bool:
+    text = str(value)
+    return Path(text).is_absolute() or bool(_WINDOWS_ABSOLUTE.match(text))
+
+
+def _resolved(path: str | Path) -> Path:
+    return Path(path).expanduser().resolve(strict=False)
+
+
+def _inside(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def _is_sensitive(path: Path) -> bool:
+    parts = {part.lower() for part in path.parts}
+    return bool(parts & _FORBIDDEN_PATH_PARTS) or path.name.lower() in _SECRET_FILE_NAMES
+
+
+def validate_workspace_root(cwd: str, approved_roots: list[str]) -> str:
+    if not isinstance(cwd, str) or not cwd.strip() or not _is_absolute(cwd):
+        raise ClineProviderError("CLINE_WORKSPACE_INVALID", "Cline workspace must be an absolute directory path.", {"cwd": cwd})
+    root = _resolved(cwd)
+    if not root.exists() or not root.is_dir():
+        raise ClineProviderError("CLINE_WORKSPACE_NOT_FOUND", "Cline workspace directory does not exist.", {"cwd": str(root)})
+    if _is_sensitive(root):
+        raise ClineProviderError("CLINE_WORKSPACE_FORBIDDEN", "Cline cannot operate inside configuration or credential directories.", {"cwd": str(root)})
+    approved = [_resolved(value) for value in approved_roots if isinstance(value, str) and value.strip()]
+    if not approved or not any(root == item or _inside(root, item) for item in approved):
+        raise ClineProviderError("CLINE_WORKSPACE_NOT_APPROVED", "Cline workspace is outside the registered LIW workspace roots.", {"cwd": str(root), "approvedRoots": [str(item) for item in approved]})
+    return str(root)
 
 
 def validate_profile(value: Any) -> list[dict[str, str]]:
@@ -46,7 +86,7 @@ def validate_profile(value: Any) -> list[dict[str, str]]:
     if not PROFILE_ID.fullmatch(profile_id):
         issues.append({"path": "id", "message": "Use 2-64 lowercase letters, numbers, dots, underscores, or hyphens."})
     config = value.get("configDirectory")
-    if not isinstance(config, str) or not Path(config).is_absolute():
+    if not isinstance(config, str) or not _is_absolute(config):
         issues.append({"path": "configDirectory", "message": "Use an absolute Cline-managed configuration directory."})
     if not isinstance(value.get("provider", "cline"), str) or not value.get("provider", "cline").strip():
         issues.append({"path": "provider", "message": "Provider is required."})
@@ -114,7 +154,7 @@ def _extract_text(stdout: str) -> str:
 
 
 def build_guarded_prompt(prompt: str, cwd: str) -> str:
-    workspace = str(Path(cwd).resolve())
+    workspace = str(_resolved(cwd))
     return f"""{EVIDENCE_CONTRACT}
 
 WORKSPACE ROOT: {workspace}
@@ -123,33 +163,53 @@ USER TASK:
 """
 
 
-def validate_evidence_output(text: str) -> None:
-    """Reject confident workspace conclusions that contain no inspectable evidence."""
-    if _CONSERVATIVE_RESULT.search(text):
-        return
-    if "EVIDENCE" not in text.upper() or not _PATH_EVIDENCE.search(text):
-        raise ClineProviderError(
-            "CLINE_EVIDENCE_INSUFFICIENT",
-            "Cline returned a workspace conclusion without the required evidence section and file references.",
-            {"responseSample": text[:2000]},
-        )
+def _evidence_paths(text: str) -> list[str]:
+    match = _EVIDENCE_SECTION.search(text)
+    if not match:
+        return []
+    return [item.strip().rstrip(".,:;)") for item in _PATH_TOKEN.findall(match.group("body"))]
 
 
-def complete(profiles: list[dict[str, Any]], prompt: str, *, cwd: str) -> dict[str, Any]:
+def validate_evidence_output(text: str, workspace_root: str) -> list[str]:
+    root = _resolved(workspace_root)
+    raw_paths = _evidence_paths(text)
+    if not raw_paths:
+        raise ClineProviderError("CLINE_EVIDENCE_INSUFFICIENT", "Cline returned no usable EVIDENCE section with file references.", {"responseSample": text[:2000]})
+    validated = []
+    rejected = []
+    for raw in raw_paths:
+        candidate = _resolved(raw) if _is_absolute(raw) else _resolved(root / raw.replace("\\", "/"))
+        if not _inside(candidate, root) and candidate != root:
+            rejected.append({"path": raw, "reason": "outside-workspace"})
+            continue
+        if _is_sensitive(candidate):
+            rejected.append({"path": raw, "reason": "sensitive-path"})
+            continue
+        if not candidate.exists() or not candidate.is_file():
+            rejected.append({"path": raw, "reason": "file-not-found"})
+            continue
+        validated.append(candidate.relative_to(root).as_posix())
+    if not validated:
+        raise ClineProviderError("CLINE_EVIDENCE_INVALID", "Cline evidence did not resolve to an existing file inside the approved workspace.", {"rejected": rejected, "responseSample": text[:2000]})
+    return sorted(set(validated))
+
+
+def complete(profiles: list[dict[str, Any]], prompt: str, *, cwd: str, approved_roots: list[str]) -> dict[str, Any]:
     if not isinstance(prompt, str) or not prompt.strip():
         raise ClineProviderError("INVALID_PROMPT", "A non-empty prompt is required.")
+    workspace = validate_workspace_root(cwd, approved_roots)
     executable = shutil.which("cline")
     if not executable:
         raise ClineProviderError("CLINE_UNAVAILABLE", "Cline CLI is not installed or not on PATH.")
     attempts = []
+    guarded_prompt = build_guarded_prompt(prompt, workspace)
     for profile in sorted((item for item in profiles if item.get("enabled", True)), key=lambda item: (int(item.get("priority", 100)), item["id"])):
         config = Path(profile["configDirectory"])
         if not config.is_dir():
             attempts.append({"profileId": profile["id"], "result": "skipped", "code": "CONFIG_DIRECTORY_MISSING"})
             continue
         for model in profile.get("freeModels", []):
-            guarded_prompt = build_guarded_prompt(prompt, cwd)
-            command = [executable, "--config", str(config), "--provider", str(profile.get("provider", "cline")), "--model", model, "--json", "--timeout", str(int(profile.get("timeoutSec", 90))), "--auto-approve", "false", "--plan", "--cwd", cwd, guarded_prompt]
+            command = [executable, "--config", str(config), "--provider", str(profile.get("provider", "cline")), "--model", model, "--json", "--timeout", str(int(profile.get("timeoutSec", 90))), "--auto-approve", "false", "--plan", "--cwd", workspace, guarded_prompt]
             started = time.monotonic()
             try:
                 result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=int(profile.get("timeoutSec", 90)), check=False)
@@ -159,10 +219,10 @@ def complete(profiles: list[dict[str, Any]], prompt: str, *, cwd: str) -> dict[s
             elapsed_ms = round((time.monotonic() - started) * 1000, 2)
             text = _extract_text(result.stdout)
             if result.returncode == 0 and text:
-                validate_evidence_output(text)
-                return {"text": text, "route": {"kind": "cline", "profileId": profile["id"], "model": model}, "latencyMs": elapsed_ms, "evidenceGuard": "passed", "attempts": attempts + [{"profileId": profile["id"], "model": model, "result": "success", "latencyMs": elapsed_ms}]}
+                evidence_paths = validate_evidence_output(text, workspace)
+                return {"text": text, "route": {"kind": "cline", "profileId": profile["id"], "model": model}, "latencyMs": elapsed_ms, "workspaceRoot": workspace, "evidenceGuard": "passed", "evidencePaths": evidence_paths, "attempts": attempts + [{"profileId": profile["id"], "model": model, "result": "success", "latencyMs": elapsed_ms}]}
             code = classify_failure((result.stderr or "") + "\n" + (result.stdout or ""))
             attempts.append({"profileId": profile["id"], "model": model, "result": "failed", "code": code, "exitCode": result.returncode, "latencyMs": elapsed_ms})
             if code not in FALLBACK_FAILURES:
                 raise ClineProviderError(code, "Cline request failed without a retryable provider condition.", {"attempts": attempts})
-    raise ClineProviderError("ALL_CLOUD_ROUTES_EXHAUSTED", "No registered Cline free-model route completed. Start the local GGUF runtime or correct an authorized Cline profile.", {"attempts": attempts, "localFallback": "available-if-runtime-ready"})
+    raise ClineProviderError("ALL_CLOUD_ROUTES_EXHAUSTED", "No registered Cline free-model route completed. The existing local GGUF runtime remains unchanged.", {"attempts": attempts, "localRuntimePolicy": "unchanged"})
