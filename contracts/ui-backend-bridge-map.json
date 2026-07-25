@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-25",
+  "repository": "Letterblack0306/Letterblack-Inference-Workspace",
+  "branch": "agent/ui-backend-contract-bridge",
+  "strategy": "adapt-standalone-ui-to-existing-api",
+  "controlEnvelope": {
+    "success": {"ok": true, "requestId": "req-*", "timestamp": 0, "data": {}},
+    "failure": {"ok": false, "requestId": "req-*", "timestamp": 0, "error": {"code": "ERROR_CODE", "message": "message", "details": null}},
+    "unwrapApiV1": true,
+    "rawCompatibilityPrefixes": ["/v1/", "/api/chat", "/api/generate", "/api/tags", "/api/embeddings"]
+  },
+  "routes": [
+    {
+      "feature": "system-status",
+      "prototype": {"method": "GET", "path": "/health"},
+      "repository": {"method": "GET", "path": "/api/v1/system/status"},
+      "operation": "replace",
+      "response": "unwrap data; use data.runtime and data.runtime.process"
+    },
+    {
+      "feature": "gateway-status",
+      "prototype": {"method": "GET", "path": "/health"},
+      "repository": {"method": "GET", "path": "/api/v1/gateway/status"},
+      "operation": "replace",
+      "response": "unwrap data; use controlPlane and routes"
+    },
+    {
+      "feature": "registered-models",
+      "prototype": {"method": "GET", "path": "/models"},
+      "repository": {"method": "GET", "path": "/api/v1/models"},
+      "operation": "replace",
+      "response": "unwrap array; model identity is id"
+    },
+    {
+      "feature": "openai-models",
+      "prototype": {"method": "GET", "path": "/v1/models"},
+      "repository": {"method": "GET", "path": "/v1/models"},
+      "operation": "keep-raw"
+    },
+    {
+      "feature": "telemetry",
+      "prototype": {"method": "GET", "path": "/api/telemetry"},
+      "repository": {"method": "GET", "path": "/api/v1/telemetry"},
+      "operation": "replace-remap",
+      "response": "unwrap; consume runtimeProcess, local, machines"
+    },
+    {
+      "feature": "model-scan",
+      "prototype": {"method": "POST", "path": "/api/models/rescan", "body": {"directories": []}},
+      "repository": {"method": "POST", "path": "/api/v1/models/scan", "body": {"sources": []}},
+      "operation": "replace-transform-poll-job"
+    },
+    {
+      "feature": "runtime-preflight",
+      "prototype": null,
+      "repository": {"method": "POST", "path": "/api/v1/runtime/preflight", "body": {"modelId": "model-*", "profileId": null, "overrides": {}, "safetyMargin": 0.1}},
+      "operation": "add-required"
+    },
+    {
+      "feature": "runtime-launch",
+      "prototype": {"method": "POST", "path": "/api/runtime/launch", "body": {"model": "alias", "profile": {}}},
+      "repository": {"method": "POST", "path": "/api/v1/runtime/launch", "body": {"modelId": "model-*", "profileId": null, "overrides": {}, "readinessTimeoutSec": 45, "allowUnsafe": false}},
+      "operation": "replace-transform-poll-job"
+    },
+    {
+      "feature": "runtime-stop",
+      "prototype": {"method": "POST", "path": "/api/runtime/stop", "body": {}},
+      "repository": {"method": "POST", "path": "/api/v1/runtime/stop", "body": {"drainTimeoutSec": 30, "timeoutSec": 10, "force": false}},
+      "operation": "replace-poll-job"
+    },
+    {
+      "feature": "runtime-restart",
+      "prototype": {"method": "POST", "path": "/api/runtime/restart"},
+      "repository": null,
+      "operation": "compose",
+      "sequence": ["capture active modelId/profileId", "stop and await succeeded", "preflight", "launch and await succeeded"]
+    },
+    {
+      "feature": "runtime-swap",
+      "prototype": {"method": "POST", "path": "/api/runtime/swap"},
+      "repository": null,
+      "operation": "compose",
+      "sequence": ["stop and await succeeded", "preflight selected modelId", "launch and await succeeded", "refresh system status"]
+    },
+    {
+      "feature": "workspace-shutdown",
+      "prototype": {"method": "POST", "path": "/api/workspace/shutdown"},
+      "repository": {"method": "POST", "path": "/api/v1/runtime/stop", "body": {"shutdownControlServer": true, "force": false}},
+      "operation": "replace-poll-job"
+    },
+    {
+      "feature": "machines",
+      "prototype": {"authority": "local-static"},
+      "repository": {"list": "GET /api/v1/machines", "create": "POST /api/v1/machines", "update": "PUT /api/v1/machines/{id}", "delete": "DELETE /api/v1/machines/{id}"},
+      "operation": "replace-local-authority"
+    },
+    {
+      "feature": "machine-test",
+      "prototype": {"method": "POST", "path": "/api/nodes/test", "body": {"node": "name", "host": "host", "port": 50052}},
+      "repository": {"method": "POST", "path": "/api/v1/machines/{machineId}/test", "body": {}},
+      "operation": "replace-use-registered-id"
+    },
+    {
+      "feature": "machine-rpc",
+      "prototype": null,
+      "repository": {"start": "POST /api/v1/machines/{machineId}/rpc/start", "stop": "POST /api/v1/machines/{machineId}/rpc/stop"},
+      "operation": "add-poll-job"
+    },
+    {
+      "feature": "openai-chat",
+      "prototype": {"method": "POST", "path": "/v1/chat/completions"},
+      "repository": {"method": "POST", "path": "/v1/chat/completions"},
+      "operation": "keep-raw-use-active-model-id"
+    },
+    {
+      "feature": "ollama-chat",
+      "prototype": {"displayedPath": "/api/generate"},
+      "repository": {"method": "POST", "path": "/api/chat"},
+      "operation": "use-chat-for-role-messages"
+    },
+    {
+      "feature": "settings",
+      "prototype": {"authority": "localStorage"},
+      "repository": {"get": "GET /api/v1/settings", "put": "PUT /api/v1/settings"},
+      "operation": "replace-local-authority"
+    },
+    {
+      "feature": "profiles",
+      "prototype": {"authority": "local-object"},
+      "repository": {"list": "GET /api/v1/profiles", "create": "POST /api/v1/profiles", "update": "PUT /api/v1/profiles/{id}", "delete": "DELETE /api/v1/profiles/{id}"},
+      "operation": "replace-local-authority"
+    },
+    {
+      "feature": "extensions",
+      "prototype": {"authority": "local-json-parse"},
+      "repository": {"list": "GET /api/v1/extensions", "create": "POST /api/v1/extensions", "toggle": "PUT /api/v1/extensions/{id}", "delete": "DELETE /api/v1/extensions/{id}"},
+      "operation": "replace-local-authority"
+    },
+    {
+      "feature": "logs",
+      "prototype": {"authority": "dom-only"},
+      "repository": {"method": "GET", "path": "/api/v1/logs"},
+      "operation": "replace-local-authority"
+    },
+    {
+      "feature": "jobs",
+      "prototype": null,
+      "repository": {"list": "GET /api/v1/jobs", "one": "GET /api/v1/jobs/{id}"},
+      "operation": "add-required",
+      "terminalStates": ["succeeded", "failed"]
+    },
+    {
+      "feature": "request-cancel",
+      "prototype": {"mechanism": "AbortController"},
+      "repository": {"method": "POST", "path": "/api/v1/requests/{requestId}/cancel"},
+      "operation": "separate-browser-abort-from-backend-cancel",
+      "warning": "backend may return ACTIVE_CANCELLATION_UNSUPPORTED"
+    }
+  ],
+  "acceptance": [
+    "npm run validate passes",
+    "no prototype-only route remains in active UI code",
+    "backend-owned state is never sourced from demo defaults after hydration",
+    "all asynchronous operations wait for terminal job state",
+    "runtime model PID port and readiness come only from /api/v1/system/status",
+    "restart and swap are proven compositions rather than invented routes",
+    "OpenAI streaming and non-streaming chat pass",
+    "Ollama role-message chat uses /api/chat",
+    "settings persist after restart"
+  ]
+}
